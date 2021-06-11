@@ -1,4 +1,4 @@
-from models import User
+from ultide.models import User
 import json
 import sys
 import os
@@ -60,12 +60,14 @@ def on_get_user_property(data, response, session_data):
     response['value'] = user.get_property(data['key'])
     
 def on_write_file(data, response, session_data):
+    #print('on_write_file:',data['content'])
     file_path = data['path']
     content = data['content']
     response['error'] = False
     try:
         with open(file_path, 'w') as outfile:
-            outfile.write(content.encode('utf8'))
+            #outfile.write(content.encode('utf8'))
+            outfile.write(content)
     except:
         response['error'] = sys.exc_info()[0]
         
@@ -89,7 +91,7 @@ def on_get_js(data, response, session_data):
         module_infos = session_data['modules_infos'][module_name]
         if ('config' in module_infos):
             config = module_infos['config']
-            print 'config', module_name, config
+            print('config', module_name, config)
             if (hasattr(config, 'requirejs_paths')):
                 require_paths.update(config.requirejs_paths)
             if (hasattr(config, 'main_js')):

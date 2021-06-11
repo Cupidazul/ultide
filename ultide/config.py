@@ -4,6 +4,7 @@ import os
 SECRET_KEY =              os.getenv('SECRET_KEY',       'THIS IS AN INSECURE SECRET')
 SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',     'sqlite:///data/db.sqlite')
 CSRF_ENABLED = True
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Flask-Mail settings
 MAIL_USERNAME =           os.getenv('MAIL_USERNAME',        'email@example.com')

@@ -1,6 +1,6 @@
-define([ 'app', 'bootstrap' ], function( app ) {
-    var ultiflow = {data: {}, ui: {}};
-    
+define(['app', 'bootstrap'], function(app) {
+    var ultiflow = { data: {}, ui: {} };
+
     ultiflow.timeoutChangeLength = 200;
 
     ultiflow.getModulesInfos = function(cb) {
@@ -27,41 +27,41 @@ define([ 'app', 'bootstrap' ], function( app ) {
     ultiflow.isOperatorDefined = function(operator) {
         return typeof this.data.modulesInfos.operators.list[operator] != 'undefined';
     };
-    
+
     ultiflow.openProcess = function(processId) {
         this.setOpenedProcess(processId);
         var processData = this.getOpenedProcessData();
         app.triggerEvent('ultiflow::process_open', this.getOpenedProcessData());
     };
-    
+
     ultiflow.setOpenedProcess = function(processId) {
         this.openedProcess = processId;
         var self = this;
         app.setUserProperty('ultiflow::opened_process', processId, function(success) {});
     };
-    
+
     ultiflow.getOpenedProcessData = function() {
         return this.data.modulesInfos.operators.list[this.openedProcess];
     };
-    
+
     ultiflow.getOperatorInfos = function(operator) {
         return this.data.modulesInfos.operators.list[operator];
     };
-    
+
     ultiflow.loadFieldType = function(fullname, cb) {
-      var self = this;
-      var splittedFullname = fullname.split('::');
-      var module = splittedFullname[0];
-      var name = splittedFullname[1];
-      require(['static/modules/'+module+'/fieldtypes/'+name+'/main'], function(module) {
-        if (module == true) {
-          cb(self.getErrorModule());
-        } else {
-          cb(module);
-        }
-      });
+        var self = this;
+        var splittedFullname = fullname.split('::');
+        var module = splittedFullname[0];
+        var name = splittedFullname[1];
+        require(['static/modules/' + module + '/fieldtypes/' + name + '/main'], function(module) {
+            if (module == true) {
+                cb(self.getErrorModule());
+            } else {
+                cb(module);
+            }
+        });
     }
-    
+
     ultiflow.treeDataFromOperatorData = function(tree, operators, path) {
         var res = [];
         for (var key in tree) {
@@ -82,9 +82,9 @@ define([ 'app', 'bootstrap' ], function( app ) {
         }
         return res;
     }
-    
+
     ultiflow.writeFile = function(path, content, cb) {
-        app.sendRequest('write_file', {path: path, content: content}, function(data) {
+        app.sendRequest('write_file', { path: path, content: content }, function(data) {
             if (data.error) {
                 cb(false);
             } else {
@@ -92,9 +92,9 @@ define([ 'app', 'bootstrap' ], function( app ) {
             }
         });
     };
-    
-    
-    
+
+
+
     ultiflow.saveProcess = function(processId, cb) {
         var operatorData = this.data.modulesInfos.operators.list[processId];
         this.writeFile(operatorData.path, JSON.stringify(operatorData), function(success) {
@@ -105,15 +105,15 @@ define([ 'app', 'bootstrap' ], function( app ) {
     ultiflow.saveCurrentProcess = function(cb) {
         this.saveProcess(this.openedProcess, cb);
     };
-    
-    
+
+
     app.onEvent('ultiflow::process_change_detected', function(e) {
         if (ultiflow.timeoutChangeId != null) {
             clearTimeout(ultiflow.timeoutChangeId);
         }
 
         ultiflow.timeoutChangeId = setTimeout(function() {
-            
+
             ultiflow.timeoutChangeId = null;
             ultiflow.saveCurrentProcess(function(success) {
                 app.triggerEvent('ultiflow::process_saved', success);
@@ -121,8 +121,8 @@ define([ 'app', 'bootstrap' ], function( app ) {
         }, ultiflow.timeoutChangeLength);
     });
 
-    
-    
+
+
     ultiflow.operatorChooser = function(customOptions) {
         var self = this;
         this.getOperators(function(data) {
@@ -184,7 +184,7 @@ define([ 'app', 'bootstrap' ], function( app ) {
             var $tree = $('<div style="height: 200px; overflow-y: auto;"></div>');
             $tree.appendTo($body);
 
-            $tree.uf_tree({core: {data: treeData}});
+            $tree.uf_tree({ core: { data: treeData } });
 
             var selectedOperatorId = null;
             $tree.on('select_node.jstree', function(e, data) {
@@ -221,7 +221,7 @@ define([ 'app', 'bootstrap' ], function( app ) {
 
 
             $modal.modal();
-            $modal.on('hidden.bs.modal',function() {
+            $modal.on('hidden.bs.modal', function() {
                 options.onSelected(selectedOperatorId);
                 $modal.remove();
             });

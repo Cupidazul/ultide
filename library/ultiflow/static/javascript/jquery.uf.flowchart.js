@@ -3,8 +3,9 @@ define([
     'ultiflow',
     'ultiflow-lib-mousewheel',
     'ultiflow-lib-panzoom',
-    'ultiflow-lib-flowchart'], function( app, ultiflow ) {
-    $.widget( "ultiflow.uf_flowchart", {
+    'ultiflow-lib-flowchart'
+], function(app, ultiflow) {
+    $.widget("ultiflow.uf_flowchart", {
         options: {
 
         },
@@ -19,9 +20,12 @@ define([
         timeoutChangeId: null,
         timeoutChangeLength: 500,
         isSettingData: false,
-        possibleZooms: [0.5, 0.75, 1, 2, 3],
-        currentZoom: 2,
+        possibleZooms: [0.5, 1, 1.5, 2, 2.5, 3],
+        defaultZoom: 1,
+        currentZoom: 1,
         currentZoomRatio: 1,
+        $ufPanzoom: null,
+        menuState: 1,
 
         // the constructor
         _create: function() {
@@ -43,34 +47,133 @@ define([
             var $container = this.element;
             var self = this;
 
-
             // Panzoom initialization...
-            $flowchart.panzoom({
+            //$flowchart.panzoom({
+
+            self.$ufPanzoom = $.Panzoom($('.uf-flowchart')[0], {
+                minScale: 0.5,
+                maxScale: 3,
+                increment: 0.5,
+                linearZoom: true,
+                isSVG: true,
+                //$zoomIn: $(".zoom-in"),
+                //$zoomOut: $(".zoom-out"),
+                //$zoomRange: $(".zoom-range"),
+                //$reset: $(".zoom-reset"),
+                //onPan: self.els.onPan,
+                //onStart: function(evt) {
+                //    console.log('$flowchart.panzoom.onStart',self,evt);
+                //},
                 onChange: function(e) {
                     self._refreshMiniViewPosition();
                 }
             });
 
+            //$flowchart.$ufPanzoom = $ufPanzoom;
+            window.$flowchart = self;
+            window.$ufPanzoom = self.$ufPanzoom;
+            $(".zoom-range").val(self.currentZoomRatio);
+
             // Centering panzoom
-            this.centerView();
-            
+            self.centerView();
+
             // Panzoom zoom handling...
-            $container.on('mousewheel.focal', function( e ) {
-                e.preventDefault();
-                var delta = (e.delta || e.originalEvent.wheelDelta) || e.originalEvent.detail;
-                var zoomOut = delta ? delta < 0 : e.originalEvent.deltaY > 0;
+            $container.on('mousewheel.focal', function(evt) {
+                evt.preventDefault();
+                var delta = (evt.delta || evt.originalEvent.wheelDelta) || evt.originalEvent.detail;
+                var zoomOut = !(delta ? delta < 0 : evt.originalEvent.deltaY > 0);
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
                 $flowchart.panzoom('zoom', self.currentZoomRatio, {
                     animate: false,
-                    focal: e
+                    focal: evt
                 });
+                $(".zoom-range").val(self.currentZoomRatio);
+            });
+
+            $(".zoom-out").on('click', function(evt) {
+                evt.preventDefault();
+                var zoomInOut = false;
+                self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
+                self.currentZoomRatio = self.possibleZooms[self.currentZoom];
+                self.centerView();
+                $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
+                $flowchart.panzoom('zoom', self.currentZoomRatio, {
+                    animate: false,
+                    focal: evt
+                });
+                $(".zoom-range").val(self.currentZoomRatio);
+            });
+
+            $(".zoom-in").on('click', function(evt) {
+                evt.preventDefault();
+                var zoomInOut = true;
+                self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
+                self.currentZoomRatio = self.possibleZooms[self.currentZoom];
+                self.centerView();
+                $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
+                $flowchart.panzoom('zoom', self.currentZoomRatio, {
+                    animate: false,
+                    focal: evt
+                });
+                $(".zoom-range").val(self.currentZoomRatio);
+            });
+
+            $(".zoom-range").on('change', function(evt) {
+                evt.preventDefault();
+                var delta = parseInt(self.possibleZooms.indexOf(parseFloat(this.value)));
+                //var zoomInOut = delta < self.currentZoom;
+                if (delta !== -1 && self.currentZoom !== delta) {
+                    self.currentZoom = delta;
+                    self.currentZoomRatio = self.possibleZooms[self.currentZoom];
+                    self.centerView();
+                    $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
+                    /*$flowchart.panzoom('zoom', self.currentZoomRatio, {
+                        animate: false,
+                        focal: evt
+                    });*/
+                    window.$ufPanzoom.zoom(self.currentZoomRatio);
+                }
+                self._refreshMiniViewPosition();
+            });
+
+            $(".zoom-reset").on('click', function(evt) {
+                evt.preventDefault();
+                var delta = self.defaultZoom;
+                //var zoomInOut = delta < self.currentZoom;
+                self.centerView();
+                if (delta !== -1 && self.currentZoom !== delta) {
+                    self.currentZoom = delta;
+                    self.currentZoomRatio = self.possibleZooms[self.currentZoom];
+                    $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
+                    /*$flowchart.panzoom('zoom', self.currentZoomRatio, {
+                        animate: false,
+                        focal: evt
+                    });*/
+                    window.$ufPanzoom.zoom(self.currentZoomRatio);
+                    $(".zoom-range").val(self.currentZoomRatio);
+                }
+            });
+
+            $("#menu_btn").on('click', function(evt) {
+                //console.log('menuState:', self.menuState, evt);
+                if (!self.menuState) {
+                    self.menuState = 1;
+                    $('.main-view').css('left', '100px');
+                    $('.navbar-fixed-left').css('z-index', '1');
+                    setTimeout(function() { $('.uf-side-bar.left').css('left', ''); }, 400);
+                } else {
+                    self.menuState = 0;
+                    $('.navbar-fixed-left').css('z-index', '');
+                    $('.main-view').css('left', '0px');
+                    setTimeout(function() { $('.uf-side-bar.left').css('left', '-245px'); }, 400);
+                }
             });
 
             var data = {};
 
-            var options = this.options;
+            var options = self.options;
             options.linkVerticalDecal = 1;
             options.data = data;
             options.onAfterChange = function() {
@@ -79,49 +182,34 @@ define([
             options.onOperatorSelect = function(operatorId) {
                 app.triggerEvent('ultiflow::operator_select', operatorId);
                 return true;
-            }
+            };
             options.onOperatorUnselect = function() {
                 app.triggerEvent('ultiflow::operator_unselect');
                 return true;
-            }
+            };
             options.onLinkSelect = function(linkId) {
                 app.triggerEvent('ultiflow::link_select', linkId);
                 return true;
-            }
+            };
             options.onLinkUnselect = function() {
                 app.triggerEvent('ultiflow::link_unselect');
                 return true;
-            }
+            };
 
+            window.ultiflow = ultiflow.ui.flowchart = self;
 
             // Apply the plugin on a standard, empty div...
             $flowchart.flowchart(options);
+            //$flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
+            //window.$ufPanzoom.zoom(self.currentZoomRatio);
 
-            ultiflow.ui.flowchart = this;      
-
-            $(document).keydown(function(e) {
-                if (e.keyCode == 8 && $(':focus').length == 0) {
-                    e.preventDefault();
-                }
-            });
-
-
-            $(document).keyup(function(e) {
-                if (e.keyCode == 8 && $(':focus').length == 0) {
-                    self.els.flowchart.flowchart('deleteSelected');
-                }
-            });
-
-            app.onEvent('ultiflow::process_open', function(e, processData) {
-                self.setData(processData.process);
-            });
-
-            app.onEvent('ultiflow::delete_selected', function() {
-                self.els.flowchart.flowchart('deleteSelected');
-            });
+            $(document).keydown(function(evt) { if (evt.keyCode == 8 && $(':focus').length == 0) { evt.preventDefault(); } });
+            $(document).keyup(function(evt) { if (evt.keyCode == 8 && $(':focus').length == 0) { self.els.flowchart.flowchart('deleteSelected'); } });
+            app.onEvent('ultiflow::process_open', function(evt, processData) { self.setData(processData.process); });
+            app.onEvent('ultiflow::delete_selected', function() { self.els.flowchart.flowchart('deleteSelected'); });
 
         },
-        
+
         centerView: function() {
             this.cx = this.els.flowchart.width() / 2;
             this.cy = this.els.flowchart.height() / 2;
@@ -166,16 +254,16 @@ define([
                     var rLeft = (operator.left + this.cx + operatorElement.width() / 2) / flowchartHeight;
                     var rTop = (operator.top + this.cy + operatorElement.height() / 2) / flowchartWidth;
 
-                    operatorPosition = {left: rLeft * miniViewWidth, top: rTop * miniViewHeight};
+                    operatorPosition = { left: rLeft * miniViewWidth, top: rTop * miniViewHeight };
                     operatorsPositions[operatorId] = operatorPosition;
 
-                    var shape = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                    shape.setAttribute("stroke", "none");
-                    shape.setAttribute("x", operatorPosition.left - 1);
-                    shape.setAttribute("y", operatorPosition.top - 1);
-                    shape.setAttribute("width", 3);
-                    shape.setAttribute("height", 3);
-                    this.els.flowchartMiniViewContent[0].appendChild(shape);
+                    var shapeR = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    shapeR.setAttribute("stroke", "none");
+                    shapeR.setAttribute("x", operatorPosition.left - 1);
+                    shapeR.setAttribute("y", operatorPosition.top - 1);
+                    shapeR.setAttribute("width", 3);
+                    shapeR.setAttribute("height", 3);
+                    this.els.flowchartMiniViewContent[0].appendChild(shapeR);
                 }
             }
 
@@ -186,15 +274,15 @@ define([
                     var fromPosition = operatorsPositions[link.fromOperator];
                     var toPosition = operatorsPositions[link.toOperator];
 
-                    var shape = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    shape.setAttribute("x1", fromPosition.left);
-                    shape.setAttribute("y1", fromPosition.top);
-                    shape.setAttribute("x2", toPosition.left);
-                    shape.setAttribute("y2", toPosition.top);
-                    shape.setAttribute("stroke-width", "1");
-                    shape.setAttribute("stroke", "black");
-                    shape.setAttribute("fill", "none");
-                    this.els.flowchartMiniViewContent[0].appendChild(shape);
+                    var shapeL = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                    shapeL.setAttribute("x1", fromPosition.left);
+                    shapeL.setAttribute("y1", fromPosition.top);
+                    shapeL.setAttribute("x2", toPosition.left);
+                    shapeL.setAttribute("y2", toPosition.top);
+                    shapeL.setAttribute("stroke-width", "1");
+                    shapeL.setAttribute("stroke", "black");
+                    shapeL.setAttribute("fill", "none");
+                    this.els.flowchartMiniViewContent[0].appendChild(shapeL);
                 }
             }
 
@@ -218,7 +306,7 @@ define([
                 self.els.flowchart.flowchart('setData', data);
             });
             this.isSettingData = false;
-            
+
             this.centerView();
         },
 
@@ -239,6 +327,39 @@ define([
             //this.postProcessOperatorData(operatorData);
             // todo: check same ids ?
             this.els.flowchart.flowchart('addOperator', operatorData);
+            var elm = operatorData.internal.els.operator[0].children[0];
+
+            /*$('.ui-draggable-handle').on('mousemove', function(evt) {
+                    evt.stopPropagation();
+                    $ufPanzoom.disable();
+                })
+                .on('mouseleave', function(evt) {
+                    evt.stopPropagation();
+                    $ufPanzoom.enable();
+                });*/
+
+            /* _DRAG_ Loaded Objects */
+            $(elm).on('mousemove', function(evt) {
+                    $(this).isDragging = true;
+                    if ($(this).isDragging === true && $(this).ismouseDown === true) {
+                        $ufPanzoom.disable();
+                    } else { $ufPanzoom.enable(); }
+                })
+                .on('pointerdown', function(evt) {
+                    $(this).isDragging = false;
+                    $(this).ismouseDown = true;
+                    $ufPanzoom.disable();
+                })
+                .on('pointerup', function(evt) {
+                    $(this).isDragging = false;
+                    $(this).ismouseDown = false;
+                    $ufPanzoom.enable();
+                })
+                .on('mouseup mouseleave touchend', function(evt) {
+                    $(this).isDragging = false;
+                    $(this).ismouseDown = false;
+                    $ufPanzoom.enable();
+                });
         },
 
         getOperatorElement: function(operatorData) {
@@ -248,7 +369,7 @@ define([
 
         changeDetected: function() {
             if (this.isSettingData) {
-                return; 
+                return;
             }
             var self = this;
 
@@ -258,15 +379,15 @@ define([
 
             currentProcessData.process.operators = flowchartData.operators;
             currentProcessData.process.links = flowchartData.links;
-            
-            var operatorsParameters = Object.keys(currentProcessData.process.parameters)
+
+            var operatorsParameters = Object.keys(currentProcessData.process.parameters);
             for (var operatorId in operatorsParameters) {
                 if (typeof currentProcessData.process.operators[operatorId] == 'undefined') {
                     delete currentProcessData.process.parameters[operatorId];
                 }
             }
 
-            console.log(currentProcessData.process.parameters);
+            //console.log(currentProcessData.process.parameters);
             app.triggerEvent('ultiflow::process_change_detected');
 
             this._refreshMiniViewContent(flowchartData);

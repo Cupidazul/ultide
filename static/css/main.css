@@ -1,57 +1,71 @@
 .noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-  -webkit-user-select: none;   /* Chrome/Safari/Opera */
-  -khtml-user-select: none;    /* Konqueror */
-  -moz-user-select: none;      /* Firefox */
-  -ms-user-select: none;       /* Internet Explorer/Edge */
-  user-select: none;           /* Non-prefixed version, currently
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select: none;
+    /* Chrome/Safari/Opera */
+    -khtml-user-select: none;
+    /* Konqueror */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* Internet Explorer/Edge */
+    user-select: none;
+    /* Non-prefixed version, currently
                                   not supported by any browser */
 }
 
 #ultide {
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
 }
-
 
 .navbar-fixed-left {
-  width: 100px;
-  position: fixed;
-  border-radius: 0;
-  height: 100%;
+    width: 100px;
+    position: fixed;
+    border-radius: 0;
+    height: 100%;
 }
 
-.navbar-fixed-left .navbar-nav > li {
-  float: none;  /* Cancel default li float: left */
-  width: 99px;
-  text-align: center;
+.navbar-fixed-left .navbar-nav>li {
+    float: none;
+    /* Cancel default li float: left */
+    width: 99px;
+    text-align: center;
 }
 
-.navbar-fixed-left + .container {
-  padding-left: 160px;
+.navbar-fixed-left+.container {
+    padding-left: 160px;
 }
+
 
 /* On using dropdown menu (To right shift popuped) */
-.navbar-fixed-left .navbar-nav > li > .dropdown-menu {
-  margin-top: -50px;
-  margin-left: 140px;
+
+.navbar-fixed-left .navbar-nav>li>.dropdown-menu {
+    margin-top: -50px;
+    margin-left: 140px;
 }
 
 .navbar-brand {
-  float: none;
-  display: block;
-  text-align: center;
-  padding-left: 0px;
-  padding-right: 0px;
+    float: none;
+    display: block;
+    text-align: center;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
 .main-view {
-  position: fixed;
-  top: 0px;
-  left: 100px;
-  right: 0px;
-  bottom: 0px;
+    position: fixed;
+    top: 0px;
+    left: 100px;
+    right: 0px;
+    bottom: 0px;
+    transition: .5s;
+}
+
+#menu_btn {
+    padding: 4px;
+    font-size: 17px;
 }

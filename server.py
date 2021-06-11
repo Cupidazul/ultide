@@ -1,9 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+import sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
 # the best option based on available packages.
 async_mode = None
+LISTENHOST = '0.0.0.0'
+LISTENPORT = '8000'
 
 if async_mode is None:
     try:
@@ -22,7 +25,7 @@ if async_mode is None:
     if async_mode is None:
         async_mode = 'threading'
 
-    print('async_mode is ' + async_mode)
+    print(('async_mode is ' + async_mode))
 
 # monkey patching is necessary because this application uses a background
 # thread
@@ -110,14 +113,14 @@ def msg_received(message):
         data = message['data']
         response_data = {}
         for module_key in session_data['modules_infos']:
-            print 'module:', module_key
+            print('module:', module_key)
             module_infos = session_data['modules_infos'][module_key]
             if ('main' in module_infos):
                 module_py = module_infos['main']
                 if (hasattr(module_py, method)):
-                    print 'module method', module_key, method
+                    print('module method', module_key, method)
                     getattr(module_py, method)(data, response_data, session_data)
-        print response
+        print(response)
         response['data'] = response_data
     else:
         response['auth_error'] = True
@@ -143,8 +146,12 @@ def test_connect():
 @socketio.on('disconnect', namespace='/uide')
 def test_disconnect():
     sessions_data.pop(session['uuid'], None)
-    print('Client disconnected', request.sid, session['uuid'])
+    print(('Client disconnected', request.sid, session['uuid']))
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True)
+    if (LISTENHOST == '0.0.0.0'):
+        print ('Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://127.0.0.1:'+LISTENPORT )
+    else:
+        print ('Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT )
+    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=True)
