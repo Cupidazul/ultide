@@ -33,7 +33,7 @@ pip install -r requirements.txt
 Installation
 ------------
 
-Original Version:<p>
+Original Version:\
 Download the ZIP [here](https://github.com/ultide/ultide/archive/master.zip).
 
 Unzip it and put it at a custom location.
