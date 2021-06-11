@@ -1,5 +1,4 @@
-UltIDE
-======
+# UltIDE
 
 UltIDE is a general purpose IDE with a client-server architecture. It was initialy created for its `ultiflow` module,
 whose purpose is to provide a general interface for easily managing flowcharts and generating code from them.
@@ -12,12 +11,13 @@ via the `Issues` tab.
 
 ![Screenshot](https://ultide.github.io/ultide-documentation/images/screenshot.png?version=2)
 
-Requirements
-------------
+## Requirements
+
 Python and flask must be installed.
 
 On linux, it should look like this:
-```
+
+```bash
 sudo apt-get install python python-dev
 sudo apt-get install libffi-dev
 sudo pip install flask flask_socketio flask-user
@@ -26,12 +26,12 @@ sudo pip install flask flask_socketio flask-user
 Is something missing or did you succeed to install it on other platforms ? Don't hesitate to contact us!
 
 On Windows you can use a simple pip requirements install:
-```
+
+```bash
 pip install -r requirements.txt
 ```
 
-Installation
-------------
+## Installation
 
 Original Version:\
 Download the ZIP [here](https://github.com/ultide/ultide/archive/master.zip).
@@ -39,12 +39,12 @@ Download the ZIP [here](https://github.com/ultide/ultide/archive/master.zip).
 Unzip it and put it at a custom location.
 
 This Draft Version:
-```
+
+```bash
 git clone https://github.com/Cupidazul/ultide.git <your custom directory>
 ```
 
-Usage
------
+## Usage
 
 Launch the `server.py` script. On linux, it should look like this:
 
@@ -54,8 +54,7 @@ It will launch a Flask server. Using Firefox / Chrome (IE compatibility not guar
 
 `http://localhost:8000`
 
-Flowchart usage
----------------
+## Flowchart usage
 
 Since this IDE was created for the flowchart editor, and only contains it for the moment, we will describe it here.
 Please note that we plan to separate the flowchart editor from the IDE in the long run, that is why it has been
@@ -71,6 +70,7 @@ We only need to define one additional term. A process is where you add all your 
 parameters.
 
 Once you click on the `Flowchart` tab, multiple widgets will appear :
+
 * The `Library` widget contains all common operators you can add to your process.
 * The `Workspace` widget contains all operators and processes you created yourself.
 * The central widget displays the current process. At the begining, no process is loaded.
@@ -92,13 +92,13 @@ the backspace key for that).
 display other parameters depending on the operator.
 8. You can add new operators in the process by drag and dropping operators in the `Library` widget.
 
-Technical documentation of the IDE
-----------------------------------
+## Technical documentation of the IDE
 
 This documentation is not up to par and we plan to improve it in the near term. If you can accelerate the process, don't
 hesitate to contribute.
 
 The main directory is comprised of 6 directories:
+
 * `data`: this directory contains data about the user sessions. It is expected that the software will provide a user
 management system where each user will have its own workspace, a username, a password... For the moment, only a "root"
 user exists.
@@ -111,6 +111,7 @@ user exists.
 Currently, the core of the IDE is very similar to a web framework: it routes and dispatchs web requests to the modules.
 
 Each folder inside the `library` repository is a module. Inside each module can be found:
+
 * A `static` repository. If the module name (its folder name) is `custom_module`, then the file `static/file.txt` can be
 accessed via the URL `http://localhost:5000/static/modules/custom_module/file.txt`.
 * A `config.py` file. This is the module's configuration file. Three variable can be defined there:
@@ -127,7 +128,7 @@ On the browser side, the object handling the websocket communication with the se
 the `app`. The function allowing to send a request is named `sendRequest`. Here is javascript code sending a custom
 request:
 
-```
+```javascript
 define([
     'app',
 ], function( app ) {
@@ -143,6 +144,7 @@ containing the request's data, and the third parameter is a callback method call
 
 Once the request is sent to the server, Ultide looks in all the modules `main.py` files for a method named
 `on_custom_request` (where `custom_request` is the request identifier). If it exists, it calls the method with three parameters:
+
 * `data`: data sent via the request
 * `response`: dictionary that can be modified, it is the data that will be sent back by the server.
 * `session_data`
@@ -150,7 +152,8 @@ Once the request is sent to the server, Ultide looks in all the modules `main.py
 Please note that this architecture allows multiple modules to handle the same request.
 
 Here is how it could look like:
-```
+
+```javascript
 def on_custom_request(data, response, session_data):
     response['custom_variable_1'] = 1
     response['custom_variable_2'] = 2
@@ -162,8 +165,7 @@ See the `demo` module for a full demonstration.
 
 See the `static/javascript/main.js` file in the `demo` module.
 
-Technical documentation of the Ultiflow module
-----------------------------------------------
+## Technical documentation of the Ultiflow module
 
 As explained earlier, Ultiflow is the module handling the flowchart feature. We will address here the most important
 things to know.
@@ -174,7 +176,7 @@ The ultiflow module looks for the operators in all the modules. In each module, 
 if it does, it references all folders containing a `config.json`. Each folder constitutes an operator, and the
 `config.json` contains its configuration. It is a dictionnary that looks like this:
 
-```
+```json
 {
     "id": "demo::load_file",
     "title": "Load file",
@@ -202,6 +204,7 @@ if it does, it references all folders containing a `config.json`. Each folder co
 ```
 
 Lets explain each key:
+
 * `id`: identifier of the operator
 * `title`
 * `type`: Type of the operator. For the moment, the value is always `operator`.
@@ -234,6 +237,7 @@ always the same here.
 Currently, the process file is generated under the file `workspaces/1/My Project/operators/custom_operator/config.json`.
 The structure of the file is similar to the operators' files described above, expect there is an additional `process` key.
 The value contains three keys:
+
 * `operators`
 * `links`
 * `parameters`
