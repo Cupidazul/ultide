@@ -41,7 +41,7 @@ Launch the `server.py` script. On linux, it should look like this:
 
 It will launch a Flask server. Using Firefox / Chrome (IE compatibility not guaranteed), go to the following URL:
 
-`http://localhost:5000`
+`http://localhost:8000`
 
 Flowchart usage
 ---------------
