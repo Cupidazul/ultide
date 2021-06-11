@@ -25,6 +25,11 @@ sudo pip install flask flask_socketio flask-user
 
 Is something missing or did you succeed to install it on other platforms ? Don't hesitate to contact us!
 
+On Windows you can use a simple pip requirements install:
+```
+pip install -r requirements.txt
+```
+
 Installation
 ------------
 
