@@ -1,5 +1,5 @@
 {
-    "id": "procs::load_file",
+    "id": "python_procs::load_file",
     "title": "Load file",
     "type": "operator",
     "inputs": {},

@@ -50,8 +50,19 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                         // $(document.getElementById('custom::custom_process_anchor')).click();
                         $('.main-view').css('left', '0px');
                         window.$flowchart.menuState = 0;
-                        $('.uf-side-bar.right').css('right', '-245px');
+
+                        //$('.uf-side-bar.right').css('right', '-245px');
+                        $('.uf-side-bar.right')
+                            .resizable({
+                                minWidth: $('.uf-side-bar.right').width(),
+                                maxWidth: 1000,
+                                disabled: true,
+                                handles: "w" // https://api.jqueryui.com/1.8/resizable/#option-handles
+                            })
+                            .on('resize', function() { $(this).css({ left: '' }); }); // bug-fix: https://bugs.jqueryui.com/ticket/4985
+
                         setTimeout(function() {
+                            $('.uf-side-bar.right').css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'));
                             window.$flowchart.menuState = 0;
                             $('.uf-side-bar.left').css('left', '-245px');
                             $('.uf-side-bar.left')

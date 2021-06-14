@@ -1,5 +1,5 @@
 {
-    "id": "procs::all_fields",
+    "id": "python_procs::all_fields",
     "title": "All fields",
     "type": "operator",
     "inputs": {

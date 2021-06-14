@@ -23,17 +23,22 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             this.els.nothing = $('<div class="nothing_selected"><span>' + this.options.labels.nothingSelected + '</span></div>');
             this.els.nothing.appendTo(this.element);
 
-            this.els.nothing.Show = function(el) {
+            this.els.nothing.Show = function(el) { // Hide DIV: nothing_selected ! Show: uf-side-bar.right
                 //console.log('Show', el);
                 this.show();
                 //el.content.parent().css('right', '-245px');
-                $('.uf-side-bar.right').css('right', '-245px');
+                //$('.uf-side-bar.right').css('right', '-245px');
+                $('.uf-side-bar.right')
+                    .css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'))
+                    .resizable("option", { disabled: true });
             };
-            this.els.nothing.Hide = function(el) {
+            this.els.nothing.Hide = function(el) { // Show DIV: nothing_selected ! Hide: uf-side-bar.right
                 //console.log('Hide', el);
                 this.hide();
                 //el.content.parent().css('right', '0px');
-                $('.uf-side-bar.right').css('right', '0px');
+                $('.uf-side-bar.right')
+                    .css('right', '0px')
+                    .resizable("option", { disabled: false });
             };
 
             app.onEvent('ultiflow::operator_select', function(e, operatorId) {

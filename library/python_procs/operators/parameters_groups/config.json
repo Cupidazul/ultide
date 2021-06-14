@@ -1,5 +1,5 @@
 {
-    "id": "procs::parameters_groups",
+    "id": "python_procs::parameters_groups",
     "title": "Groups of parameters",
     "type": "operator",
     "inputs": {

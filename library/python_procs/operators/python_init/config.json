@@ -1,0 +1,28 @@
+{
+    "id": "python_procs::python_init",
+    "title": "Python: Init",
+    "type": "operator",
+    "inputs": {},
+    "outputs": {
+        "data": {
+            "label": "Start"
+        }
+    },
+    "parameters": [{
+        "id": "python_init",
+        "label": "Python Code:",
+        "type": "ultiflow::textarea",
+        "config": {
+            "attr": {
+                "rows": 10
+            },
+            "css": {
+                "font-size": "11px",
+                "white-space": "nowrap",
+                "width": "100%",
+                "font-family": "monospace"
+            },
+            "default": "#!/usr/bin/python3\n\nimport sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR\n\nfrom pprint import pprint\nimport subprocess\nimport psycopg2\nimport base64\nimport json\nimport os\n\n"
+        }
+    }]
+}

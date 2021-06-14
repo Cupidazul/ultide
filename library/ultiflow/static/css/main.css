@@ -33,6 +33,13 @@
     transition: .5s;
 }
 
+.uf-side-bar.right>div.ui-resizable-handle.ui-resizable-w {
+    border-left: 3px double darkgray;
+    left: 1px;
+    top: 370px;
+    height: 30px;
+}
+
 .nothing_selected {
     position: absolute;
     top: 0px;
