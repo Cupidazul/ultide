@@ -113,7 +113,7 @@ Currently, the core of the IDE is very similar to a web framework: it routes and
 Each folder inside the `library` repository is a module. Inside each module can be found:
 
 * A `static` repository. If the module name (its folder name) is `custom_module`, then the file `static/file.txt` can be
-accessed via the URL `http://localhost:5000/static/modules/custom_module/file.txt`.
+accessed via the URL `http://localhost:8000/static/modules/custom_module/file.txt`.
 * A `config.py` file. This is the module's configuration file. Three variable can be defined there:
   * `name`: Name of the module.
   * `main_js`: Javascript file to load in the browser when a new session starts.
