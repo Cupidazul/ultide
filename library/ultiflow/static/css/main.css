@@ -37,7 +37,8 @@
     border-left: 3px double darkgray;
     left: 1px;
     top: 370px;
-    height: 30px;
+    height: 20px;
+    cursor: col-resize;
 }
 
 .nothing_selected {
