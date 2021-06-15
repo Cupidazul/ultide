@@ -60,7 +60,7 @@ define(['app', 'bootstrap'], function(app) {
                 cb(module);
             }
         });
-    }
+    };
 
     ultiflow.treeDataFromOperatorData = function(tree, operators, path) {
         var res = [];
@@ -81,7 +81,7 @@ define(['app', 'bootstrap'], function(app) {
             }
         }
         return res;
-    }
+    };
 
     ultiflow.writeFile = function(path, content, cb) {
         app.sendRequest('write_file', { path: path, content: content }, function(data) {
@@ -226,7 +226,7 @@ define(['app', 'bootstrap'], function(app) {
                 $modal.remove();
             });
         });
-    }
+    };
 
 
     return ultiflow;

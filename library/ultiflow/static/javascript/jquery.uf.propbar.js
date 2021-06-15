@@ -23,19 +23,18 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             this.els.nothing = $('<div class="nothing_selected"><span>' + this.options.labels.nothingSelected + '</span></div>');
             this.els.nothing.appendTo(this.element);
 
-            this.els.nothing.Show = function(el) { // Hide DIV: nothing_selected ! Show: uf-side-bar.right
-                //console.log('Show', el);
+            this.els.nothing.Show = function(el) {
+                // Show: DIV: nothing_selected
                 this.show();
-                //el.content.parent().css('right', '-245px');
-                //$('.uf-side-bar.right').css('right', '-245px');
+                // Hide: side-bar.right
                 $('.uf-side-bar.right')
                     .css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'))
                     .resizable("option", { disabled: true });
             };
-            this.els.nothing.Hide = function(el) { // Show DIV: nothing_selected ! Hide: uf-side-bar.right
-                //console.log('Hide', el);
+            this.els.nothing.Hide = function(el) {
+                // Hide: DIV: nothing_selected
                 this.hide();
-                //el.content.parent().css('right', '0px');
+                // Show: side-bar.right
                 $('.uf-side-bar.right')
                     .css('right', '0px')
                     .resizable("option", { disabled: false });
@@ -145,15 +144,15 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                 var operatorTypeParameters = this.processParameters(operatorTypeData.parameters);
                 for (var i = 0; i < operatorTypeParameters.length; i++) {
                     var panelInfos = operatorTypeParameters[i];
-                    var $parametersList = $('<div class="uf-parameters-list"></div>');
-                    var $panel = helper.createPanel(panelInfos.title, $parametersList);
+                    var $parametersList1 = $('<div class="uf-parameters-list"></div>');
+                    var $panel = helper.createPanel(panelInfos.title, $parametersList1);
 
                     for (var j = 0; j < panelInfos.fields.length; j++) {
                         var propInfos = panelInfos.fields[j];
                         var propKey = propInfos.id;
 
                         var $divs = this.generateEmptyParameterField(propInfos.label);
-                        $parametersList.append($divs.parameter);
+                        $parametersList1.append($divs.parameter);
                         this.fillPropertyContent(operatorId, propKey, propInfos, $divs);
                     }
 
@@ -189,7 +188,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                     }
 
                     inst.setValue(value);
-                }
+                };
 
                 var cbChange = function() {
                     self.regenerateParameters();

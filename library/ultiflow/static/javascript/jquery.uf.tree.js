@@ -97,8 +97,8 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                 document.__uftreeInitialized = true;
                 $(document)
                     .on('dnd_start.vakata', function(e, data) {
-                        var data = { type: data.data.nodes[0] };
-                        operatorHelper = ultiflow.ui.flowchart.getOperatorElement(data);
+                        var data1 = { type: data.data.nodes[0] };
+                        operatorHelper = ultiflow.ui.flowchart.getOperatorElement(data1);
                         defaultHelper = null;
                     })
                     .on('dnd_move.vakata', function(e, data) {
@@ -132,10 +132,10 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                                 relativeLeft /= positionRatio;
                                 relativeTop /= positionRatio;
 
-                                var data = { type: data.data.nodes[0] };
-                                data.left = relativeLeft;
-                                data.top = relativeTop;
-                                ultiflow.ui.flowchart.addOperator(data);
+                                var data1 = { type: data.data.nodes[0] };
+                                data1.left = relativeLeft;
+                                data1.top = relativeTop;
+                                ultiflow.ui.flowchart.addOperator(data1);
                             }
                         }
                     });

@@ -16,7 +16,7 @@ define([
         e.preventDefault();
         var message = prompt('Your message:');
         app.sendRequest('demo_ping', { 'message': message }, function(response) {
-            alert(response['demo_response']);
+            alert(response.demo_response); //alert(response['demo_response']);
         });
     });
 

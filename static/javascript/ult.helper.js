@@ -1,4 +1,4 @@
-define([ 'file_chooser' ], function( file_chooser ) {
+define(['file_chooser'], function(file_chooser) {
     var helper = {};
 
     helper.fileChooser = function(customOptions) {
@@ -109,8 +109,7 @@ define([ 'file_chooser' ], function( file_chooser ) {
             if (folderName != null) {
                 var currentFolder = $body.file_chooser('getCurrentFolder');
                 self.sendRequest(
-                    'create_folder',
-                    {
+                    'create_folder', {
                         parentFolder: currentFolder,
                         newFolder: folderName
                     },
@@ -126,11 +125,11 @@ define([ 'file_chooser' ], function( file_chooser ) {
         });
 
         $modal.modal();
-        $modal.on('hidden.bs.modal',function() {
+        $modal.on('hidden.bs.modal', function() {
             options.onSelected(selectedPath);
             $modal.remove();
         });
-    }
+    };
 
     return helper;
 });
