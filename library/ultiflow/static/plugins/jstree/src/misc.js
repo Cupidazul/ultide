@@ -407,10 +407,10 @@
 (function (factory) {
 	"use strict";
 	if (typeof define === 'function' && define.amd) {
-		define('jstree.node_customize', ['jquery','jstree'], factory);
+		define('jstree.node_customize', ['jquery','./jstree.js'], factory);
 	}
 	else if(typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
+		factory(require('jquery'), require('./jstree.js'));
 	}
 	else {
 		factory(jQuery, jQuery.jstree);
@@ -436,10 +436,9 @@
 
 	$.jstree.plugins.node_customize = function (options, parent) {
 		this.redraw_node = function (obj, deep, callback, force_draw) {
-			var node_id = obj;
 			var el = parent.redraw_node.apply(this, arguments);
 			if (el) {
-				var node = this._model.data[node_id];
+				var node = this.get_node(obj);
 				var cfg = this.settings.node_customize;
 				var key = cfg.key;
 				var type =  (node && node.original && node.original[key]);
@@ -466,10 +465,10 @@
 (function (factory) {
         "use strict";
         if (typeof define === 'function' && define.amd) {
-                define('jstree.parentsload', ['jquery','jstree'], factory);
+                define('jstree.parentsload', ['jquery','./jstree.js'], factory);
         }
         else if(typeof exports === 'object') {
-                factory(require('jquery'), require('jstree'));
+                factory(require('jquery'), require('./jstree.js'));
         }
         else {
                 factory(jQuery, jQuery.jstree);
@@ -599,3 +598,125 @@
                 }
         };
 }));
+
+// conditional deselect
+(function (factory) {
+	"use strict";
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.conditionaldeselect', ['jquery','./jstree.js'], factory);
+	}
+	else if(typeof exports === 'object') {
+		factory(require('jquery'), require('./jstree.js'));
+	}
+	else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
+	"use strict";
+
+	if($.jstree.plugins.conditionaldeselect) { return; }
+	$.jstree.defaults.conditionaldeselect = function () { return true; };
+	$.jstree.plugins.conditionaldeselect = function (options, parent) {
+		// own function
+		this.deselect_node = function (obj, supress_event, e) {
+			if(this.settings.conditionaldeselect.call(this, this.get_node(obj), e)) {
+				return parent.deselect_node.call(this, obj, supress_event, e);
+			}
+		};
+	};
+
+}));
+
+// conditional close
+(function (factory) {
+	"use strict";
+	if (typeof define === 'function' && define.amd) {
+		define('jstree.conditionalclose', ['jquery','./jstree.js'], factory);
+	}
+	else if(typeof exports === 'object') {
+		factory(require('jquery'), require('./jstree.js'));
+	}
+	else {
+		factory(jQuery, jQuery.jstree);
+	}
+}(function ($, jstree, undefined) {
+	"use strict";
+
+	if($.jstree.plugins.conditionalclose) { return; }
+	$.jstree.defaults.conditionalclose = function () { return true; };
+	$.jstree.plugins.conditionalclose = function (options, parent) {
+		// own function
+		this.close_node = function (obj, animation) {
+			if(this.settings.conditionalclose.close.call(this, this.get_node(obj), e)) {
+				return parent.deselect_node.call(this, obj, animation);
+			}
+		};
+	};
+
+}));
+
+// separate items and badges plugin by vdkkia (vahidkiani88@gmail.com)
+// https://github.com/vdkkia/jstree
+//
+//CSS:
+//.separator{border-bottom:1px solid;border-image-source:linear-gradient(45deg,rgba(0,0,0,0),rgba(0,0,0,.1),rgba(0,0,0,0));border-image-slice:1;width:100%;left:0;color:#aaa;font-size:10px;font-weight:400;float:right;text-align:right;padding-right:20px;position:absolute;z-index:-1}.treeaction{color:#555;margin-left:3px;padding:2px;font-weight:700;font-size:10px;border:none;background-color:#fff;transition:all .2s ease-in-out;text-decoration:none;float:right;margin-right:2px;top:4px}.treeaction:hover{color:green;text-decoration:none;transform:scale(1.5)}
+(function (factory) {
+}(function ($, jstree, undefined) {
+	"use strict";
+	$.jstree.plugins.node_customize = function (options, parent) {
+		this.redraw_node = function (obj, deep, callback, force_draw) {
+			var el = parent.redraw_node.apply(this, arguments);
+			if (el) {
+				var node = this.get_node(obj);
+				var cfg = this.settings.node_customize;
+				var key = cfg.key;
+				var type =  (node && node.original && node.original[key]);
+				var customizer = (type && cfg.switch[type]) || cfg.default;
+				if(customizer)
+					customizer(el, node);
+			}
+			return el;
+		};
+	}
+}));
+
+// Use material icons
+// Plugin by KSD-France (https://github.com/KSD-France/, dev@ksd.fr)
+(function ($, undefined) {
+	"use strict";
+
+	$.jstree.plugins.material = function (options, parent) {
+		this.teardown = function () {
+			this.element.find(".material-icons").remove();
+			parent.teardown.call(this);
+		};
+
+		this.redraw_node = function (obj, deep, is_callback, force_render) {
+			obj = parent.redraw_node.apply(this, arguments);
+
+			if (obj) {
+				var i,
+				    j,
+				    tmp = null,
+				    icon = null,
+				    temp = null;
+				    
+				for(i = 0, j = obj.childNodes.length; i < j; i++) {
+					if(obj.childNodes[i] && obj.childNodes[i].className && obj.childNodes[i].className.indexOf("jstree-anchor") !== -1) {
+						tmp = obj.childNodes[i];
+						break;
+					}
+				}
+
+				if (tmp) {
+					if (this._model.data[obj.id].icon && this._model.data[obj.id].icon.length) {
+						tmp.childNodes[0].className += " material-icons";
+						tmp.childNodes[0].innerHTML = this._model.data[obj.id].icon;
+					}
+				}
+			}
+
+			return obj;
+		}
+	}
+})(jQuery);

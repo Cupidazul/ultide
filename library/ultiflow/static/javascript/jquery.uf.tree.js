@@ -3,10 +3,13 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
         options: {},
 
         // the constructor
-        _create: function() {
+        _create: function(elm) {
             var self = this;
-
-            //console.log('ultiflow.uf_tree:_create:', self);
+            //console.log('ultiflow.uf_tree:_create:' + self.eventNamespace, self);
+            self.id = 'uf_tree' + self.uuid;
+            window.$uf_tree = Object.assign(window.$uf_tree || {}, {
+                [self.id]: self
+            });
 
             var defaultOptions = {
                 'core': {
@@ -33,19 +36,19 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                 },
             };
 
-            var options = $.extend(true, defaultOptions, this.options);
+            var options = $.extend(true, defaultOptions, self.options);
 
-            this.element.jstree(options)
+            self.element.jstree(options)
                 .on('ready.jstree', function(evt) {
                     var el = $(evt.target);
-                    //console.log('ready.jstree:', el, el.find('ul.jstree-container-ul').find('li.jstree-node'));
+                    //console.log('ready.jstree:', el); //, el.find('ul.jstree-container-ul').find('li.jstree-node'));
 
                     setTimeout(function() {
                         //console.log('ready.jstree1:', el, $(document).find('ul.jstree-container-ul li.jstree-node ul.jstree-children').children());
-                        el.jstree('open_all');
+                        el.jstree('open_all'); // expand/open all jstree's
                         $("a.jstree-anchor").each(function(ElIdx, ElVal) {
-                            //console.log('elm:', ElIdx, ElVal.id);
-                            if (ElVal.id == 'custom::custom_process_anchor') { ElVal.click(); }
+                            //console.dir(ElVal); console.log('elm:', ElIdx, ElVal.id);
+                            if (ElVal.id == 'custom::custom_process_anchor') { ElVal.click(); } // open project
                         });
                         // $(document.getElementById('custom::custom_process_anchor')).click();
                         $('.main-view').css('left', '0px');
@@ -59,7 +62,9 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                                 disabled: true,
                                 handles: "w" // https://api.jqueryui.com/1.8/resizable/#option-handles
                             })
-                            .on('resize', function() { $(this).css({ left: '' }); }); // bug-fix: https://bugs.jqueryui.com/ticket/4985
+                            .on('resize', function(evt) { // bug-fix: https://bugs.jqueryui.com/ticket/4985
+                                $(evt.target).css('left', '');
+                            });
 
                         setTimeout(function() {
                             $('.uf-side-bar.right').css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'));
@@ -96,12 +101,14 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
             if (typeof document.__uftreeInitialized == 'undefined')  {
                 document.__uftreeInitialized = true;
                 $(document)
-                    .on('dnd_start.vakata', function(e, data) {
+                    .on('dnd_start.vakata', function(evt, data) {
+                        //console.log('ultiflow.uf_tree:dnd_start.vakata:', evt, data);
                         var data1 = { type: data.data.nodes[0] };
                         operatorHelper = ultiflow.ui.flowchart.getOperatorElement(data1);
                         defaultHelper = null;
                     })
-                    .on('dnd_move.vakata', function(e, data) {
+                    .on('dnd_move.vakata', function(evt, data) {
+                        //console.log('ultiflow.uf_tree:dnd_move.vakata:', evt, data);
                         if (defaultHelper == null) {
                             defaultHelper = data.helper.html();
                         }
@@ -116,7 +123,8 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                             }
                         }
                     })
-                    .on('dnd_stop.vakata', function(e, data) {
+                    .on('dnd_stop.vakata', function(evt, data) {
+                        //console.log('ultiflow.uf_tree:dnd_stop.vakata:', evt, data);
                         var t = $(data.event.target);
                         if (!t.closest('.jstree').length) {
                             if (t.closest('.uf-flowchart').length) {

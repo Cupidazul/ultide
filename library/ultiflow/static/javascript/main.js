@@ -5,6 +5,7 @@ define([
     'css!static/modules/ultiflow/plugins/jstree/dist/themes/default/style.min',
     'css!static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min.css'
 ], function(app) {
+    console.log('main:app:', app);
     var $mainView = app.ui.mainView;
     var $mainNavBar = app.ui.mainNavBar;
 
@@ -26,7 +27,8 @@ var helper = {};
 helper.createPanel = function(title, content) {
     var $panel = $('<div class="panel panel-default"></div>');
 
-    var $heading = $('<div class="panel-heading"><div>');
+    var $AddButton = ''; //'<button id="btn_add_' + String(title).toLocaleLowerCase().replace(' ', '_') + '"class="fas fa-plus" style="float: right;"></button>';
+    var $heading = $('<div class="panel-heading">' + $AddButton + '<div>');
     $heading.appendTo($panel);
 
     var $title = $('<h3 class="panel-title"></h3>');
@@ -50,7 +52,7 @@ helper.treeDataFromOperatorData = function(tree, operators, path) {
                 type: operators[key].type
             });
         } else {
-            var newPath = path + '/' + key;
+            var newPath = path + '-' + key;
             res.push({
                 id: newPath,
                 text: key,

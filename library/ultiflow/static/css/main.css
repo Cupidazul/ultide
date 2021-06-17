@@ -25,6 +25,7 @@
 .uf-side-bar.right {
     top: 40px;
     right: 0px;
+    overflow: hidden;
     /* -245px; */
     border: 1px solid #DDD;
     bottom: 300px;
@@ -33,10 +34,15 @@
     transition: .5s;
 }
 
+.uf-side-bar.right>div.uf-propbar-content {
+    overflow: auto;
+    height: 80vh;
+}
+
 .uf-side-bar.right>div.ui-resizable-handle.ui-resizable-w {
     border-left: 3px double darkgray;
     left: 1px;
-    top: 370px;
+    top: 50%;
     height: 20px;
     cursor: col-resize;
 }
@@ -248,4 +254,8 @@
 
 .uf-file-chooser-item.selected {
     background: #E0E0E0;
+}
+
+.jstree-default .jstree-anchor {
+    width: -webkit-fill-available;
 }

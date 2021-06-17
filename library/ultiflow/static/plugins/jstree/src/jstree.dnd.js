@@ -7,10 +7,10 @@
 (function (factory) {
 	"use strict";
 	if (typeof define === 'function' && define.amd) {
-		define('jstree.dnd', ['jquery','jstree'], factory);
+		define('jstree.dnd', ['jquery','./jstree.js'], factory);
 	}
 	else if(typeof exports === 'object') {
-		factory(require('jquery'), require('jstree'));
+		factory(require('jquery'), require('./jstree.js'));
 	}
 	else {
 		factory(jQuery, jQuery.jstree);
@@ -181,15 +181,28 @@
 			marker = $('<div id="jstree-marker">&#160;</div>').hide(); //.appendTo('body');
 
 		$(document)
+			.on('dragover.vakata.jstree', function (e) {
+				if (elm) {
+					$.vakata.dnd._trigger('move', e, { 'helper': $(), 'element': elm, 'data': drg });
+				}
+			})
+			.on('drop.vakata.jstree', function (e) {
+				if (elm) {
+					$.vakata.dnd._trigger('stop', e, { 'helper': $(), 'element': elm, 'data': drg });
+					elm = null;
+					drg = null;
+				}
+			})
 			.on('dnd_start.vakata.jstree', function (e, data) {
 				lastmv = false;
 				lastev = false;
 				if(!data || !data.data || !data.data.jstree) { return; }
-				marker.appendTo('body'); //.show();
+				marker.appendTo(document.body); //.show();
 			})
 			.on('dnd_move.vakata.jstree', function (e, data) {
+				var isDifferentNode = data.event.target !== lastev.target;
 				if(opento) {
-					if (!data.event || data.event.type !== 'dragover' || data.event.target !== lastev.target) {
+					if (!data.event || data.event.type !== 'dragover' || isDifferentNode) {
 						clearTimeout(opento);
 					}
 				}
@@ -205,7 +218,7 @@
 					ref = false,
 					off = false,
 					rel = false,
-					tmp, l, t, h, p, i, o, ok, t1, t2, op, ps, pr, ip, tm, is_copy;
+					tmp, l, t, h, p, i, o, ok, t1, t2, op, ps, pr, ip, tm, is_copy, pn, c;
 				// if we are over an instance
 				if(ins && ins._data && ins._data.dnd) {
 					marker.attr('class', 'jstree-' + ins.get_theme() + ( ins.settings.core.themes.responsive ? ' jstree-dnd-responsive' : '' ));
@@ -255,6 +268,7 @@
 										t = off.top;
 										p = ins.get_parent(ref);
 										i = ref.parent().index();
+										c = 'jstree-below';
 										break;
 									case 'i':
 										ip = ins.settings.dnd.inside_pos;
@@ -263,12 +277,14 @@
 										t = off.top + h / 2 + 1;
 										p = tm.id;
 										i = ip === 'first' ? 0 : (ip === 'last' ? tm.children.length : Math.min(ip, tm.children.length));
+										c = 'jstree-inside';
 										break;
 									case 'a':
 										l = off.left - 6;
 										t = off.top + h;
 										p = ins.get_parent(ref);
 										i = ref.parent().index() + 1;
+										c = 'jstree-above';
 										break;
 								}
 								ok = true;
@@ -288,11 +304,20 @@
 									}
 								}
 								if(v === 'i' && ref.parent().is('.jstree-closed') && ins.settings.dnd.open_timeout) {
-									opento = setTimeout((function (x, z) { return function () { x.open_node(z); }; }(ins, ref)), ins.settings.dnd.open_timeout);
+									if (!data.event || data.event.type !== 'dragover' || isDifferentNode) {
+										if (opento) { clearTimeout(opento); }
+										opento = setTimeout((function (x, z) { return function () { x.open_node(z); }; }(ins, ref)), ins.settings.dnd.open_timeout);
+									}
 								}
 								if(ok) {
+									pn = ins.get_node(p, true);
+									if (!pn.hasClass('.jstree-dnd-parent')) {
+										$('.jstree-dnd-parent').removeClass('jstree-dnd-parent');
+										pn.addClass('jstree-dnd-parent');
+									}
 									lastmv = { 'ins' : ins, 'par' : p, 'pos' : v === 'i' && ip === 'last' && i === 0 && !ins.is_loaded(tm) ? 'last' : i };
 									marker.css({ 'left' : l + 'px', 'top' : t + 'px' }).show();
+									marker.removeClass('jstree-above jstree-inside jstree-below').addClass(c);
 									data.helper.find('.jstree-icon').first().removeClass('jstree-er').addClass('jstree-ok');
 									if (data.event.originalEvent && data.event.originalEvent.dataTransfer) {
 										data.event.originalEvent.dataTransfer.dropEffect = is_copy ? 'copy' : 'move';
@@ -306,10 +331,11 @@
 						}
 					}
 				}
+				$('.jstree-dnd-parent').removeClass('jstree-dnd-parent');
 				lastmv = false;
 				data.helper.find('.jstree-icon').removeClass('jstree-ok').addClass('jstree-er');
 				if (data.event.originalEvent && data.event.originalEvent.dataTransfer) {
-					data.event.originalEvent.dataTransfer.dropEffect = 'none';
+					//data.event.originalEvent.dataTransfer.dropEffect = 'none';
 				}
 				marker.hide();
 			})
@@ -321,6 +347,7 @@
 				data.helper.find('.jstree-icon').first().removeClass('jstree-ok').addClass('jstree-er');
 			})
 			.on('dnd_stop.vakata.jstree', function (e, data) {
+				$('.jstree-dnd-parent').removeClass('jstree-dnd-parent');
 				if(opento) { clearTimeout(opento); }
 				if(!data || !data.data || !data.data.jstree) { return; }
 				marker.hide().detach();
@@ -369,7 +396,7 @@
 	// helpers
 	(function ($) {
 		$.vakata.html = {
-			div : $('<div />'),
+			div : $('<div></div>'),
 			escape : function (str) {
 				return $.vakata.html.div.text(str).html();
 			},
@@ -401,7 +428,7 @@
 				helper_left			: 5,
 				helper_top			: 10,
 				threshold			: 5,
-				threshold_touch		: 50
+				threshold_touch		: 10
 			},
 			_trigger : function (event_name, e, data) {
 				if (data === undefined) {
@@ -436,6 +463,7 @@
 					scroll_i: false,
 					is_touch: false
 				};
+				elm = null;
 				$(document).off("mousemove.vakata.jstree touchmove.vakata.jstree", $.vakata.dnd.drag);
 				$(document).off("mouseup.vakata.jstree touchend.vakata.jstree", $.vakata.dnd.stop);
 			},
@@ -519,10 +547,11 @@
 						Math.abs(e.pageY - vakata_dnd.init_y) > (vakata_dnd.is_touch ? $.vakata.dnd.settings.threshold_touch : $.vakata.dnd.settings.threshold)
 					) {
 						if(vakata_dnd.helper) {
-							vakata_dnd.helper.appendTo("body");
+							vakata_dnd.helper.appendTo(document.body);
 							vakata_dnd.helper_w = vakata_dnd.helper.outerWidth();
 						}
 						vakata_dnd.is_drag = true;
+						$(vakata_dnd.target).one('click.vakata', false);
 						/**
 						 * triggered on the document when a drag starts
 						 * @event
@@ -623,6 +652,9 @@
 					 * @param {jQuery} helper the helper shown next to the mouse
 					 * @param {Object} event the event that caused the stop
 					 */
+					if (e.target !== vakata_dnd.target) {
+						$(vakata_dnd.target).off('click.vakata');
+					}
 					$.vakata.dnd._trigger("stop", e);
 				}
 				else {

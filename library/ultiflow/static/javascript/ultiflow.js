@@ -1,7 +1,25 @@
 define(['app', 'bootstrap'], function(app) {
-    var ultiflow = { data: {}, ui: {} };
+    console.log('ultiflow:app:', app);
+    var ultiflow = { data: { versions: {} }, ui: {} };
+
+    window.$app = app;
+    window.$ultiflow = ultiflow;
 
     ultiflow.timeoutChangeLength = 200;
+
+    ultiflow.getVersions = function() {
+        return app.sendRequest('get_versions', {}, function(response) {
+            //alert(response['demo_response']);
+            ultiflow.data.versions = Object.assign(ultiflow.data.versions || {}, { py: response });
+            ultiflow.data.versions.Browser = navigator.appVersion;
+            ultiflow.data.versions.jstree = jQuery.jstree.version;
+            ultiflow.data.versions.jquery = jQuery.fn.jquery;
+            ultiflow.data.versions['jquery-ui'] = jQuery.ui.version;
+            ultiflow.data.versions.requirejs = requirejs.version;
+            ultiflow.data.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION;
+        });
+    };
+    ultiflow.getVersions();
 
     ultiflow.getModulesInfos = function(cb) {
         var self = this;
@@ -72,7 +90,7 @@ define(['app', 'bootstrap'], function(app) {
                     type: operators[key].type
                 });
             } else {
-                var newPath = path + '/' + key;
+                var newPath = path + '-' + key;
                 res.push({
                     id: newPath,
                     text: key,

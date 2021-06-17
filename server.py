@@ -136,7 +136,7 @@ def modules_static(path):
     
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
     return send_from_directory(module_path, '/'.join(splitted_path))
-  
+
 
 
 @socketio.on('connect', namespace='/uide')
@@ -154,4 +154,5 @@ if __name__ == '__main__':
         print ('Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://127.0.0.1:'+LISTENPORT )
     else:
         print ('Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT )
+    sys.stdout.flush()
     socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=True)
