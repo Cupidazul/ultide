@@ -7,19 +7,32 @@ define(['app', 'bootstrap'], function(app) {
 
     ultiflow.timeoutChangeLength = 200;
 
-    ultiflow.getVersions = function() {
-        return app.sendRequest('get_versions', {}, function(response) {
+    ultiflow.getAppVersions = function() {
+        return app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
-            ultiflow.data.versions = Object.assign(ultiflow.data.versions || {}, { py: response });
-            ultiflow.data.versions.Browser = navigator.appVersion;
-            ultiflow.data.versions.jstree = jQuery.jstree.version;
-            ultiflow.data.versions.jquery = jQuery.fn.jquery;
-            ultiflow.data.versions['jquery-ui'] = jQuery.ui.version;
-            ultiflow.data.versions.requirejs = requirejs.version;
-            ultiflow.data.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION;
+            app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+            app.data.versions.Browser = navigator.appVersion;
+            app.data.versions.jstree = jQuery.jstree.version;
+            app.data.versions.jquery = jQuery.fn.jquery;
+            app.data.versions['jquery-ui'] = jQuery.ui.version;
+            app.data.versions.requirejs = requirejs.version;
+            app.data.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION;
+            app.data.versions.os['perl-Modules'] = app.data.versions.os['perl-Modules'] || '';
+            app.data.versions.os['python-Modules'] = app.data.versions.os['python-Modules'] || '';
+
+            if (app.data.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
+                app.data.versions.os['perl-Modules'] = JSON.parse(app.data.versions.os['perl-Modules']);
+            }
+            if (app.data.versions.os['python-Modules'].charAt(0) === '{') { // if is json
+                app.data.versions.os['python-Modules'] = JSON.parse(app.data.versions.os['python-Modules']);
+            }
+            $("#loadingDiv").fadeOut(500, function() {
+                // fadeOut complete. Remove the loading div
+                //$("#loadingDiv").remove(); //makes page more lightweight 
+            });
         });
     };
-    ultiflow.getVersions();
+    ultiflow.getAppVersions();
 
     ultiflow.getModulesInfos = function(cb) {
         var self = this;

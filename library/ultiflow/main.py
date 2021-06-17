@@ -2,11 +2,8 @@ import os
 import os.path
 import json
 import sys
-import subprocess
 import platform
-#import flask
-import pkg_resources
-from pprint import pprint
+from ultide.models import DevLang
 
 def get_workspace(session_data):
     workspace = session_data['user'].get_property('workspace')
@@ -64,44 +61,25 @@ def on_modules_infos(data, response, session_data):
         update_operators_infos('workspace', name, operators_path, operators_list, operators_tree)
     response['operators'] = {'list': operators_list, 'tree': operators_tree}
 
-def get_version_perl ():  # returns perl version
-    cmd = [ 'perl', '-e print $^V;' ]
-    ret = ''
-    try:
-        ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
-    except Exception as e:
-        print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
-    return ret.replace("v","").replace("\r\n","")
-
-def get_version_python ():  # returns python version
-    cmd = [ sys.executable, '--version' ]
-    ret = ''
-    try:
-        ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
-    except Exception as e:
-        print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
-    return ret.replace("Python ","").replace("\r\n","")
-
-def on_get_versions(data, response, session_data):
+def on_get_os_versions(data, response, session_data):
     # this fn.name:= sys._getframe().f_code.co_name
+    
     response['OSName'] = os.name
     response['Platform'] = platform.platform()
     response['System'] = platform.system()
     response['Release'] = platform.release()
     response['SysPlatform'] = sys.platform
-    response['perl'] = get_version_perl()
-    response['python'] = get_version_python()
+    response['python'] = ''
+    response['python-Modules'] = ''
+    response['perl'] = ''
+    response['perl-Modules'] = ''
     
-    #response['flask'] = flask.__version__
-    response['flask'] = pkg_resources.get_distribution('flask').version
-    response['flask_SocketIO'] = pkg_resources.get_distribution('Flask_SocketIO').version
-    response['Flask-User'] = pkg_resources.get_distribution('Flask-User').version
-    response['itsdangerous'] = pkg_resources.get_distribution('itsdangerous').version
-    response['Jinja2'] = pkg_resources.get_distribution('Jinja2').version
-    response['MarkupSafe'] = pkg_resources.get_distribution('MarkupSafe').version
-    response['python-engineio'] = pkg_resources.get_distribution('python-engineio').version
-    response['python-socketio'] = pkg_resources.get_distribution('python-socketio').version
-    response['six'] = pkg_resources.get_distribution('six').version
-    response['Werkzeug'] = pkg_resources.get_distribution('Werkzeug').version
-    response['Flask-login'] = pkg_resources.get_distribution('Flask-login').version
-    response['gevent-websocket'] = pkg_resources.get_distribution('gevent-websocket').version
+    if DevLang.query.filter(DevLang.lang_name=='python').first():
+        devlang_python = DevLang.query.filter_by(lang_name='python').first()
+        response['python'] = devlang_python.lang_version
+        response['python-Modules'] = devlang_python.lang_modules
+
+    if DevLang.query.filter(DevLang.lang_name=='perl').first():
+        devlang_perl = DevLang.query.filter_by(lang_name='perl').first()
+        response['perl'] = devlang_perl.lang_version
+        response['perl-Modules'] = devlang_perl.lang_modules

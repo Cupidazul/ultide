@@ -43,7 +43,7 @@ from flask_socketio import SocketIO, emit, disconnect
 import ultide.config as config
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
 from datetime import datetime
-from ultide.models import db, User
+from ultide.models import db, User, DevLang
 import os
 import os.path
 import ultide.core as core
@@ -66,8 +66,8 @@ db.init_app(app)
 db.create_all()
 
 # Setup Flask-User
-db_adapter = SQLAlchemyAdapter(db, User)        # Register the User model
-common.user_manager = UserManager(db_adapter, app)     # Initialize Flask-User
+db_adapter = SQLAlchemyAdapter(db, User)            # Register the User model
+common.user_manager = UserManager(db_adapter, app)  # Initialize Flask-User
 
 if not User.query.filter(User.username=='root').first():
     user1 = User(username='root', email='root@example.com', confirmed_at=datetime.now(), active=True,
@@ -77,7 +77,31 @@ if not User.query.filter(User.username=='root').first():
 
 sessions_data = {}
 
+## DEV LANG init db  .START.
 
+print('Loading: python info...');sys.stdout.flush();
+if not DevLang.query.filter(DevLang.lang_name=='python').first():
+    devlang_python = DevLang(lang_name='python',lang_version=DevLang.get_version_python(),lang_modules=DevLang.get_version_python_modules())
+    db.session.add(devlang_python)
+    db.session.commit()
+else:
+    devlang_python = DevLang.query.filter_by(lang_name='python').first()
+    devlang_python.lang_version = DevLang.get_version_python()
+    devlang_python.lang_modules = DevLang.get_version_python_modules()
+    db.session.commit()
+
+print('Loading: perl info...');sys.stdout.flush();
+if not DevLang.query.filter(DevLang.lang_name=='perl').first():
+    devlang_perl = DevLang(lang_name='perl',lang_version=DevLang.get_version_perl(),lang_modules=DevLang.get_version_perl_modules())
+    db.session.add(devlang_perl)
+    db.session.commit()
+else:
+    devlang_perl = DevLang.query.filter_by(lang_name='perl').first()
+    devlang_perl.lang_version = DevLang.get_version_perl()
+    devlang_perl.lang_modules = DevLang.get_version_perl_modules()
+    db.session.commit()
+
+## DEV LANG init db .END.
 
 def nocache(view):
     @wraps(view)
@@ -136,8 +160,6 @@ def modules_static(path):
     
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
     return send_from_directory(module_path, '/'.join(splitted_path))
-
-
 
 @socketio.on('connect', namespace='/uide')
 def test_connect():

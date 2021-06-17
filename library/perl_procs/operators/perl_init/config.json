@@ -8,21 +8,47 @@
             "label": "Start"
         }
     },
-    "parameters": [{
-        "id": "perl_init",
-        "label": "Perl Code:",
-        "type": "ultiflow::textarea",
-        "config": {
-            "attr": {
-                "rows": 10
-            },
-            "css": {
-                "font-size": "11px",
-                "white-space": "nowrap",
-                "width": "100%",
-                "font-family": "monospace"
-            },
-            "default": "#!/usr/bin/perl\n\nuse warnings;\nuse strict 'vars';\nuse Data::Dumper;\nuse Encode qw(decode encode is_utf8);\nuse Getopt::Long;\nuse IO::Handle;\nuse LWP::UserAgent;\nuse Time::Piece;\nuse URI::Escape;\nuse utf8;\n"
+    "parameters": [
+
+        {
+            "id": "perl_incdirs",
+            "label": "Include Directories (@INC):",
+            "type": "ultiflow::list",
+            "config": {
+                "fieldType": "ultiflow::text",
+                "fieldTypeConfig": {
+                    "default": ""
+                }
+            }
+        },
+        {
+            "id": "perl_add_use",
+            "label": "Include pod (use <module>;):",
+            "type": "ultiflow::list",
+            "config": {
+                "fieldType": "ultiflow::text",
+                "fieldTypeConfig": {
+                    "default": ""
+                }
+            }
+        },
+        {
+            "id": "perl_init",
+            "label": "Perl Code:",
+            "type": "ultiflow::textarea",
+            "config": {
+                "attr": {
+                    "rows": 10
+                },
+                "css": {
+                    "font-size": "11px",
+                    "white-space": "nowrap",
+                    "width": "100%",
+                    "font-family": "monospace"
+                },
+                "default": "#!/usr/bin/perl\n\nuse warnings;\nuse strict 'vars';\nuse Data::Dumper;\nuse Encode qw(decode encode is_utf8);\nuse Getopt::Long;\nuse IO::Handle;\nuse LWP::UserAgent;\nuse Time::Piece;\nuse URI::Escape;\nuse utf8;\n"
+            }
         }
-    }]
+
+    ]
 }

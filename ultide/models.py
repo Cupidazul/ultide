@@ -1,3 +1,6 @@
+import sys
+import subprocess
+import pkg_resources
 from flask_sqlalchemy import SQLAlchemy
 from flask_user import UserMixin
 import ultide.common as common
@@ -47,4 +50,48 @@ class UserProperties(db.Model):
     name = db.Column(db.String(255), primary_key=True, autoincrement=False, nullable=False, server_default='')
     value = db.Column(db.Text(), nullable=True)
     
-    
+
+class DevLang(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+
+    # User authentication information
+    lang_name = db.Column(db.String(50), nullable=False, unique=True)
+    lang_version = db.Column(db.String(255), nullable=False, server_default='')
+    lang_modules = db.Column(db.Text(), nullable=False, server_default='')
+
+    def get_version_perl ():  # returns perl version
+        cmd = [ 'perl', '-e print $^V;' ]
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("v","").replace("\r\n","")
+
+    def get_version_perl_modules ():  # returns perl modules
+        cmd = [ 'perl', '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("\r\n","").replace("'","\"")
+
+    def get_version_python ():  # returns python version
+        cmd = [ sys.executable, '--version' ]
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("Python ","").replace("\r\n","")
+
+    def get_version_python_modules ():  # returns python modules
+        installed_packages = pkg_resources.working_set
+        #installed_packages_list = sorted(["\"%s\":\"%s\"" % (i.key, i.version) for i in installed_packages])
+        sep = ''
+        json = ''
+        for i in installed_packages:
+            json = json + sep + '"' + i.key + '":"' + i.version +'"'
+            sep = ','
+        return '{' + json + '}'
