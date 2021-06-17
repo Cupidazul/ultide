@@ -53,6 +53,9 @@ import json
 from datetime import datetime
 import sys
 
+# Check if Exists: ./data  and create it if not...
+data_dir = os.path.dirname('./data/')
+if not os.path.exists(data_dir): os.makedirs(data_dir)
 
 app = Flask(__name__)
 app.config.from_object(config)
