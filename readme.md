@@ -1,4 +1,38 @@
-# UltIDE
+# UltIDE v2.0 - Work-In-Progress -
+
+@Cupidazul:
+
+UltIDE v2.0 is a fork of the great/awesome Sébastien Drouyer work [Ultide](https://github.com/ultide/ultide/), putting this work to use here
+in a v2.0, the attempt is to create a low-code / no-code that might help others with less programattic skills, we will try to include
+most used programming languages.
+
+For now we are focusing on:
+
+* Perl   (WIP)
+* Python (WIP)
+* others (WIP)
+
+We will try to use json with input/output options that permits us to modularize each programming language, so as to input and output values
+as our needs.
+
+## Phylosophy
+
+* Don’t repeat yourself [DRY](http://wiki.c2.com/?DontRepeatYourself)
+
+We would like to thank Sébastien Drouyer for the awesome work, that allowed us to start with such stable baseline to work on top, and of corse,
+we would like to asure all credits go to Sébastien Drouyer on the original Ultide.
+
+All Changes here in after the original Ultide should be (c) Copyright 2021 Cupid@zul ( cupidazul(at)gmail(dot)com )
+Also, we are open for contributions, so future credits are due to the respective coder, as per here detailed:
+
+* \<your name\/info goes here\> <#push_id> (WIP)
+
+---
+Original (slighly adapted) UltIDE - [README.MD](https://github.com/ultide/ultide/blob/master/readme.md) follows:
+
+---
+
+## UltIDE
 
 UltIDE is a general purpose IDE with a client-server architecture. It was initialy created for its `ultiflow` module,
 whose purpose is to provide a general interface for easily managing flowcharts and generating code from them.

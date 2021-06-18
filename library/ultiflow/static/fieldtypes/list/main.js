@@ -211,6 +211,7 @@ define(['ultiflow'], function(ultiflow) {
         this.setValue = function(val) {
             if (!$.isArray(val)) {
                 val = [];
+                if ($.isArray(config.value)) { val = config.value; }
             }
 
             allValues = val;

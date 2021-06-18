@@ -1,3 +1,4 @@
 .DS_STORE
 data/
-
+workspaces/*/scripts/*
+ultide/config.py

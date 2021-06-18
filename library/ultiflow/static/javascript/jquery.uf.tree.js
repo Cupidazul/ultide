@@ -7,7 +7,7 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
             var self = this;
             //console.log('ultiflow.uf_tree:_create:' + self.eventNamespace, self);
             self.id = 'uf_tree' + self.uuid;
-            window.$uf_tree = Object.assign(window.$uf_tree || {}, {
+            window.$ultiflow.$uf_tree = Object.assign(window.$ultiflow.$uf_tree || {}, {
                 [self.id]: self
             });
 
@@ -104,7 +104,7 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                     .on('dnd_start.vakata', function(evt, data) {
                         //console.log('ultiflow.uf_tree:dnd_start.vakata:', evt, data);
                         var data1 = { type: data.data.nodes[0] };
-                        operatorHelper = ultiflow.ui.flowchart.getOperatorElement(data1);
+                        operatorHelper = window.$flowchart.getOperatorElement(data1);
                         defaultHelper = null;
                     })
                     .on('dnd_move.vakata', function(evt, data) {
@@ -130,7 +130,7 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                             if (t.closest('.uf-flowchart').length) {
                                 var elOffset = data.helper.offset();
 
-                                var $flowchart = ultiflow.ui.flowchart.els.flowchart;
+                                var $flowchart = window.$flowchart.els.flowchart;
                                 var flowchartOffset = $flowchart.offset();
 
                                 var relativeLeft = elOffset.left - flowchartOffset.left;
@@ -143,7 +143,7 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                                 var data1 = { type: data.data.nodes[0] };
                                 data1.left = relativeLeft;
                                 data1.top = relativeTop;
-                                ultiflow.ui.flowchart.addOperator(data1);
+                                window.$flowchart.addOperator(data1);
                             }
                         }
                     });

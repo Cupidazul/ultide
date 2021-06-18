@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
+import os;
+from shutil import copyfile;
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -7,6 +9,9 @@ import sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
 async_mode = None
 LISTENHOST = '0.0.0.0'
 LISTENPORT = '8000'
+
+# DEFAULT CONFIG Setting: ./ultide/config.py.default -> ./ultide/config.py
+if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.default', './ultide/config.py');
 
 if async_mode is None:
     try:
@@ -25,7 +30,7 @@ if async_mode is None:
     if async_mode is None:
         async_mode = 'threading'
 
-    print(('async_mode is ' + async_mode))
+    print(('@server: async_mode is ' + async_mode));sys.stdout.flush();
 
 # monkey patching is necessary because this application uses a background
 # thread
@@ -42,10 +47,7 @@ from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
 import ultide.config as config
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
-from datetime import datetime
 from ultide.models import db, User, DevLang
-import os
-import os.path
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -80,11 +82,10 @@ if not User.query.filter(User.username=='root').first():
 
 sessions_data = {}
 
-## DEV LANG init db  .START.
-
-print('Loading: python info...');sys.stdout.flush();
+## DevLang init db  .START.
+print('@server: Loading: python info...');sys.stdout.flush();
 if not DevLang.query.filter(DevLang.lang_name=='python').first():
-    devlang_python = DevLang(lang_name='python',lang_version=DevLang.get_version_python(),lang_modules=DevLang.get_version_python_modules())
+    devlang_python = DevLang(lang_name='python', lang_version=DevLang.get_version_python(), lang_modules=DevLang.get_version_python_modules())
     db.session.add(devlang_python)
     db.session.commit()
 else:
@@ -93,9 +94,9 @@ else:
     devlang_python.lang_modules = DevLang.get_version_python_modules()
     db.session.commit()
 
-print('Loading: perl info...');sys.stdout.flush();
+print('@server: Loading: perl info...');sys.stdout.flush();
 if not DevLang.query.filter(DevLang.lang_name=='perl').first():
-    devlang_perl = DevLang(lang_name='perl',lang_version=DevLang.get_version_perl(),lang_modules=DevLang.get_version_perl_modules())
+    devlang_perl = DevLang(lang_name='perl', lang_version=DevLang.get_version_perl(), lang_modules=DevLang.get_version_perl_modules())
     db.session.add(devlang_perl)
     db.session.commit()
 else:
@@ -103,8 +104,7 @@ else:
     devlang_perl.lang_version = DevLang.get_version_perl()
     devlang_perl.lang_modules = DevLang.get_version_perl_modules()
     db.session.commit()
-
-## DEV LANG init db .END.
+## DevLang init db .FINISH.
 
 def nocache(view):
     @wraps(view)
@@ -133,6 +133,7 @@ def index():
 @socketio.on('msg', namespace='/uide')
 def msg_received(message):
     session_data = sessions_data[session['uuid']]
+    session_data['uuid'] = session['uuid']
     request_id = message['request_id']
     method = 'on_' + message['request']
     response = {'request_id': request_id}
@@ -140,17 +141,19 @@ def msg_received(message):
         data = message['data']
         response_data = {}
         for module_key in session_data['modules_infos']:
-            print('module:', module_key)
+            print('@server: module:', module_key);sys.stdout.flush();
             module_infos = session_data['modules_infos'][module_key]
             if ('main' in module_infos):
                 module_py = module_infos['main']
                 if (hasattr(module_py, method)):
-                    print('module method', module_key, method)
-                    getattr(module_py, method)(data, response_data, session_data)
-        print(response)
+                    if ( module_key == 'core' or module_key == 'ultiflow' ): 
+                        print('@server: module method', (session, module_key, method, message));sys.stdout.flush();
+                        getattr(module_py, method)(data, response_data, session_data);  # modules: Fix: allow only from core or ultiflow
+        print('@server: response:',response);sys.stdout.flush();
         response['data'] = response_data
     else:
         response['auth_error'] = True
+        print('@server: response:',response);sys.stdout.flush();
     
     emit('msg', response)
     
@@ -158,10 +161,11 @@ def msg_received(message):
 @nocache
 def modules_static(path):
     session_data = sessions_data[session['uuid']]
+    session_data['uuid'] = session['uuid']
     splitted_path = path.split('/')
     module = splitted_path.pop(0)
-    
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
+    print ('@server: modules_static:',module_path, '/'.join(splitted_path))
     return send_from_directory(module_path, '/'.join(splitted_path))
 
 @socketio.on('connect', namespace='/uide')
@@ -171,13 +175,13 @@ def test_connect():
 @socketio.on('disconnect', namespace='/uide')
 def test_disconnect():
     sessions_data.pop(session['uuid'], None)
-    print(('Client disconnected', request.sid, session['uuid']))
+    print(('@server: Client disconnected:', request.sid, session['uuid']));sys.stdout.flush();
 
 
 if __name__ == '__main__':
     if (LISTENHOST == '0.0.0.0'):
-        print ('Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://127.0.0.1:'+LISTENPORT )
+        print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://127.0.0.1:'+LISTENPORT );sys.stdout.flush();
     else:
-        print ('Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT )
+        print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
     socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=True)

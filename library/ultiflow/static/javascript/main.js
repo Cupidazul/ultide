@@ -5,7 +5,7 @@ define([
     'css!static/modules/ultiflow/plugins/jstree/dist/themes/default/style.min',
     'css!static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min.css'
 ], function(app) {
-    console.log('main:app:', app);
+    console.log('@library/ultiflow/main: app:', app);
     var $mainView = app.ui.mainView;
     var $mainNavBar = app.ui.mainNavBar;
 

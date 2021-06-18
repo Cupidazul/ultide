@@ -72,6 +72,31 @@ define([
                         });
 
                 });
+
+                //console.log('uf_design_view:', self);
+                $('#btn_play').on('click', function(evt) {
+                    //console.log('btn_play:', evt);
+                    var data = window.$ultiflow.processData.process;
+                    var jsonPerlCodeRun = '';
+
+                    var operatorObjs = Object.keys(data.operators);
+                    for (var operatorId in operatorObjs) {
+                        if (data.operators[operatorId].type == 'perl_procs::perl_init') {
+                            jsonPerlCodeRun = JSON.stringify(data.parameters[operatorId]);
+                            console.log('jsonPerlCodeRun:', jsonPerlCodeRun);
+                        }
+                    }
+
+                    if (jsonPerlCodeRun !== '') {
+                        app.sendRequest('perl_CodeRun', { 'cmd': jsonPerlCodeRun }, function(response) {
+                            console.log('PerlCodeRun: ', response);
+                            //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+                        });
+                    } else {
+                        alert('Perl Init not Found!');
+                    }
+
+                });
             },
 
             changeState: function(newState) {

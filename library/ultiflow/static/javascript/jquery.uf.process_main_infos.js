@@ -16,7 +16,11 @@ define(['app'], function(app) {
             this.els.title = $('<span class="uf-process-title"></span>');
             this.els.title.appendTo(this.element);
 
-            this.els.buttons = $('<nobr><div class="buttons" style="float: right;font-size: 10px;display: flex;padding-top: 5px;"><button class="zoom-in">Zoom In</button><button class="zoom-out">Zoom Out</button><input type="range" class="zoom-range" step="0.5" min="0.5" max="3"><button class="zoom-reset">Reset</button></div></nobr>');
+            var BtnPlay = '<button id="btn_play" class="fa fa-play" style="width: 30px;font-size: 20px;"></button>';
+            this.els.buttons = $(`
+<nobr><div class="buttons" style="float: right;font-size: 10px;display: flex;padding-top: 5px;"><button class="zoom-in">Zoom In</button><button class="zoom-out">Zoom Out</button><input type="range" class="zoom-range" step="0.5" min="0.5" max="3"><button class="zoom-reset">Reset</button></div></nobr>
+<nobr><div class="buttons" style="font-size: 10px;display: inline-flex;padding-left: 5%;height: -webkit-fill-available;position: relative;text-align: center;" data-children-count="1">${BtnPlay}</div></nobr>
+`);
             this.els.buttons.appendTo(this.element);
 
             this.els.state = $('<span class="uf-process-state"><span class="uf-process-state-saving">Saving changes...</span><span class="uf-process-state-saved">Changes saved.</span><span class="uf-process-state-error">Error!</span></span>');

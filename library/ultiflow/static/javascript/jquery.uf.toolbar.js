@@ -13,6 +13,8 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
         // the constructor
         _create: function() {
             var self = this;
+            window.$ultiflow.$uf_toolbar = self;
+
             //console.log('ultiflow.uf_toolbar._create:', self);
 
             this.els.trees.library = $('<div></div>');

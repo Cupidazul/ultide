@@ -1,6 +1,6 @@
 define(['app', 'bootstrap'], function(app) {
-    console.log('ultiflow:app:', app);
-    var ultiflow = { data: { versions: {} }, ui: {} };
+    console.log('@library/ultiflow: app:', app);
+    var ultiflow = { data: {}, versions: {}, ui: {} };
 
     window.$app = app;
     window.$ultiflow = ultiflow;
@@ -10,26 +10,28 @@ define(['app', 'bootstrap'], function(app) {
     ultiflow.getAppVersions = function() {
         return app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
-            app.data.versions = Object.assign(app.data.versions || {}, { os: response });
-            app.data.versions.Browser = navigator.appVersion;
-            app.data.versions.jstree = jQuery.jstree.version;
-            app.data.versions.jquery = jQuery.fn.jquery;
-            app.data.versions['jquery-ui'] = jQuery.ui.version;
-            app.data.versions.requirejs = requirejs.version;
-            app.data.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION;
-            app.data.versions.os['perl-Modules'] = app.data.versions.os['perl-Modules'] || '';
-            app.data.versions.os['python-Modules'] = app.data.versions.os['python-Modules'] || '';
+            app.versions = Object.assign(app.versions || {}, { os: response });
+            app.versions.Browser = navigator.appVersion;
+            app.versions.jstree = jQuery.jstree.version;
+            app.versions.jquery = jQuery.fn.jquery;
+            app.versions['jquery-ui'] = jQuery.ui.version;
+            app.versions.requirejs = requirejs.version;
+            app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION;
+            app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || '';
+            app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || '';
 
-            if (app.data.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
-                app.data.versions.os['perl-Modules'] = JSON.parse(app.data.versions.os['perl-Modules']);
+            if (app.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['perl-Modules'] = JSON.parse(app.versions.os['perl-Modules']);
             }
-            if (app.data.versions.os['python-Modules'].charAt(0) === '{') { // if is json
-                app.data.versions.os['python-Modules'] = JSON.parse(app.data.versions.os['python-Modules']);
+            if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
             }
             $("#loadingDiv").fadeOut(500, function() {
                 // fadeOut complete. Remove the loading div
                 //$("#loadingDiv").remove(); //makes page more lightweight 
             });
+            console.log('@library/ultiflow: app.versions:', app.versions);
+            ultiflow.versions = app.versions;
         });
     };
     ultiflow.getAppVersions();
@@ -38,7 +40,7 @@ define(['app', 'bootstrap'], function(app) {
         var self = this;
         if (typeof this.data.modulesInfos == 'undefined') {
             app.sendRequest('modules_infos', {}, function(response) {
-                console.log(response);
+                console.log('@library/ultiflow.getModulesInfos:', response);
 
                 self.data.modulesInfos = response;
                 cb(self.data.modulesInfos);
@@ -61,7 +63,7 @@ define(['app', 'bootstrap'], function(app) {
 
     ultiflow.openProcess = function(processId) {
         this.setOpenedProcess(processId);
-        var processData = this.getOpenedProcessData();
+        this.processData = this.getOpenedProcessData();
         app.triggerEvent('ultiflow::process_open', this.getOpenedProcessData());
     };
 

@@ -171,11 +171,11 @@ define([
                 }
             });
 
-            var data = {};
+            this.data = {};
 
             var options = self.options;
             options.linkVerticalDecal = 1;
-            options.data = data;
+            options.data = this.data;
             options.onAfterChange = function() {
                 self.changeDetected();
             };
@@ -196,7 +196,7 @@ define([
                 return true;
             };
 
-            window.ultiflow = ultiflow.ui.flowchart = self;
+            //window.ultiflow = ultiflow.ui.flowchart = self;
 
             // Apply the plugin on a standard, empty div...
             $flowchart.flowchart(options);
@@ -289,25 +289,27 @@ define([
         },
 
         setData: function(originalData) {
-            data = $.extend(true, originalData);
+            //console.log('setData:', JSON.stringify(originalData));
             this.isSettingData = true;
-            this._refreshMiniViewContent(data);
             var self = this;
-            if (typeof data.operators != 'undefined') {
-                for (var operatorId in data.operators) {
-                    var operator = data.operators[operatorId];
-                    operator.left += this.cx;
-                    operator.top += this.cy;
+            self.data = $.extend(true, {}, originalData);
+
+            if (typeof self.data.operators != 'undefined') {
+                for (var operatorId in self.data.operators) {
+                    var operator = self.data.operators[operatorId];
+                    operator.left += self.cx;
+                    operator.top += self.cy;
                     //this.postProcessOperatorData(operator);
                 }
             }
             ultiflow.getOperators(function(operators) {
-                data.operatorTypes = operators.list;
-                self.els.flowchart.flowchart('setData', data);
+                self.data.operatorTypes = operators.list;
+                self.els.flowchart.flowchart('setData', self.data);
             });
-            this.isSettingData = false;
+            self.isSettingData = false;
 
-            this.centerView();
+            self._refreshMiniViewContent(self.data);
+            self.centerView();
         },
 
         getData: function() {
@@ -320,23 +322,45 @@ define([
                     operator.top -= this.cy;
                 }
             }
+
+            //console.log('getData:', JSON.stringify(data));
+
             return data;
         },
 
         addOperator: function(operatorData) {
+            this.isSettingData = true;
+            console.log('addOperator:', JSON.stringify(operatorData));
             //this.postProcessOperatorData(operatorData);
             // todo: check same ids ?
+
             this.els.flowchart.flowchart('addOperator', operatorData);
             var elm = operatorData.internal.els.operator[0].children[0];
 
-            /*$('.ui-draggable-handle').on('mousemove', function(evt) {
-                    evt.stopPropagation();
-                    $ufPanzoom.disable();
-                })
-                .on('mouseleave', function(evt) {
-                    evt.stopPropagation();
-                    $ufPanzoom.enable();
-                });*/
+            var currentProcessData = ultiflow.getOpenedProcessData();
+            var flowchartData = this.getData();
+
+            //console.log('currentProcessData:', JSON.stringify(currentProcessData));
+            //console.log('flowchartData:', JSON.stringify(flowchartData));
+
+            var operatorObjs = Object.keys(flowchartData.operators);
+            if (Object.keys(currentProcessData.process.parameters).length > operatorObjs.length) { operatorObjs = Object.keys(currentProcessData.process.parameters); }
+
+            for (var operatorId in operatorObjs) {
+                //console.log('operatorId:', operatorId);
+                var iOperator = flowchartData.operators;
+                var iParameter = currentProcessData.process.parameters || [];
+                if (typeof iParameter[operatorId] == 'undefined') {
+                    var operatorProperties = ultiflow.getOperatorInfos(iOperator[operatorId].type);
+                    currentProcessData.process.parameters[operatorId] = {};
+                    var operatorParameters = operatorProperties.parameters;
+                    var propKeys = Object.keys(operatorParameters);
+                    for (var propId in propKeys) {
+                        //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
+                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = operatorParameters[propId].config.default || '';
+                    }
+                }
+            }
 
             /* _DRAG_ Loaded Objects */
             $(elm).on('mousemove', function(evt) {
@@ -360,6 +384,9 @@ define([
                     $(this).ismouseDown = false;
                     $ufPanzoom.enable();
                 });
+
+            this.isSettingData = false;
+            this.changeDetected();
         },
 
         getOperatorElement: function(operatorData) {
@@ -380,14 +407,27 @@ define([
             currentProcessData.process.operators = flowchartData.operators;
             currentProcessData.process.links = flowchartData.links;
 
-            var operatorsParameters = Object.keys(currentProcessData.process.parameters);
-            for (var operatorId in operatorsParameters) {
-                if (typeof currentProcessData.process.operators[operatorId] == 'undefined') {
+            var operatorObjs = Object.keys(currentProcessData.process.operators);
+            if (Object.keys(currentProcessData.process.parameters).length > operatorObjs.length) { operatorObjs = Object.keys(currentProcessData.process.parameters); }
+            for (var operatorId in operatorObjs) {
+                var iOperator = currentProcessData.process.operators;
+                var iParameter = currentProcessData.process.parameters;
+                if (typeof iOperator[operatorId] == 'undefined') {
                     delete currentProcessData.process.parameters[operatorId];
+                } else if (typeof iParameter[operatorId] == 'undefined') {
+                    var operatorProperties = ultiflow.getOperatorInfos(iOperator[operatorId].type);
+                    currentProcessData.process.parameters[operatorId] = {};
+                    var operatorParameters = operatorProperties.parameters;
+                    var propKeys = Object.keys(operatorParameters);
+                    for (var propId in propKeys) {
+                        //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
+                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = operatorParameters[propId].config.default || '';
+                    }
+
                 }
             }
 
-            //console.log(currentProcessData.process.parameters);
+            // console.log('changeDetected!', currentProcessData);
             app.triggerEvent('ultiflow::process_change_detected');
 
             this._refreshMiniViewContent(flowchartData);

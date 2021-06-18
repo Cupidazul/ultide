@@ -17,7 +17,7 @@
     border-right: 1px solid #DDD;
     position: absolute;
     top: 40px;
-    background: transparent;
+    /* background: transparent; */
     z-index: 1;
     transition: 1s;
 }

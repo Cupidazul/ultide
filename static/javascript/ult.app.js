@@ -1,4 +1,4 @@
-define([ 'socket-io' ], function( io ) {
+define(['socket-io'], function(io) {
     var app = {};
 
     app.config = {
@@ -19,25 +19,27 @@ define([ 'socket-io' ], function( io ) {
     app.ui = {};
 
     app.start = function(cb) {
+        var self = this;
+        console.log('@ult.app: start: ', 'ws://' + this.config.server.host + ':' + this.config.server.port + '/uide');
+
         this.socket = io.connect('ws://' + this.config.server.host + ':' + this.config.server.port + '/uide');
 
-        var self = this;
         this.socket.on('connect', function() {
             self.sendRequest('login', self.config.user, function(data) {
                 if (data.connected) {
                     cb();
                 } else {
-                    alert('Error ! Did not succeed to connect!');
+                    alert('@ult.app: Error ! Did not succeed to connect!');
                 }
             });
         });
 
-        this.socket.on('msg', function (response) {
+        this.socket.on('msg', function(response) {
             if (typeof response.auth_error != 'undefined' && response.auth_error) {
-                alert('Authentification error! Please try again!');
+                alert('@ult.app: Authentification error! Please try again!');
             }
             if (window.console)
-                console.log('received', response);
+                console.log('@ult.app: socket.on.msg:received', response);
             if (typeof app.requestCallbacks[response.request_id] != 'undefined') {
                 app.requestCallbacks[response.request_id](response.data);
                 delete app.requestCallbacks[response.request_id];
@@ -49,8 +51,8 @@ define([ 'socket-io' ], function( io ) {
         var reqId = app.request_id;
         app.request_id++;
         if (window.console)
-            console.log('send', request, data);
-        this.socket.emit('msg', {request_id: reqId, request: request, data: data});
+            console.log('@ult.app: sendRequest:', request, data);
+        this.socket.emit('msg', { request_id: reqId, request: request, data: data });
         if (typeof cb != 'undefined') {
             this.requestCallbacks[reqId] = cb;
         }
@@ -65,17 +67,17 @@ define([ 'socket-io' ], function( io ) {
     };
 
     app.getUserProperty = function(key, cb) {
-        this.sendRequest('get_user_property', {key: key}, function(data) {
+        this.sendRequest('get_user_property', { key: key }, function(data) {
             cb(data.value);
         });
     };
 
     app.setUserProperty = function(key, value, cb) {
-        this.sendRequest('set_user_property', {key: key, value: value}, function(data) {
+        this.sendRequest('set_user_property', { key: key, value: value }, function(data) {
             cb(data.success);
         });
     };
-    
+
 
     return app;
 });

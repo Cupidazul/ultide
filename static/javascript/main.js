@@ -18,15 +18,10 @@ require(['jquery', 'app', 'main-nav-bar', 'main-view'], function($, app) {
 
 
     app.start(function() {
-        app.sendRequest(
-            'get_js', {},
-            function(data) {
-                require.config({
-                    'paths': data.require_paths
-                });
-
-                require(data.main_js);
-            }
-        );
+        console.log('@static/main: app.start:', app);
+        app.sendRequest('get_js', {}, function(data) {
+            require.config({ 'paths': data.require_paths });
+            require(data.main_js);
+        });
     });
 });
