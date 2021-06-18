@@ -1,3 +1,24 @@
+console.log('@index: this:', this);
+require.config({
+    map: {
+        '*': {
+            'css': 'static/plugins/require-css/css'
+        }
+    },
+    paths: {
+        'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
+        'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
+        'socket-io': 'static/javascript/socket.io.min',
+        'bootstrap': 'static/plugins/bootstrap/js/bootstrap.min',
+
+        'app': 'static/javascript/ult.app',
+        'helper': 'static/javascript/ult.helper',
+        'main-view': 'static/javascript/jquery.ult.main_view',
+        'file_chooser': 'static/javascript/jquery.ult.file_chooser',
+        'main-nav-bar': 'static/javascript/jquery.ult.main_nav_bar',
+    }
+});
+
 require(['jquery', 'app', 'main-nav-bar', 'main-view'], function($, app) {
     var $mainNavBar = $('.main-nav-bar');
     $mainNavBar.main_nav_bar();
