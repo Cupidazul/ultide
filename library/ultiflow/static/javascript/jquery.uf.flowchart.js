@@ -351,13 +351,18 @@ define([
                 var iOperator = flowchartData.operators;
                 var iParameter = currentProcessData.process.parameters || [];
                 if (typeof iParameter[operatorId] == 'undefined') {
-                    var operatorProperties = ultiflow.getOperatorInfos(iOperator[operatorId].type);
+                    var operatorProperties = '';
+                    try {
+                        operatorProperties = ultiflow.getOperatorInfos(iOperator[operatorId].type);
+                    } catch (err) {
+                        console.error('err:', { err: err, iOperator: iOperator, operatorId: operatorId });
+                    }
                     currentProcessData.process.parameters[operatorId] = {};
                     var operatorParameters = operatorProperties.parameters;
                     var propKeys = Object.keys(operatorParameters);
                     for (var propId in propKeys) {
                         //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
-                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = operatorParameters[propId].config.default || '';
+                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
                     }
                 }
             }
@@ -421,7 +426,7 @@ define([
                     var propKeys = Object.keys(operatorParameters);
                     for (var propId in propKeys) {
                         //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
-                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = operatorParameters[propId].config.default || '';
+                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
                     }
 
                 }
