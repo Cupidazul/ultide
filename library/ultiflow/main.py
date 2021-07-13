@@ -156,7 +156,7 @@ def on_perl_CodeRun(data, response, session_data):
         ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
         print('@on_perl_CodeRun: Exception:', err ) # To print out the exception message , print out the stdout messages up to the exception
     
-    if ( perlopts.del_script != 0 ):
+    if ( perlopts['del_script'] == 1 ):
         os.remove(temp_script_path) # delete temp file
 
     response['RetVal'] = ret
