@@ -1,4 +1,4 @@
-define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
+define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
     $.widget("ultiflow.uf_tree", {
         options: {},
 
@@ -47,10 +47,17 @@ define(['app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
                         //console.log('ready.jstree1:', el, $(document).find('ul.jstree-container-ul li.jstree-node ul.jstree-children').children());
                         el.jstree('open_all'); // expand/open all jstree's
                         $("a.jstree-anchor").each(function(ElIdx, ElVal) {
-                            //console.dir(ElVal); console.log('elm:', ElIdx, ElVal.id);
-                            if (ElVal.id == 'custom::custom_process_anchor') { ElVal.click(); } // open project
+                            //console.dir(ElVal);
+                            //console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
+                            if (new RegExp('.*::custom_process_anchor', 'g').test(ElVal.id)) {
+                                _.debounce(function(oElVal) {
+                                    console.log('OpenProjDebounced:', { id: oElVal.id, idx: ElIdx });
+                                    oElVal.click();
+                                }, 1000, { trailing: true })(ElVal);
+                            }
+                            //OpenProjDebounced();
+                            //} // open project
                         });
-                        // $(document.getElementById('custom::custom_process_anchor')).click();
                         $('.main-view').css('left', '0px');
                         window.$flowchart.menuState = 0;
 

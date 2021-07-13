@@ -1,4 +1,4 @@
-define(['app', 'bootstrap'], function(app) {
+define(['app', '_', 'bootstrap'], function(app) {
     console.log('@library/ultiflow: app:', app);
     var ultiflow = { data: {}, versions: {}, ui: {} };
 
@@ -10,28 +10,30 @@ define(['app', 'bootstrap'], function(app) {
     ultiflow.getAppVersions = function() {
         return app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
-            app.versions = Object.assign(app.versions || {}, { os: response });
-            app.versions.Browser = navigator.appVersion;
-            app.versions.jstree = jQuery.jstree.version;
-            app.versions.jquery = jQuery.fn.jquery;
-            app.versions['jquery-ui'] = jQuery.ui.version;
-            app.versions.requirejs = requirejs.version;
-            app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION;
-            app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || '';
-            app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || '';
+            setTimeout(function() {
+                app.versions = Object.assign(app.versions || {}, { os: response });
+                try { app.versions.Browser = navigator.appVersion; } catch (err) { console.log('err:', err); }
+                try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
+                try { app.versions.jquery = jQuery.fn.jquery; } catch (err) { console.log('err:', err); }
+                try { app.versions['jquery-ui'] = jQuery.ui.version; } catch (err) { console.log('err:', err); }
+                try { app.versions.requirejs = requirejs.version; } catch (err) { console.log('err:', err); }
+                try { app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION; } catch (err) { console.log('err:', err); }
+                try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
+                try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }
 
-            if (app.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
-                app.versions.os['perl-Modules'] = JSON.parse(app.versions.os['perl-Modules']);
-            }
-            if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
-                app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
-            }
-            $("#loadingDiv").fadeOut(500, function() {
-                // fadeOut complete. Remove the loading div
-                //$("#loadingDiv").remove(); //makes page more lightweight 
-            });
-            console.log('@library/ultiflow: app.versions:', app.versions);
-            ultiflow.versions = app.versions;
+                if (app.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
+                    app.versions.os['perl-Modules'] = JSON.parse(app.versions.os['perl-Modules']);
+                }
+                if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
+                    app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
+                }
+                $("#loadingDiv").fadeOut(500, function() {
+                    // fadeOut complete. Remove the loading div
+                    //$("#loadingDiv").remove(); //makes page more lightweight 
+                });
+                console.log('@library/ultiflow: app.versions:', app.versions);
+                ultiflow.versions = app.versions;
+            }, 500);
         });
     };
     ultiflow.getAppVersions();
@@ -139,6 +141,57 @@ define(['app', 'bootstrap'], function(app) {
         this.saveProcess(this.openedProcess, cb);
     };
 
+    ultiflow.PerlCodeRun = function() {
+        var self = this;
+        console.log('jsonPerlCodeRun: processData:', self.processData);
+        if (this.processData) {
+            var data = self.processData.process; //window.$ultiflow.processData.process;
+            var jsonPerlCodeRun = '';
+
+            var operatorObjs = Object.keys(data.operators);
+            for (var operatorId in operatorObjs) {
+                if (data.operators[operatorId].type && (data.operators[operatorId].type === 'perl_procs::perl_init')) {
+                    jsonPerlCodeRun = JSON.stringify(data.parameters[operatorId]);
+                    console.log('jsonPerlCodeRun:', { code: jsonPerlCodeRun, oper: data.parameters[operatorId] });
+                }
+            }
+
+            if (jsonPerlCodeRun !== '' && jsonPerlCodeRun !== '{}') {
+                app.sendRequest('perl_CodeRun', { 'cmd': jsonPerlCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
+                    console.log('PerlCodeRun: ', response);
+                    //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+                });
+            } else {
+                alert('Perl Init not Found!');
+            }
+        }
+    };
+
+    ultiflow.PythonCodeRun = function() {
+        var self = this;
+        console.log('jsonPythonCodeRun: processData:', self.processData);
+        if (this.processData) {
+            var data = self.processData.process; //window.$ultiflow.processData.process;
+            var jsonPythonCodeRun = '';
+
+            var operatorObjs = Object.keys(data.operators);
+            for (var operatorId in operatorObjs) {
+                if (data.operators[operatorId].type && (data.operators[operatorId].type === 'python_procs::python_init')) {
+                    jsonPythonCodeRun = JSON.stringify(data.parameters[operatorId]);
+                    console.log('jsonPythonCodeRun:', { code: jsonPythonCodeRun, oper: data.parameters[operatorId] });
+                }
+            }
+
+            if (jsonPythonCodeRun !== '' && jsonPythonCodeRun !== '{}') {
+                app.sendRequest('python_CodeRun', { 'cmd': jsonPythonCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
+                    console.log('PythonCodeRun: ', response);
+                    //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+                });
+            } else {
+                alert('Python Init not Found!');
+            }
+        }
+    }
 
     app.onEvent('ultiflow::process_change_detected', function(e) {
         if (ultiflow.timeoutChangeId != null) {

@@ -4,6 +4,7 @@ import sys
 import platform
 import subprocess
 from ultide.models import DevLang
+from datetime import datetime
 
 WORKSPACE_DIR = 'workspaces'
 OPERATORS_DIR = 'operators'
@@ -29,11 +30,12 @@ def get_operators_infos(path, proj_name, session_data):
                 try:
                     with open(config_path, 'r') as f:
                         config = json.load(f)
-                    config['path'] = config_path
-                    config['fs'] = dict( workspace_dir=WORKSPACE_DIR, operators_dir=OPERATORS_DIR, config_file=CONFIG_FILE, work_dir=session_data['user'].get_property('workspace'), oper_path=path, oper_name=item, user_id=session_data['user'].id, proj_name=proj_name )
-                    operator_id = config['id']
-                    operators_tree[operator_id] = True
-                    operators_list[operator_id] = config
+                        if (not hasattr(config, "path") or len(config['path'])<1) : config['path'] = config_path
+                        if (not hasattr(config, "fs")   or len(config['fs']  )<1) : config['fs']   = dict( workspace_dir=WORKSPACE_DIR, operators_dir=OPERATORS_DIR, config_file=CONFIG_FILE, work_dir=session_data['user'].get_property('workspace'), oper_path=path, oper_name=item, user_id=session_data['user'].id, proj_name=proj_name )
+                        operator_id = config['id']
+                        operators_tree[operator_id] = True
+                        operators_list[operator_id] = config
+                        print( ('@lib/ultiflow/main.py: json:', f, config) )
                 except:
                     pass # todo
             else:
@@ -111,7 +113,9 @@ def on_perl_CodeRun(data, response, session_data):
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
     if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
 
+    perlopts = dict(del_script = 1); # DEFAULT DELETE SCRIPTS
     perlobj = json.loads(data['cmd']);  # "perl_incdirs":[], "perl_add_use":[], "perl_init":'<perl init code>'
+    if hasattr(data, "opts"): perlopts = data['opts']
 
     # First ADD Perl Init Code:
     perl_code = perlobj['perl_init']
@@ -129,7 +133,7 @@ def on_perl_CodeRun(data, response, session_data):
         perl_code += 'use ' + add_module + ';' + "\n"
 
     from tempfile import mkstemp
-    fd, temp_script_path = mkstemp(dir=scripts_dir, prefix="perl_script", suffix = '.pl')
+    fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.today().strftime('%Y%m%d%H%M%S') + "-perl_script", suffix = '.pl')
     # use a context manager to open the file at that path and close it again
     with open(temp_script_path, 'w') as f:
         f.write( perl_code )
@@ -152,5 +156,50 @@ def on_perl_CodeRun(data, response, session_data):
         ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
         print('@on_perl_CodeRun: Exception:', err ) # To print out the exception message , print out the stdout messages up to the exception
     
-    os.remove(temp_script_path) # delete temp file
+    if ( perlopts.del_script != 0 ):
+        os.remove(temp_script_path) # delete temp file
+
+    response['RetVal'] = ret
+
+def on_python_CodeRun(data, response, session_data):
+    workspace = session_data['user'].get_property('workspace')
+    print( ('@on_python_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
+
+    # Check if Exists: scripts <DIR> and create it if not...
+    scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
+    if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
+
+    pythonopts = dict(del_script = 1); # DEFAULT DELETE SCRIPTS
+    pythonobj = json.loads(data['cmd']);  # "python_incdirs":[], "python_add_use":[], "python_init":'<python init code>'
+    if hasattr(data, "opts"): pythonopts = data['opts']
+
+    # First ADD python Init Code:
+    python_code = pythonobj['python_init']
+
+    from tempfile import mkstemp
+    fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.today().strftime('%Y%m%d%H%M%S') + "-python_script", suffix = '.py')
+    # use a context manager to open the file at that path and close it again
+    with open(temp_script_path, 'w') as f:
+        f.write( python_code )
+    # close the file descriptor
+    os.close(fd)
+
+    print('@on_python_CodeRun: script', temp_script_path)
+
+    cmd = [ 'python', temp_script_path ]
+    print ('@on_python_CodeRun: cmd:',cmd)
+    ret = ''
+    try:
+        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, encoding='UTF-8')
+        print ('@on_python_CodeRun: RetVal:', ret)
+    except Exception as err:
+        import traceback
+        exc_info = sys.exc_info()
+        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+        print('@on_python_CodeRun: Exception:', err ) # To print out the exception message , print out the stdout messages up to the exception
+    
+    if ( pythonopts['del_script'] == 1 ):
+        os.remove(temp_script_path) # delete temp file
+
     response['RetVal'] = ret

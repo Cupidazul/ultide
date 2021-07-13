@@ -14,5 +14,6 @@ requirejs_paths = {
   'ultiflow-lib-mousewheel': 'static/modules/ultiflow/plugins/jquery-mousewheel/jquery.mousewheel.min',
   'ultiflow-lib-flowchart': 'static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min',
   'ultiflow-lib-panzoom': 'static/modules/ultiflow/plugins/jquery.panzoom/dist/jquery.panzoom.min',
-  'ultiflow-lib-jstree': 'static/modules/ultiflow/plugins/jstree/dist/jstree.min'
+  'ultiflow-lib-jstree': 'static/modules/ultiflow/plugins/jstree/dist/jstree.min',
+  '_': 'static/modules/ultiflow/javascript/lodash.full',
 }

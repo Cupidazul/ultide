@@ -6,6 +6,8 @@ define([
     'css!static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min.css'
 ], function(app) {
     console.log('@library/ultiflow/main: app:', app);
+    var self = this;
+
     var $mainView = app.ui.mainView;
     var $mainNavBar = app.ui.mainNavBar;
 
@@ -21,14 +23,24 @@ define([
     $mainView.main_view('showView', 'flowchart');
     $mainNavBar.main_nav_bar('activateButton', 'flowchart');
 
+    window.$ultiflow.$designView = $designView;
+    window.$ultiflow.$mainView = $mainView;
+    window.$ultiflow.$mainNavBar = $mainNavBar;
 });
 
 var helper = {};
 helper.createPanel = function(title, content) {
+    var self = this;
+    console.log('@library/ultiflow/main: createPanel:', { title: title, content: content });
+
     var $panel = $('<div class="panel panel-default"></div>');
 
-    var $AddButton = ''; //'<button id="btn_add_' + String(title).toLocaleLowerCase().replace(' ', '_') + '"class="fas fa-plus" style="float: right;"></button>';
-    var $heading = $('<div class="panel-heading">' + $AddButton + '<div>');
+    var AddButton = '';
+    if (title == 'Workspace') {
+        AddButton = `<button id="btn_add_workspace" class="fas fa-plus" style="float: right;"></button>`;
+    }
+
+    var $heading = $('<div class="panel-heading">' + AddButton + '<div>');
     $heading.appendTo($panel);
 
     var $title = $('<h3 class="panel-title"></h3>');
@@ -39,6 +51,7 @@ helper.createPanel = function(title, content) {
     $content.append(content);
     $content.appendTo($panel);
 
+    window.$ultiflow.$panel = [...window.$ultiflow.$panel || [], ...$panel];
     return $panel;
 };
 
@@ -60,5 +73,6 @@ helper.treeDataFromOperatorData = function(tree, operators, path) {
             });
         }
     }
+    window.$ultiflow.$treeData = [...[], ...window.$ultiflow.$treeData || [], ...res];
     return res;
 };
