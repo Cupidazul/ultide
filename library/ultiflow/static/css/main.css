@@ -139,8 +139,7 @@
 
 .uf-flowchart-no-file {
     position: absolute;
-    top: 0px;
-    left: 250px;
+    left: 0px;
     right: 0px;
     height: 100%;
 }
@@ -314,4 +313,28 @@
     height: 100%;
     background-color: #0005;
     overflow: hidden;
+}
+
+#btn_ioStatus {
+    position: relative;
+    top: 5px;
+    padding: 5px;
+    height: 14px;
+    border-radius: 11px;
+    margin-left: 5px;
+    line-height: 0px;
+    font-size: 12px;
+    outline: 0px;
+    color: white;
+    border: outset;
+    cursor: auto;
+}
+
+#btn_ioStatus:active {
+    border-color: none;
+}
+
+#btn_ioStatus:focus {
+    outline: none;
+    box-shadow: none;
 }

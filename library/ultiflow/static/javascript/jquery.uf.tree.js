@@ -3,10 +3,12 @@ define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) 
         options: {},
 
         // the constructor
-        _create: function(elm) {
+        _create: function() {
             var self = this;
             //console.log('ultiflow.uf_tree:_create:' + self.eventNamespace, self);
             self.id = 'uf_tree' + self.uuid;
+            $(self.element)[0].id = self.id;
+
             window.$ultiflow.$uf_tree = Object.assign(window.$ultiflow.$uf_tree || {}, {
                 [self.id]: self
             });
@@ -34,14 +36,19 @@ define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) 
                         return (node[0].type === 'operator'); // FIX: avoid dragging non operators
                     },
                 },
+                id: self.id,
+                el: self,
             };
 
             var options = $.extend(true, defaultOptions, self.options);
 
             self.element.jstree(options)
                 .on('ready.jstree', function(evt) {
-                    console.log('ready.jstree');
+                    // REMEMBER: ready.jstree Occurs Twice! : library-Demo + workspace-My Project
+
                     var el = $(evt.target);
+
+                    //console.log('ready.jstree', options, el, this);
 
                     _.debounce(() => {
                         //console.log('ready.jstree:', el); //, el.find('ul.jstree-container-ul').find('li.jstree-node'));
@@ -51,52 +58,60 @@ define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) 
                             //console.log('ready.jstree1:', el, $(document).find('ul.jstree-container-ul li.jstree-node ul.jstree-children').children());
                             el.jstree('open_all'); // expand/open all jstree's
 
-                            var LastId = '';
-                            $("a.jstree-anchor").each(function(ElIdx, ElVal) {
-                                //console.dir(ElVal);
-                                console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
-                                if (new RegExp('^workspace\-.*', 'g').test(LastId)) { // Click Open Project on 1st Element after 'Workspace'
-                                    _.debounce(function(oElVal) {
-                                        console.log('OpenProjDebounced:', { id: oElVal.id, idx: ElIdx });
-                                        oElVal.click();
-                                    }, 1000, { trailing: true })(ElVal);
-                                }
-                                LastId = ElVal.id;
-                                //OpenProjDebounced();
-                                //} // open project
-                            });
-                            $('.main-view').css('left', '0px');
-                            window.$flowchart.menuState = 0;
+                            var elDescendant = $('#' + el.prop('id') + ' >ul >li').first().prop('id');
 
-                            //$('.uf-side-bar.right').css('right', '-245px');
-                            $('.uf-side-bar.right')
-                                .resizable({
-                                    minWidth: $('.uf-side-bar.right').width(),
-                                    maxWidth: 1000,
-                                    disabled: true,
-                                    handles: "w" // https://api.jqueryui.com/1.8/resizable/#option-handles
-                                })
-                                .on('resize', function(evt) { // bug-fix: https://bugs.jqueryui.com/ticket/4985
-                                    $(evt.target).css('left', '');
+                            // # Click Only Once on Open Project, and resize/close views := Prepare User Environment
+                            if (new RegExp('^workspace\-.*', 'g').test(elDescendant)) {
+
+                                var LastId = '';
+                                $("a.jstree-anchor").each(function(ElIdx, ElVal) {
+                                    var thisTree = this;
+                                    //console.dir(ElVal);
+                                    //console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
+                                    if (new RegExp('^workspace\-.*', 'g').test(LastId)) { // Click Open Project on 1st Element after 'Workspace'
+                                        _.debounce(function(oElVal) {
+                                            console.log('OpenProjDebounced:', { id: oElVal.id, idx: ElIdx });
+                                            oElVal.click();
+                                        }, 1000, { trailing: true })(ElVal);
+                                    }
+                                    LastId = ElVal.id;
+                                    //OpenProjDebounced();
+                                    //} // open project
                                 });
-
-                            setTimeout(function() {
-                                $('.uf-side-bar.right').css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'));
+                                $('.main-view').css('left', '0px');
                                 window.$flowchart.menuState = 0;
-                                $('.uf-side-bar.left').css('left', '-245px');
-                                $('.uf-side-bar.left')
-                                    .on('mouseover', function(evt) {
-                                        $('.uf-side-bar.left').css('left', '');
+
+                                //$('.uf-side-bar.right').css('right', '-245px');
+                                $('.uf-side-bar.right')
+                                    .resizable({
+                                        minWidth: $('.uf-side-bar.right').width(),
+                                        maxWidth: 1000,
+                                        disabled: true,
+                                        handles: "w" // https://api.jqueryui.com/1.8/resizable/#option-handles
                                     })
-                                    .on('mouseout', function(evt) {
-                                        //console.log('mouseout!!', evt.offsetX);
-                                        if (evt.toElement && evt.toElement.className.baseVal === 'flowchart-links-layer' && !window.$flowchart.menuState) {
-                                            setTimeout(function() {
-                                                $('.uf-side-bar.left').css('left', '-245px');
-                                            }, 350);
-                                        }
+                                    .on('resize', function(evt) { // bug-fix: https://bugs.jqueryui.com/ticket/4985
+                                        $(evt.target).css('left', '');
                                     });
-                            }, 350);
+
+                                setTimeout(function() {
+                                    $('.uf-side-bar.right').css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'));
+                                    window.$flowchart.menuState = 0;
+                                    $('.uf-side-bar.left').css('left', '-245px');
+                                    $('.uf-side-bar.left')
+                                        .on('mouseover', function(evt) {
+                                            if (typeof(evt.offsetX) !== 'undefined') $('.uf-side-bar.left').css('left', '');
+                                        })
+                                        .on('mouseout', function(evt) {
+                                            //console.log('mouseout!!', evt.offsetX);
+                                            if (evt.toElement && evt.toElement.className.baseVal === 'flowchart-links-layer' && !(window.$flowchart.menuState)) {
+                                                setTimeout(function() {
+                                                    $('.uf-side-bar.left').css('left', '-245px');
+                                                }, 350);
+                                            }
+                                        });
+                                }, 350);
+                            }
+
                         }, 500);
 
                     }, 700, { trailing: true })();

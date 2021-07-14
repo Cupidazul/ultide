@@ -42,6 +42,7 @@ define([
                 this.changeState('unopened');
 
                 var self = this;
+
                 app.onEvent('ultiflow::process_open', function(e, processData) {
                     self.changeState('opened');
                     //$('.ui-draggable-handle').on('mousemove',  function(evt) { evt.stopPropagation(); $ufPanzoom.disable(); })
@@ -73,8 +74,14 @@ define([
 
                 });
 
+                $('#btn_add_library').on('click', function(evt) {
+                    console.log('btn_add_library.click:', evt);
+                    $ultiflow.addLibraryOp();
+                });
+
                 $('#btn_add_workspace').on('click', function(evt) {
                     console.log('btn_add_workspace.click:', evt);
+                    $ultiflow.addWorkspaceOp();
                 });
 
                 //console.log('uf_design_view:', self);
@@ -91,6 +98,15 @@ define([
                         app.triggerEvent('ultiflow::process_saved', success);
                     });
                 });
+
+                setInterval(function() {
+                    if ($app.socket.connected) {
+                        $('#btn_ioStatus').css('background-color', 'lightgreen');
+                    } else {
+                        $('#btn_ioStatus').css('background-color', 'red');
+                    }
+                }, 1000);
+
             },
 
             changeState: function(newState) {

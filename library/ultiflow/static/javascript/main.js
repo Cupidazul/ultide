@@ -36,6 +36,11 @@ helper.createPanel = function(title, content) {
     var $panel = $('<div class="panel panel-default"></div>');
 
     var AddButton = '';
+
+    if (title == 'Library') {
+        AddButton = `<button id="btn_add_library" class="fas fa-plus" style="float: right;"></button>`;
+    }
+
     if (title == 'Workspace') {
         AddButton = `<button id="btn_add_workspace" class="fas fa-plus" style="float: right;"></button>`;
     }

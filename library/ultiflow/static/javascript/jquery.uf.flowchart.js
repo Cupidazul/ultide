@@ -37,7 +37,7 @@ define([
             this.els.flowchartMiniView = $flowchartMiniView;
             this.element.append(this.els.flowchartMiniView);
 
-            this.els.flowchartMiniViewContent = $('<svg class="uf-flowchart-mini-view-content"></svg>');
+            this.els.flowchartMiniViewContent = $('<svg viewBox="60 65 120 120" class="uf-flowchart-mini-view-content"></svg>');
             this.els.flowchartMiniViewContent.appendTo(this.els.flowchartMiniView);
 
             var $flowchartMiniViewFocus = $('<div class="uf-flowchart-mini-view-focus"></div>');

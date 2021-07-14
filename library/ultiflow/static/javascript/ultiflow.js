@@ -1,9 +1,8 @@
 define(['app', '_', 'bootstrap'], function(app) {
+    var self = this;
     console.log('@library/ultiflow: app:', app);
     var ultiflow = { data: {}, versions: {}, ui: {} };
-
-    window.$app = app;
-    window.$ultiflow = ultiflow;
+    app.ultiflow = ultiflow;
 
     ultiflow.timeoutChangeLength = 200;
 
@@ -39,23 +38,23 @@ define(['app', '_', 'bootstrap'], function(app) {
     ultiflow.getAppVersions();
 
     ultiflow.getModulesInfos = function(cb) {
-        var self = this;
+        var _self = this;
         if (typeof this.data.modulesInfos == 'undefined') {
             app.sendRequest('modules_infos', {}, function(response) {
                 console.log('@library/ultiflow.getModulesInfos:', response);
 
-                self.data.modulesInfos = response;
-                cb(self.data.modulesInfos);
+                _self.data.modulesInfos = response;
+                cb(_self.data.modulesInfos);
             });
         } else {
-            cb(self.data.modulesInfos);
+            cb(_self.data.modulesInfos);
         }
     };
 
     ultiflow.getOperators = function(cb) {
-        var self = this;
+        var _self = this;
         this.getModulesInfos(function() {
-            cb(self.data.modulesInfos.operators);
+            cb(_self.data.modulesInfos.operators);
         });
     };
 
@@ -71,7 +70,7 @@ define(['app', '_', 'bootstrap'], function(app) {
 
     ultiflow.setOpenedProcess = function(processId) {
         this.openedProcess = processId;
-        var self = this;
+        var _self = this;
         app.setUserProperty('ultiflow::opened_process', processId, function(success) {});
     };
 
@@ -84,13 +83,13 @@ define(['app', '_', 'bootstrap'], function(app) {
     };
 
     ultiflow.loadFieldType = function(fullname, cb) {
-        var self = this;
+        var _self = this;
         var splittedFullname = fullname.split('::');
         var module = splittedFullname[0];
         var name = splittedFullname[1];
         require(['static/modules/' + module + '/fieldtypes/' + name + '/main'], function(module) {
             if (module == true) {
-                cb(self.getErrorModule());
+                cb(_self.getErrorModule());
             } else {
                 cb(module);
             }
@@ -128,24 +127,29 @@ define(['app', '_', 'bootstrap'], function(app) {
         });
     };
 
-
-
     ultiflow.saveProcess = function(processId, cb) {
-        var operatorData = this.data.modulesInfos.operators.list[processId];
-        this.writeFile(operatorData.path, JSON.stringify(operatorData), function(success) {
+        var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
+        //console.log(operatorData);
+        if (typeof(operatorData) !== 'undefined') this.writeFile(operatorData.path, JSON.stringify(operatorData), function(success) {
             cb(success);
         });
     };
 
     ultiflow.saveCurrentProcess = function(cb) {
-        this.saveProcess(this.openedProcess, cb);
+        this.saveProcess(ultiflow.openedProcess, cb);
+    };
+
+    ultiflow.showCurrentProcess = function() {
+        var processId = ultiflow.openedProcess;
+        var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
+        if (operatorData) console.log('operatorData:', operatorData);
     };
 
     ultiflow.PerlCodeRun = function() {
-        var self = this;
-        console.log('jsonPerlCodeRun: processData:', self.processData);
-        if (this.processData) {
-            var data = self.processData.process; //window.$ultiflow.processData.process;
+        var _self = this;
+        console.log('jsonPerlCodeRun: processData:', ultiflow.processData);
+        if (ultiflow.processData) {
+            var data = ultiflow.processData.process; //window.$ultiflow.processData.process;
             var jsonPerlCodeRun = '';
 
             var operatorObjs = Object.keys(data.operators);
@@ -168,10 +172,10 @@ define(['app', '_', 'bootstrap'], function(app) {
     };
 
     ultiflow.PythonCodeRun = function() {
-        var self = this;
-        console.log('jsonPythonCodeRun: processData:', self.processData);
-        if (this.processData) {
-            var data = self.processData.process; //window.$ultiflow.processData.process;
+        var _self = this;
+        console.log('jsonPythonCodeRun: processData:', ultiflow.processData);
+        if (ultiflow.processData) {
+            var data = ultiflow.processData.process; //window.$ultiflow.processData.process;
             var jsonPythonCodeRun = '';
 
             var operatorObjs = Object.keys(data.operators);
@@ -210,7 +214,7 @@ define(['app', '_', 'bootstrap'], function(app) {
 
 
     ultiflow.operatorChooser = function(customOptions) {
-        var self = this;
+        var _self = this;
         this.getOperators(function(data) {
 
             var keys = ['library', 'workspace'];
@@ -219,7 +223,7 @@ define(['app', '_', 'bootstrap'], function(app) {
             for (var i = 0; i < keys.length; i++) {
                 var key = keys[i];
 
-                var partTreeData = self.treeDataFromOperatorData(data.tree[key], data.list, key);
+                var partTreeData = _self.treeDataFromOperatorData(data.tree[key], data.list, key);
                 treeData.push({
                     id: key,
                     text: texts[i],
@@ -236,14 +240,14 @@ define(['app', '_', 'bootstrap'], function(app) {
 
             var options = $.extend({}, originalOptions, customOptions);
 
-
+            var Title = 'Choose operator';
             var str = `
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">Choose operator</h4>
+                <h4 class="modal-title" id="myModalLabel">${Title}</h4>
             </div>
             <div class="modal-body"></div>
             <div class="modal-footer">
@@ -314,6 +318,222 @@ define(['app', '_', 'bootstrap'], function(app) {
         });
     };
 
+    ultiflow.addLibraryOp = function(customOptions) {
+        var _self = this;
+        this.getOperators(function(data) {
+
+            var keys = ['library'];
+            var texts = ['Library'];
+            var treeData = [];
+            for (var i = 0; i < keys.length; i++) {
+                var key = keys[i];
+
+                var partTreeData = _self.treeDataFromOperatorData(data.tree[key], data.list, key);
+                treeData.push({
+                    id: key,
+                    text: texts[i],
+                    children: partTreeData
+                });
+            }
+
+
+
+            var originalOptions = {
+                operatorId: null,
+                onSelected: function(path) {}
+            };
+
+            var options = $.extend({}, originalOptions, customOptions);
+
+            var Title = 'New Library Operator';
+            var str = `
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">${Title}</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <div style="float: left; line-height: 31px;">
+                <div class="operator-id"></div>
+            </div>
+            <div style="float: right;">
+                <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary disabled">Choose</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+            var $modal = $(str);
+            var $title = $modal.find('.modal-title');
+            var $body = $modal.find('.modal-body');
+            var $primaryButton = $modal.find('.btn-primary');
+            var $cancelButton = $modal.find('.btn-cancel');
+            var $operatorId = $modal.find('.operator-id');
+
+
+            var $tree = $('<div style="height: 200px; overflow-y: auto;"></div>');
+            $tree.appendTo($body);
+
+            $tree.uf_tree({ core: { data: treeData } });
+
+            var selectedOperatorId = null;
+            $tree.on('select_node.jstree', function(e, data) {
+                if (data.node.type == 'default') {
+                    $primaryButton.removeClass('disabled');
+                    selectedOperatorId = data.node.id;
+                    $operatorId.text(data.node.id);
+                } else {
+                    $primaryButton.addClass('disabled');
+                    selectedOperatorId = null;
+                    $operatorId.text('');
+                }
+            });
+
+            $tree.on('loaded.jstree', function(e, data) {
+                if (options.operatorId != null) {
+                    //$tree.jstree('select_node', options.operatorId);
+                    $tree.jstree('open_all');
+                }
+            });
+
+
+            $cancelButton.click(function() {
+                selectedOperatorId = null;
+            });
+
+
+            $primaryButton.click(function() {
+                var $this = $(this);
+                if (!$this.hasClass('disabled')) {
+                    //selectedPath = $body.file_chooser('getPath');
+                    $modal.modal('hide');
+                }
+            });
+
+
+            $modal.modal();
+            $modal.on('hidden.bs.modal', function() {
+                options.onSelected(selectedOperatorId);
+                $modal.remove();
+            });
+        });
+    };
+
+    ultiflow.addWorkspaceOp = function(customOptions) {
+        var _self = this;
+        ultiflow.showCurrentProcess();
+        this.getOperators(function(data) {
+
+            var keys = ['workspace'];
+            var texts = ['Workspace'];
+            var treeData = [];
+            for (var i = 0; i < keys.length; i++) {
+                var key = keys[i];
+
+                var partTreeData = _self.treeDataFromOperatorData(data.tree[key], data.list, key);
+                treeData.push({
+                    id: key,
+                    text: texts[i],
+                    children: partTreeData
+                });
+            }
+
+
+
+            var originalOptions = {
+                operatorId: null,
+                onSelected: function(path) {}
+            };
+
+            var options = $.extend({}, originalOptions, customOptions);
+
+            var Title = 'New Workspace Project';
+            var str = `
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">${Title}</h4>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <div style="float: left; line-height: 31px;">
+                <div class="operator-id"></div>
+            </div>
+            <div style="float: right;">
+                <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary disabled">Choose</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+            var $modal = $(str);
+            var $title = $modal.find('.modal-title');
+            var $body = $modal.find('.modal-body');
+            var $primaryButton = $modal.find('.btn-primary');
+            var $cancelButton = $modal.find('.btn-cancel');
+            var $operatorId = $modal.find('.operator-id');
+
+
+            var $tree = $('<div style="height: 200px; overflow-y: auto;"></div>');
+            $tree.appendTo($body);
+
+            $tree.uf_tree({ core: { data: treeData } });
+
+            var selectedOperatorId = null;
+            $tree.on('select_node.jstree', function(e, data) {
+                console.log('select_node.jstree:', data.node.type);
+                if (data.node.type == 'default') {
+                    $primaryButton.removeClass('disabled');
+                    selectedOperatorId = data.node.id;
+                    $operatorId.text(data.node.id);
+                } else {
+                    $primaryButton.addClass('disabled');
+                    selectedOperatorId = null;
+                    $operatorId.text('');
+                }
+            });
+
+            $tree.on('loaded.jstree', function(e, data) {
+                if (options.operatorId != null) {
+                    //$tree.jstree('select_node', options.operatorId);
+                    $tree.jstree('open_all');
+                }
+            });
+
+
+            $cancelButton.click(function() {
+                selectedOperatorId = null;
+            });
+
+
+            $primaryButton.click(function() {
+                var $this = $(this);
+                if (!$this.hasClass('disabled')) {
+                    //selectedPath = $body.file_chooser('getPath');
+                    $modal.modal('hide');
+                }
+            });
+
+
+            $modal.modal();
+            $modal.on('hidden.bs.modal', function() {
+                options.onSelected(selectedOperatorId);
+                $modal.remove();
+            });
+        });
+    };
+
+    window.$ultiflow = {...window.$ultiflow, ...ultiflow };
+    window.$app = {...window.$app, ...app };
 
     return ultiflow;
 });

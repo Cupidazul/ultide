@@ -2,11 +2,11 @@ define([
     'app',
     'jquery',
     'jquery-ui'
-],function(app, $) {
-    $.widget( "ultiflow.file_chooser", {
+], function(app, $) {
+    $.widget("ultiflow.file_chooser", {
         options: {
             onlyFolders: false,
-            onFileFolderSelect: function(type, path) {}
+            onFileFolderSelect: function(type, path)  {}
         },
         els: {
             folderInput: null,
@@ -22,6 +22,8 @@ define([
         // the constructor
         _create: function() {
             var self = this;
+
+            window.$ultiflow.file_chooser = {...window.$ultiflow.file_chooser || {}, ...self };
 
             var $inputGroup = $('<div class="input-group"></div>');
             var $inputGroupBtn = $('<span class="input-group-btn"></span>');
@@ -101,8 +103,7 @@ define([
             }
 
             app.sendRequest(
-                'list_files',
-                {
+                'list_files', {
                     path: folderPath
                 },
                 function(data) {

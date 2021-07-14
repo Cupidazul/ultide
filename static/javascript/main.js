@@ -2,10 +2,12 @@ console.log('@index: this:', this);
 require.config({
     map: {
         '*': {
-            'css': 'static/plugins/require-css/css'
+            'css': 'static/plugins/require-css/css',
         }
     },
     paths: {
+        'text': 'static/plugins/require.js/lib/text',
+        'json': 'static/plugins/require.js/lib/json',
         'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
         'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
         'socket-io': 'static/javascript/socket.io.min',
@@ -19,16 +21,19 @@ require.config({
     }
 });
 
-require(['jquery', 'app', 'main-nav-bar', 'main-view'], function($, app) {
+require(['jquery', 'app', 'json!package.json', 'main-nav-bar', 'main-view'], function($, app, pkg) {
+
     var $mainNavBar = $('.main-nav-bar');
     $mainNavBar.main_nav_bar();
     app.ui.mainNavBar = $mainNavBar;
+    app.pkg = pkg;
 
     var $mainView = $('.main-view');
     $mainView.main_view();
     app.ui.mainView = $mainView;
 
-    $mainView.main_view('createView', 'welcome', $('<div style="margin-left: 100px; margin-right:100px"><h1 style="align:center;">Welcome to this Alpha version of UltIDE!</h1>This is a WIP, but since some people asked me to access it, I published it.<br><br>There is nothing to see here for the moment, just click on Flowchart at the left bar.</div>'));
+    var WelcomeMessage = '<h1 style="align:center;">Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
+    $mainView.main_view('createView', 'welcome', $(`<div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
     $mainView.main_view('showView', 'welcome');
 
     $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
@@ -45,4 +50,5 @@ require(['jquery', 'app', 'main-nav-bar', 'main-view'], function($, app) {
             require(data.main_js);
         });
     });
+
 });

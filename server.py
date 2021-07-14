@@ -130,6 +130,13 @@ def index():
     session['uuid'] = str(uuid.uuid4())
     return render_template('index.html')
 
+@app.route('/package.json', methods=['GET'])
+@nocache
+def module_static():
+    print('@server: load_static: ./package.json');sys.stdout.flush();
+    static_loadfile = open('package.json').read()
+    return static_loadfile
+
 @socketio.on('msg', namespace='/uide')
 def msg_received(message):
     session_data = sessions_data[session['uuid']]
@@ -165,7 +172,7 @@ def modules_static(path):
     splitted_path = path.split('/')
     module = splitted_path.pop(0)
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
-    print ('@server: modules_static:',module_path, '/'.join(splitted_path))
+    print('@server: module load:', "./" + module_path.replace("\\","/") + '/'.join(splitted_path));sys.stdout.flush();
     return send_from_directory(module_path, '/'.join(splitted_path))
 
 @socketio.on('connect', namespace='/uide')

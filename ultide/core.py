@@ -60,7 +60,7 @@ def on_get_user_property(data, response, session_data):
     response['value'] = user.get_property(data['key'])
     
 def on_write_file(data, response, session_data):
-    #print('on_write_file:',data['content'])
+    #print('@core.on_write_file:',data['content'])
     file_path = data['path']
     content = data['content']
     response['error'] = False
@@ -77,6 +77,7 @@ def on_list_files(data, response, session_data):
     response['parent'] = os.path.abspath(os.path.join(path, os.pardir))
     response['ds'] = os.path.sep
     
+    print('@core.on_list_files:', path)
     for dirname, dirnames, filenames in os.walk(path):
         response['dirs'] = dirnames
         response['files'] = filenames
@@ -91,7 +92,7 @@ def on_get_js(data, response, session_data):
         module_infos = session_data['modules_infos'][module_name]
         if ('config' in module_infos):
             config = module_infos['config']
-            print('config', module_name, config)
+            print('@core.on_get_js: config:', module_name, config)
             if (hasattr(config, 'requirejs_paths')):
                 require_paths.update(config.requirejs_paths)
             if (hasattr(config, 'main_js')):

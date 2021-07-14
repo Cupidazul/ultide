@@ -35,7 +35,7 @@ def get_operators_infos(path, proj_name, session_data):
                         operator_id = config['id']
                         operators_tree[operator_id] = True
                         operators_list[operator_id] = config
-                        print( ('@lib/ultiflow/main.py: json:', f, config) )
+                        #print( ('@lib/ultiflow/main.py: json:', f, config) )
                 except:
                     pass # todo
             else:
