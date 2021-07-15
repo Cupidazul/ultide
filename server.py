@@ -15,14 +15,14 @@ if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.defa
 
 if async_mode is None:
     try:
-        import eventlet
+        import eventlet                 #type: ignore vscode.lint: warning
         async_mode = 'eventlet'
     except ImportError:
         pass
 
     if async_mode is None:
         try:
-            from gevent import monkey
+            from gevent import monkey   #type: ignore vscode.lint: warning
             async_mode = 'gevent'
         except ImportError:
             pass
@@ -35,10 +35,10 @@ if async_mode is None:
 # monkey patching is necessary because this application uses a background
 # thread
 if async_mode == 'eventlet':
-    import eventlet
+    import eventlet                     #type: ignore vscode.lint: warning
     eventlet.monkey_patch()
 elif async_mode == 'gevent':
-    from gevent import monkey
+    from gevent import monkey           #type: ignore vscode.lint: warning
     monkey.patch_all()
 
 import time

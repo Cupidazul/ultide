@@ -3,6 +3,7 @@ name = 'Ultiflow'
 main_js = 'static/modules/ultiflow/javascript/main'
 
 requirejs_paths = {
+  '_': 'static/modules/ultiflow/plugins/lodash/lodash.min',
   'ultiflow': 'static/modules/ultiflow/javascript/ultiflow',
   'ultiflow-design-view': 'static/modules/ultiflow/javascript/jquery.uf.design_view',
   'ultiflow-flowchart': 'static/modules/ultiflow/javascript/jquery.uf.flowchart',
@@ -15,5 +16,4 @@ requirejs_paths = {
   'ultiflow-lib-flowchart': 'static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min',
   'ultiflow-lib-panzoom': 'static/modules/ultiflow/plugins/jquery.panzoom/dist/jquery.panzoom.min',
   'ultiflow-lib-jstree': 'static/modules/ultiflow/plugins/jstree/dist/jstree.min',
-  '_': 'static/modules/ultiflow/javascript/lodash.full',
 }

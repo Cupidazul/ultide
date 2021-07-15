@@ -99,14 +99,6 @@ define([
                     });
                 });
 
-                setInterval(function() {
-                    if ($app.socket.connected) {
-                        $('#btn_ioStatus').css('background-color', 'lightgreen');
-                    } else {
-                        $('#btn_ioStatus').css('background-color', 'red');
-                    }
-                }, 1000);
-
             },
 
             changeState: function(newState) {

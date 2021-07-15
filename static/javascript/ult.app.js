@@ -24,9 +24,27 @@ define(['socket-io'], function(io) {
 
         this.socket = io.connect('ws://' + this.config.server.host + ':' + this.config.server.port + '/uide');
 
+        this.socket.on('disconnect', function() {
+            console.log('@ult.app: socket-io: disconnect!');
+            app.updatePyServerStatus();
+        });
+
         this.socket.on('connect', function() {
+            console.log('@ult.app: socket-io: connect!');
             self.sendRequest('login', self.config.user, function(data) {
                 if (data.connected) {
+                    $(function() {
+                        console.log('@ult.app: document.ready!');
+
+                        // WaitFor: #btn_ioStatus
+                        let checkExist = setInterval(function() {
+                            if ($('#btn_ioStatus').length) {
+                                app.updatePyServerStatus();
+                                clearInterval(checkExist);
+                            }
+                        }, 500); // check every 500ms
+
+                    });
                     cb();
                 } else {
                     alert('@ult.app: Error ! Did not succeed to connect!');
@@ -38,8 +56,9 @@ define(['socket-io'], function(io) {
             if (typeof response.auth_error != 'undefined' && response.auth_error) {
                 alert('@ult.app: Authentification error! Please try again!');
             }
-            if (window.console)
+            if (window.console) {
                 console.log('@ult.app: socket.on.msg:received', response);
+            }
             if (typeof app.requestCallbacks[response.request_id] != 'undefined') {
                 app.requestCallbacks[response.request_id](response.data);
                 delete app.requestCallbacks[response.request_id];
@@ -78,6 +97,13 @@ define(['socket-io'], function(io) {
         });
     };
 
+    app.updatePyServerStatus = function() {
+        if (app.socket.connected) {
+            $('#btn_ioStatus').css('background-color', 'lightgreen');
+        } else {
+            $('#btn_ioStatus').css('background-color', 'red');
+        }
+    };
 
     return app;
 });

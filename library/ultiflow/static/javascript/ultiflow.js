@@ -1,4 +1,4 @@
-define(['app', '_', 'bootstrap'], function(app) {
+define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
     var self = this;
     console.log('@library/ultiflow: app:', app);
     var ultiflow = { data: {}, versions: {}, ui: {} };
@@ -17,6 +17,9 @@ define(['app', '_', 'bootstrap'], function(app) {
                 try { app.versions['jquery-ui'] = jQuery.ui.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.requirejs = requirejs.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION; } catch (err) { console.log('err:', err); }
+                try { app.versions.lodash = _.VERSION; } catch (err) { console.log('err:', err); }
+                try { app.versions.mousewheel = $.event.special.mousewheel.version; } catch (err) { console.log('err:', err); }
+
                 try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
                 try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }
 
@@ -119,7 +122,7 @@ define(['app', '_', 'bootstrap'], function(app) {
 
     ultiflow.writeFile = function(path, content, cb) {
         app.sendRequest('write_file', { path: path, content: content }, function(data) {
-            if (data.error) {
+            if (typeof(data) == 'undefined' || data.error) {
                 cb(false);
             } else {
                 cb(true);
@@ -195,7 +198,7 @@ define(['app', '_', 'bootstrap'], function(app) {
                 alert('Python Init not Found!');
             }
         }
-    }
+    };
 
     app.onEvent('ultiflow::process_change_detected', function(e) {
         if (ultiflow.timeoutChangeId != null) {
@@ -210,8 +213,6 @@ define(['app', '_', 'bootstrap'], function(app) {
             });
         }, ultiflow.timeoutChangeLength);
     });
-
-
 
     ultiflow.operatorChooser = function(customOptions) {
         var _self = this;
@@ -230,8 +231,6 @@ define(['app', '_', 'bootstrap'], function(app) {
                     children: partTreeData
                 });
             }
-
-
 
             var originalOptions = {
                 operatorId: null,
@@ -270,7 +269,6 @@ define(['app', '_', 'bootstrap'], function(app) {
             var $cancelButton = $modal.find('.btn-cancel');
             var $operatorId = $modal.find('.operator-id');
 
-
             var $tree = $('<div style="height: 200px; overflow-y: auto;"></div>');
             $tree.appendTo($body);
 
@@ -295,11 +293,9 @@ define(['app', '_', 'bootstrap'], function(app) {
                 }
             });
 
-
             $cancelButton.click(function() {
                 selectedOperatorId = null;
             });
-
 
             $primaryButton.click(function() {
                 var $this = $(this);
@@ -308,7 +304,6 @@ define(['app', '_', 'bootstrap'], function(app) {
                     $modal.modal('hide');
                 }
             });
-
 
             $modal.modal();
             $modal.on('hidden.bs.modal', function() {
@@ -335,8 +330,6 @@ define(['app', '_', 'bootstrap'], function(app) {
                     children: partTreeData
                 });
             }
-
-
 
             var originalOptions = {
                 operatorId: null,
@@ -375,7 +368,6 @@ define(['app', '_', 'bootstrap'], function(app) {
             var $cancelButton = $modal.find('.btn-cancel');
             var $operatorId = $modal.find('.operator-id');
 
-
             var $tree = $('<div style="height: 200px; overflow-y: auto;"></div>');
             $tree.appendTo($body);
 
@@ -401,11 +393,9 @@ define(['app', '_', 'bootstrap'], function(app) {
                 }
             });
 
-
             $cancelButton.click(function() {
                 selectedOperatorId = null;
             });
-
 
             $primaryButton.click(function() {
                 var $this = $(this);
@@ -414,7 +404,6 @@ define(['app', '_', 'bootstrap'], function(app) {
                     $modal.modal('hide');
                 }
             });
-
 
             $modal.modal();
             $modal.on('hidden.bs.modal', function() {
@@ -426,7 +415,7 @@ define(['app', '_', 'bootstrap'], function(app) {
 
     ultiflow.addWorkspaceOp = function(customOptions) {
         var _self = this;
-        ultiflow.showCurrentProcess();
+        //ultiflow.showCurrentProcess(); // Test
         this.getOperators(function(data) {
 
             var keys = ['workspace'];
@@ -442,8 +431,6 @@ define(['app', '_', 'bootstrap'], function(app) {
                     children: partTreeData
                 });
             }
-
-
 
             var originalOptions = {
                 operatorId: null,
@@ -482,7 +469,6 @@ define(['app', '_', 'bootstrap'], function(app) {
             var $cancelButton = $modal.find('.btn-cancel');
             var $operatorId = $modal.find('.operator-id');
 
-
             var $tree = $('<div style="height: 200px; overflow-y: auto;"></div>');
             $tree.appendTo($body);
 
@@ -509,11 +495,9 @@ define(['app', '_', 'bootstrap'], function(app) {
                 }
             });
 
-
             $cancelButton.click(function() {
                 selectedOperatorId = null;
             });
-
 
             $primaryButton.click(function() {
                 var $this = $(this);
@@ -522,7 +506,6 @@ define(['app', '_', 'bootstrap'], function(app) {
                     $modal.modal('hide');
                 }
             });
-
 
             $modal.modal();
             $modal.on('hidden.bs.modal', function() {

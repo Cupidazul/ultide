@@ -1,4 +1,4 @@
-define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) {
+define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, _) {
     $.widget("ultiflow.uf_tree", {
         options: {},
 
@@ -72,6 +72,7 @@ define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) 
                                         _.debounce(function(oElVal) {
                                             console.log('OpenProjDebounced:', { id: oElVal.id, idx: ElIdx });
                                             oElVal.click();
+                                            $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
                                         }, 1000, { trailing: true })(ElVal);
                                     }
                                     LastId = ElVal.id;
@@ -180,10 +181,6 @@ define(['_', 'app', 'ultiflow', 'ultiflow-lib-jstree'], function(app, ultiflow) 
                         }
                     });
             }
-
-
-
-
 
         }
     });
