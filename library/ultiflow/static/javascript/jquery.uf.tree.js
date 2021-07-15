@@ -114,6 +114,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
 
                                 setTimeout(function() { // Edit Project Title
                                     var EditID = 0;
+                                    var IsEditing = false;
                                     el.find('a>i').each(function(ElIdx, ElVal) {
                                         console.log('ElVal:', $(ElVal), $(ElVal).parent().attr('role'));
                                         if ($(ElVal).parent().attr('aria-level') === '2') {
@@ -128,7 +129,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
 
                                             $('#' + thisObjID).parent().on('mouseover', function() {
                                                 if (CurrIsActive(CurrID) && // dont edit other inactive Projects for now.
-                                                    !$('#' + inputObjID).length) {
+                                                    !IsEditing) {
                                                     $('#' + thisObjID).show();
                                                 }
                                             });
@@ -136,12 +137,17 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                 $('#' + thisObjID).hide();
                                             });
                                             $('#' + thisObjID).parent().on('click', function(evt) {
+                                                if (IsEditing) {
+                                                    evt.stopImmediatePropagation();
+                                                    //evt.preventDefault();
+                                                }
                                                 setTimeout(function() {
                                                     $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
-                                                    $('#' + thisObjID).show();
+                                                    if (!IsEditing) $('#' + thisObjID).show();
                                                 }, 0);
                                             });
-                                            $('#' + thisObjID).on('click', function() {
+                                            $('#' + thisObjID).on('click', function(evt) {
+                                                IsEditing = true;
                                                 var prevText = $('#' + thisObjID).prev().text();
                                                 $('#' + thisObjID).hide();
                                                 if (!$('#' + inputObjID).length) $('#' + thisObjID).after('<input id="' + inputObjID + '" value="' + prevText + '" style="right: 6px;position: absolute;width: 165px;height: 24px;">');
@@ -150,6 +156,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                         var NewValue = $('#' + inputObjID).val();
                                                         $('#' + thisObjID).prev().html($('#' + thisObjID).prev().html().replace(new RegExp(prevText + '$', 'g'), NewValue));
                                                         $('#' + inputObjID).remove();
+                                                        IsEditing = false;
 
                                                         if (CurrIsActive(CurrID)) {
                                                             // CurrID has now been Edited by User and, Yes! its the Active Project!
@@ -158,6 +165,12 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                         } else {
                                                             // CurrID has now been Edited by User and, NO! its Another Project!
                                                         }
+                                                    } else if (evt.key == 'Escape') {
+                                                        // Abort Edit
+                                                        $('#' + inputObjID).remove();
+                                                        IsEditing = false;
+                                                    } else {
+                                                        console.log(evt.key);
                                                     }
                                                 });
                                                 /*$('#' + thisObjID).prev().html(
