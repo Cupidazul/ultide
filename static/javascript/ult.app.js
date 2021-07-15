@@ -99,9 +99,9 @@ define(['socket-io'], function(io) {
 
     app.updatePyServerStatus = function() {
         if (app.socket.connected) {
-            $('#btn_ioStatus').css('background-color', 'lightgreen');
+            $('#btn_ioStatus').removeClass('SrvKO').addClass('SrvOK'); // # OK!
         } else {
-            $('#btn_ioStatus').css('background-color', 'red');
+            $('#btn_ioStatus').removeClass('SrvOK').addClass('SrvKO'); // # KO!
         }
     };
 

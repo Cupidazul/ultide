@@ -78,7 +78,7 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
     };
 
     ultiflow.getOpenedProcessData = function() {
-        return this.data.modulesInfos.operators.list[this.openedProcess];
+        if (ultiflow.data.modulesInfos) return ultiflow.data.modulesInfos.operators.list[this.openedProcess];
     };
 
     ultiflow.getOperatorInfos = function(operator) {
@@ -146,6 +146,13 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
         var processId = ultiflow.openedProcess;
         var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
         if (operatorData) console.log('operatorData:', operatorData);
+    };
+
+    ultiflow.editTitle = function(NewTitle, processId) {
+        if (typeof(processId) == 'undefined') processId = ultiflow.openedProcess;
+        var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
+        operatorData.title = NewTitle;
+        ultiflow.saveProcess(processId, () => {});
     };
 
     ultiflow.PerlCodeRun = function() {

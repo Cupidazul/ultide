@@ -237,6 +237,7 @@ define([
         },
 
         _refreshMiniViewContent: function(data) {
+            //console.log('refreshMiniViewContent:', { this: this, data: data });
             this.els.flowchartMiniViewContent.empty();
 
             var flowchartWidth = this.els.flowchart.width();
@@ -251,6 +252,7 @@ define([
                 for (var operatorId in data.operators) {
                     var operator = data.operators[operatorId];
                     var operatorElement = this.getOperatorElement(operator);
+                    if (operator.top > miniViewHeight) { return; } // BugFix: miniview wrong postition
                     var rLeft = (operator.left + this.cx + operatorElement.width() / 2) / flowchartHeight;
                     var rTop = (operator.top + this.cy + operatorElement.height() / 2) / flowchartWidth;
 
@@ -399,13 +401,20 @@ define([
             return this.els.flowchart.flowchart('getOperatorElement', operatorData);
         },
 
+        miniViewShow: function() {
+            this.els.flowchartMiniViewContent.show();
+        },
+        miniViewHide: function() {
+            this.els.flowchartMiniViewContent.hide();
+        },
         changeDetected: function() {
-            if (this.isSettingData) {
+            var self = this;
+            var currentProcessData = ultiflow.getOpenedProcessData();
+
+            if (this.isSettingData || typeof(currentProcessData) == 'undefined') {
                 return;
             }
-            var self = this;
 
-            var currentProcessData = ultiflow.getOpenedProcessData();
             var flowchartData = this.getData();
             var flowchartProcess = $.extend(true, {}, flowchartData);
 
