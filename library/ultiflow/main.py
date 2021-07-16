@@ -203,3 +203,7 @@ def on_python_CodeRun(data, response, session_data):
         os.remove(temp_script_path) # delete temp file
 
     response['RetVal'] = ret
+
+def on_getDefaultConfig(data, response, session_data):
+    response['raw']=open('templates/new_config.json').read()
+    response['json']=json.loads(response['raw'])

@@ -368,3 +368,9 @@
         opacity: 1.0;
     }
 }
+
+.operator-id .dropdown-toggle .caret {
+    position: absolute;
+    right: 8px;
+    top: 14px;
+}

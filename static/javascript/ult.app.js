@@ -34,7 +34,8 @@ define(['socket-io'], function(io) {
             self.sendRequest('login', self.config.user, function(data) {
                 if (data.connected) {
                     $(function() {
-                        console.log('@ult.app: document.ready!');
+                        //console.log('@ult.app: document.ready!', data);
+                        self.session = data;
 
                         // WaitFor: #btn_ioStatus
                         let checkExist = setInterval(function() {

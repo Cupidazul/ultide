@@ -241,7 +241,9 @@ $(function() {
 
         getConnectorPosition: function(operatorId, connectorId) {
             var operatorData = this.data.operators[operatorId];
+            if (typeof operatorData == 'undefined') return;
             var $connector = operatorData.internal.els.connectorArrows[connectorId];
+            if (typeof $connector == 'undefined') return;
 
             var connectorOffset = $connector.offset();
             var elementOffset = this.element.offset();
@@ -285,60 +287,69 @@ $(function() {
             var fromOperator = this.data.operators[fromOperatorId];
             var toOperator = this.data.operators[toOperatorId];
 
-            var fromSmallConnector = fromOperator.internal.els.connectorSmallArrows[fromConnectorId];
-            var toSmallConnector = toOperator.internal.els.connectorSmallArrows[toConnectorId];
+            var fromSmallConnector = {};
+            var toSmallConnector = {};
 
-            linkData.internal.els.fromSmallConnector = fromSmallConnector;
-            linkData.internal.els.toSmallConnector = toSmallConnector;
+            if (typeof fromOperator !== 'undefined') {
+                fromSmallConnector = fromOperator.internal.els.connectorSmallArrows[fromConnectorId];
+                linkData.internal.els.fromSmallConnector = fromSmallConnector;
+            }
+            if (typeof toOperator !== 'undefined') {
+                toSmallConnector = toOperator.internal.els.connectorSmallArrows[toConnectorId];
+                linkData.internal.els.toSmallConnector = toSmallConnector;
+            }
 
-            var overallGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            this.objs.layers.links[0].appendChild(overallGroup);
-            linkData.internal.els.overallGroup = overallGroup;
+            if (typeof fromOperator !== 'undefined' && typeof toOperator !== 'undefined') {
 
-            var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
-            var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
-            this.maskNum++;
-            mask.setAttribute("id", maskId);
+                var overallGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                this.objs.layers.links[0].appendChild(overallGroup);
+                linkData.internal.els.overallGroup = overallGroup;
 
-            overallGroup.appendChild(mask);
+                var mask = document.createElementNS("http://www.w3.org/2000/svg", "mask");
+                var maskId = "fc_mask_" + this.globalId + "_" + this.maskNum;
+                this.maskNum++;
+                mask.setAttribute("id", maskId);
 
-            var shape0 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            shape0.setAttribute("x", "0");
-            shape0.setAttribute("y", "0");
-            shape0.setAttribute("width", "100%");
-            shape0.setAttribute("height", "100%");
-            shape0.setAttribute("stroke", "none");
-            shape0.setAttribute("fill", "white");
-            mask.appendChild(shape0);
+                overallGroup.appendChild(mask);
 
-            var shape1 = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-            shape1.setAttribute("stroke", "none");
-            shape1.setAttribute("fill", "black");
-            mask.appendChild(shape1);
-            linkData.internal.els.mask = shape1;
+                var shape0 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                shape0.setAttribute("x", "0");
+                shape0.setAttribute("y", "0");
+                shape0.setAttribute("width", "100%");
+                shape0.setAttribute("height", "100%");
+                shape0.setAttribute("stroke", "none");
+                shape0.setAttribute("fill", "white");
+                mask.appendChild(shape0);
 
-
-            var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-            group.setAttribute('class', 'flowchart-link');
-            group.setAttribute('data-link_id', linkId);
-            overallGroup.appendChild(group);
-
-
-            var shape2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-            shape2.setAttribute("stroke-width", this.options.linkWidth);
-            shape2.setAttribute("fill", "none");
-            group.appendChild(shape2);
-            linkData.internal.els.path = shape2;
-
-            var shape3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-            shape3.setAttribute("stroke", "none");
-            shape3.setAttribute("mask", "url(#" + maskId + ")");
-            group.appendChild(shape3);
-            linkData.internal.els.rect = shape3;
+                var shape1 = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+                shape1.setAttribute("stroke", "none");
+                shape1.setAttribute("fill", "black");
+                mask.appendChild(shape1);
+                linkData.internal.els.mask = shape1;
 
 
-            this._refreshLinkPositions(linkId);
-            this.uncolorizeLink(linkId);
+                var group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                group.setAttribute('class', 'flowchart-link');
+                group.setAttribute('data-link_id', linkId);
+                overallGroup.appendChild(group);
+
+
+                var shape2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                shape2.setAttribute("stroke-width", this.options.linkWidth);
+                shape2.setAttribute("fill", "none");
+                group.appendChild(shape2);
+                linkData.internal.els.path = shape2;
+
+                var shape3 = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                shape3.setAttribute("stroke", "none");
+                shape3.setAttribute("mask", "url(#" + maskId + ")");
+                group.appendChild(shape3);
+                linkData.internal.els.rect = shape3;
+
+                this._refreshLinkPositions(linkId);
+                this.uncolorizeLink(linkId);
+            }
+
         },
 
         _refreshLinkPositions: function(linkId) {
@@ -348,6 +359,7 @@ $(function() {
             var fromPosition = this.getConnectorPosition(linkData.fromOperator, linkData.fromConnector);
             var toPosition = this.getConnectorPosition(linkData.toOperator, linkData.toConnector);
 
+            if (typeof fromPosition == 'undefined' || typeof toPosition == 'undefined') return;
             var fromX = fromPosition.x;
             var offsetFromX = fromPosition.width;
             var fromY = fromPosition.y;
@@ -655,10 +667,15 @@ $(function() {
 
         colorizeLink: function(linkId, color) {
             var linkData = this.data.links[linkId];
-            linkData.internal.els.path.setAttribute('stroke', color);
-            linkData.internal.els.rect.setAttribute('fill', color);
-            linkData.internal.els.fromSmallConnector.css('border-left-color', color);
-            linkData.internal.els.toSmallConnector.css('border-left-color', color);
+            if (typeof linkData.internal.els.path !== 'undefined' &&
+                typeof linkData.internal.els.fromSmallConnector !== 'undefined' &&
+                typeof linkData.internal.els.toSmallConnector !== 'undefined'
+            ) {
+                linkData.internal.els.path.setAttribute('stroke', color);
+                linkData.internal.els.rect.setAttribute('fill', color);
+                linkData.internal.els.fromSmallConnector.css('border-left-color', color);
+                linkData.internal.els.toSmallConnector.css('border-left-color', color);
+            }
         },
 
         uncolorizeLink: function(linkId) {
@@ -736,7 +753,7 @@ $(function() {
                 }
             }
             this.colorizeLink(linkId, 'transparent');
-            this.data.links[linkId].internal.els.overallGroup.remove();
+            if (typeof this.data.links[linkId].internal.els.overallGroup !== 'undefined') this.data.links[linkId].internal.els.overallGroup.remove();
             delete this.data.links[linkId];
 
             this.options.onAfterChange('link_delete');

@@ -247,9 +247,11 @@ define([
             var miniViewHeight = this.els.flowchartMiniView.height();
 
             var operatorsPositions = {};
+            var numOp = 0;
 
             if (typeof data.operators != 'undefined') {
                 for (var operatorId in data.operators) {
+                    //console.log('numOp:', numOp);
                     var operator = data.operators[operatorId];
                     var operatorElement = this.getOperatorElement(operator);
                     if (operator.top > miniViewHeight) { return; } // BugFix: miniview wrong postition
@@ -266,6 +268,7 @@ define([
                     shapeR.setAttribute("width", 3);
                     shapeR.setAttribute("height", 3);
                     this.els.flowchartMiniViewContent[0].appendChild(shapeR);
+                    numOp++;
                 }
             }
 
@@ -276,15 +279,17 @@ define([
                     var fromPosition = operatorsPositions[link.fromOperator];
                     var toPosition = operatorsPositions[link.toOperator];
 
-                    var shapeL = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                    shapeL.setAttribute("x1", fromPosition.left);
-                    shapeL.setAttribute("y1", fromPosition.top);
-                    shapeL.setAttribute("x2", toPosition.left);
-                    shapeL.setAttribute("y2", toPosition.top);
-                    shapeL.setAttribute("stroke-width", "1");
-                    shapeL.setAttribute("stroke", "black");
-                    shapeL.setAttribute("fill", "none");
-                    this.els.flowchartMiniViewContent[0].appendChild(shapeL);
+                    if (typeof(fromPosition) !== 'undefined' && typeof(toPosition) !== 'undefined') {
+                        var shapeL = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        shapeL.setAttribute("x1", fromPosition.left);
+                        shapeL.setAttribute("y1", fromPosition.top);
+                        shapeL.setAttribute("x2", toPosition.left);
+                        shapeL.setAttribute("y2", toPosition.top);
+                        shapeL.setAttribute("stroke-width", "1");
+                        shapeL.setAttribute("stroke", "black");
+                        shapeL.setAttribute("fill", "none");
+                        this.els.flowchartMiniViewContent[0].appendChild(shapeL);
+                    }
                 }
             }
 
@@ -361,10 +366,12 @@ define([
                     }
                     currentProcessData.process.parameters[operatorId] = {};
                     var operatorParameters = operatorProperties.parameters;
-                    var propKeys = Object.keys(operatorParameters);
-                    for (var propId in propKeys) {
-                        //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
-                        currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
+                    if (typeof(operatorParameters) !== 'undefined') {
+                        var propKeys = Object.keys(operatorParameters);
+                        for (var propId in propKeys) {
+                            //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
+                            currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
+                        }
                     }
                 }
             }

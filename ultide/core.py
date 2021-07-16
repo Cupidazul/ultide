@@ -49,6 +49,7 @@ def on_login(data, response, session_data):
         refresh_users_modules(session_data)
         session_data['user'] = user
         connected = True
+    response['user'] = dict( id=user.id , username= user.username, reset_password_token= user.reset_password_token, email= user.email, confirmed_at= user.confirmed_at.isoformat(), active= user.active,first_name= user.first_name, last_name= user.last_name)
     response['connected'] = connected
 
 def on_set_user_property(data, response, session_data):

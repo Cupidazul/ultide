@@ -148,7 +148,7 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
         if (operatorData) console.log('operatorData:', operatorData);
     };
 
-    ultiflow.editTitle = function(NewTitle, processId) {
+    ultiflow.renameTitle = function(NewTitle, processId) {
         if (typeof(processId) == 'undefined') processId = ultiflow.openedProcess;
         var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
         operatorData.title = NewTitle;
@@ -347,7 +347,7 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
 
             var Title = 'New Library Operator';
             var str = `
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="addLibModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -446,9 +446,9 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
 
             var options = $.extend({}, originalOptions, customOptions);
 
-            var Title = 'New Workspace Project';
+            var Title = 'New Workspace / Project';
             var str = `
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+<div class="modal fade" id="addWksModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -456,13 +456,13 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
                 <h4 class="modal-title" id="myModalLabel">${Title}</h4>
             </div>
             <div class="modal-body"></div>
-            <div class="modal-footer">
-                <div style="float: left; line-height: 31px;">
+            <div class="modal-footer" style="min-height: 60px;">
+                <div style="float: left;text-align: left;min-width: 400px;">
                 <div class="operator-id"></div>
             </div>
-            <div style="float: right;">
+            <div style="float: right;position: fixed;bottom: 16px;right: 16px;">
                 <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary disabled">Choose</button>
+                <button type="button" class="btn btn-primary disabled">Add</button>
             </div>
             </div>
         </div>
@@ -483,15 +483,45 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
 
             var selectedOperatorId = null;
             $tree.on('select_node.jstree', function(e, data) {
-                console.log('select_node.jstree:', data.node.type);
+                //console.log('select_node.jstree:', data.node.type);
                 if (data.node.type == 'default') {
                     $primaryButton.removeClass('disabled');
                     selectedOperatorId = data.node.id;
-                    $operatorId.text(data.node.id);
+                    $operatorId.html('<p>' + data.node.id + '</p>');
+                    console.log('data:', { data: data });
+
+                    $modal.edit_objDATA = data.instance._model.data[data.node.id];
+
+                    if (data.node.parent == "#") {
+                        $operatorId.append($('<input id="addiPrj" data-parent="' + data.node.parent + '" class="form-control form-control-sm" type="text" placeholder="New Workspace Name" style="float: left;">'));
+                    } else {
+                        //$operatorId.append($('<input id="addiPrj" parent="' + data.node.parent + '" class="form-control form-control-sm" type="text" placeholder="New Project Name" style="float: left;">'));
+                        $operatorId.append($(`<input id="addiPrj" data-parent="${data.node.parent}" class="form-control form-control-sm" type="text" placeholder="New Project Name" style="float: left;width: 200px;">
+<div class="btn-group" role="group" data-children-count="1" style="float: right;">
+    <button type="button" class="btn btn-default" data-children-count="1" style="margin-left: 4px;">Copy <input type="checkbox" style="position: relative;margin-top: 0px;top: 2px;"></button>
+    <div class="btn-group" role="group">
+        <button id="addiPrjItemDrop1" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="min-width: 150px;text-align: left;max-width: 150px;overflow: hidden;">
+        Dropdown
+        <span class="caret"></span>
+        </button>
+        <ul id="addiPrjItemList1" class="dropdown-menu" aria-labelledby="addiPrjItemDrop1">
+        </ul>
+    </div>
+</div>`));
+                        data.node.children.forEach(function(ElVal, ElIdx) {
+                            //console.log('forEach:', { ElIdx: ElIdx, ElVal: ElVal });
+                            $('#addiPrjItemList1').append('<li><a id="prj_item' + ElIdx + '" data-id="' + ElVal + '" href="#">' + data.instance._model.data[ElVal].text + '</a></li>');
+                        });
+                        $('#addiPrjItemList1 li a').on('click', (evt) => {
+                            console.log('evt.target:', { target: evt.target });
+                            $('#addiPrjItemDrop1').html(' ' + evt.target.text + ' <span class="caret"></span>');
+                        });
+                    }
                 } else {
                     $primaryButton.addClass('disabled');
                     selectedOperatorId = null;
                     $operatorId.text('');
+                    $('#addiPrj').remove();
                 }
             });
 
@@ -504,12 +534,51 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
 
             $cancelButton.click(function() {
                 selectedOperatorId = null;
+                //console.log($tree.attr('id'));
+                var tID = $tree.attr('id');
+                $tree.jstree('destroy');
+                $tree.remove();
+                $tree = null;
+                delete window.$ultiflow.$uf_tree[tID];
             });
 
             $primaryButton.click(function() {
                 var $this = $(this);
                 if (!$this.hasClass('disabled')) {
                     //selectedPath = $body.file_chooser('getPath');
+                    app.sendRequest('getDefaultConfig', {}, function(response) {
+                        // Get Default JSON Template
+                        console.log('getDefaultConfig: ', response);
+                        //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+                        var cfg = response.json;
+
+                        // Build New Project Object
+                        cfg.title = $('#addiPrj').val().trim();
+
+                        cfg.fs.workspace_dir = app.ultiflow.processData.fs.workspace_dir; // "workspaces"
+                        cfg.fs.operators_dir = app.ultiflow.processData.fs.operators_dir; //"operators";
+                        cfg.fs.proj_name = $modal.edit_objDATA.original.text; // = "My Project"
+                        cfg.fs.work_dir = app.ultiflow.data.modulesInfos.operators.work_dir; // = "workspaces\\1"
+                        cfg.fs.oper_path = cfg.fs.work_dir + '\\' + cfg.fs.proj_name + cfg.fs.operators_dir; // = "workspaces\\1\\My Project\\operators"
+                        cfg.fs.oper_name = ''; // = "prj0_operator"
+                        cfg.fs.user_id = app.session.user.id; // = 0
+
+                        var NewProjID = 0;
+                        //app.ultiflow.data.modulesInfos.operators.tree.workspace[ cfg.fs.proj_name ];
+
+                        Object.keys(app.ultiflow.data.modulesInfos.operators.tree.workspace).forEach(function(wk) {
+                            Object.keys(app.ultiflow.data.modulesInfos.operators.tree.workspace[wk]).forEach(function(prj) {
+                                if (prj === 'prj' + NewProjID + '::custom_process') ++NewProjID;
+                            });
+                        });
+
+                        cfg.id = 'prj' + NewProjID + '::custom_process';
+                        cfg.fs.oper_name = 'prj' + NewProjID + '::custom_process';
+
+                        cfg.path = cfg.fs.oper_path + "\\" + cfg.fs.oper_name + "\\config.json"; // "workspaces\\1\\My Project\\operators\\prj0_operator\\config.json";
+
+                        console.log('Save: cfg:', { Obj: $modal.edit_objDATA, cfg: cfg });
+                    });
                     $modal.modal('hide');
                 }
             });

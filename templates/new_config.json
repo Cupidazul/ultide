@@ -1,0 +1,24 @@
+{
+    "inputs": {},
+    "parameters": {},
+    "title": "",
+    "process": {
+        "operators": {},
+        "parameters": {},
+        "links": {}
+    },
+    "outputs": {},
+    "path": "",
+    "type": "process",
+    "id": "",
+    "fs": {
+        "workspace_dir": "workspaces",
+        "operators_dir": "operators",
+        "config_file": "config.json",
+        "work_dir": "",
+        "oper_path": "",
+        "oper_name": "",
+        "user_id": null,
+        "proj_name": ""
+    }
+}

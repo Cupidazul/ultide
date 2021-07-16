@@ -31,7 +31,7 @@ define([
 var helper = {};
 helper.createPanel = function(title, content) {
     var self = this;
-    console.log('@library/ultiflow/main: createPanel:', { title: title, content: content });
+    //console.log('@library/ultiflow/main: createPanel:', { title: title, content: content });
 
     var $panel = $('<div class="panel panel-default"></div>');
 
