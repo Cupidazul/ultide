@@ -20,7 +20,7 @@ define(['socket-io'], function(io) {
 
     app.start = function(cb) {
         var self = this;
-        console.log('@ult.app: start: ', 'ws://' + this.config.server.host + ':' + this.config.server.port + '/uide');
+        console.log('@ult.app: start: ', 'ws://' + this.config.server.host + ':' + this.config.server.port + '/uide doc.readyState:' + document.readyState);
 
         this.socket = io.connect('ws://' + this.config.server.host + ':' + this.config.server.port + '/uide');
 

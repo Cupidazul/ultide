@@ -93,10 +93,11 @@ def on_get_js(data, response, session_data):
         module_infos = session_data['modules_infos'][module_name]
         if ('config' in module_infos):
             config = module_infos['config']
-            print('@core.on_get_js: config:', module_name, config)
             if (hasattr(config, 'requirejs_paths')):
+                print('@core.on_get_js: require_paths.update:', config.requirejs_paths)
                 require_paths.update(config.requirejs_paths)
-            if (hasattr(config, 'main_js')):
+            if (hasattr(config, 'main_js') and not (config.main_js in main_js)):
+                print('@core.on_get_js: main_js.append:', config.main_js)
                 main_js.append(config.main_js)
     
     response['require_paths'] = require_paths

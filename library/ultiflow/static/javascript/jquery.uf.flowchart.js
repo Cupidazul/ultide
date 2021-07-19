@@ -29,6 +29,8 @@ define([
 
         // the constructor
         _create: function() {
+            console.log('@ultiflow.uf_flowchart: create! readyState:', document.readyState);
+
             var $flowchart = $('<div class="uf-flowchart"></div>');
             this.els.flowchart = $flowchart;
             this.element.append(this.els.flowchart);

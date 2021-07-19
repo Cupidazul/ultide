@@ -38,7 +38,7 @@ helper.createPanel = function(title, content) {
     var AddButton = '';
 
     if (title == 'Library') {
-        AddButton = `<button id="btn_add_library" class="fas fa-plus" style="float: right;"></button>`;
+        // WIP // AddButton = `<button id="btn_add_library" class="fas fa-plus" style="float: right;"></button>`;
     }
 
     if (title == 'Workspace') {

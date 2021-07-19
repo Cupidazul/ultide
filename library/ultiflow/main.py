@@ -3,6 +3,7 @@ import json
 import sys
 import platform
 import subprocess
+import ultide.config as config
 from ultide.models import DevLang
 from datetime import datetime
 
@@ -144,6 +145,10 @@ def on_perl_CodeRun(data, response, session_data):
 
     #cmd = [ 'perl', '-e ' + perlobj['perl_init'].replace("\n","") ]
     cmd = [ 'perl', temp_script_path ]
+
+    if ( hasattr(config, "PERL_EXEC") and config.PERL_EXEC !='' ):
+        cmd = [ config.PERL_EXEC, temp_script_path ]
+
     print ('@on_perl_CodeRun: cmd:',cmd)
     ret = ''
     try:
@@ -187,6 +192,10 @@ def on_python_CodeRun(data, response, session_data):
     print('@on_python_CodeRun: script', temp_script_path)
 
     cmd = [ 'python', temp_script_path ]
+
+    if ( hasattr(config, "PYTHON_EXEC") and config.PYTHON_EXEC != '' ):
+        cmd = [ config.PYTHON_EXEC, temp_script_path ]
+
     print ('@on_python_CodeRun: cmd:',cmd)
     ret = ''
     try:
@@ -207,3 +216,15 @@ def on_python_CodeRun(data, response, session_data):
 def on_getDefaultConfig(data, response, session_data):
     response['raw']=open('templates/new_config.json').read()
     response['json']=json.loads(response['raw'])
+
+def on_deleteProject(data, response, session_data):
+    print('@main: deleteProject: rmdir+file:', data['path'])
+    os.remove(data['path'])
+    os.rmdir(os.path.dirname(data['path']))
+
+def on_saveNewProject(data, response, session_data):
+    print('@main: saveNewProject: data.cfg.path:',os.getcwd(), data['cfg']['path'])
+    #os.makedirs(os.getcwd() + "\\" + data['cfg']['path'])
+    os.makedirs(os.path.dirname(data['cfg']['path']))
+    with open(data['cfg']['path'], 'w') as f:
+        f.write( json.dumps( data['cfg'] ))

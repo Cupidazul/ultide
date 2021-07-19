@@ -9,10 +9,6 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
             self.id = 'uf_tree' + self.uuid;
             $(self.element)[0].id = self.id;
 
-            window.$ultiflow.$uf_tree = Object.assign(window.$ultiflow.$uf_tree || {}, {
-                [self.id]: self
-            });
-
             var defaultOptions = {
                 'core': {
                     'animation': false,
@@ -123,20 +119,24 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                             var CurrIsActive = (cid) => { return (cid == $app.ultiflow.processData.id); };
                                             var NewID = CurrID.replace('::', '_');
                                             var thisObjID = NewID + '_s' + EditID;
+                                            var delObjID = NewID + '_d' + EditID;
                                             var inputObjID = NewID + '_i' + EditID;
 
                                             //var isMouseOver = function() { return $(ElVal).parent().is(':hover'); };
                                             var isMouseOver = function() { return ($('#' + CurrID.replace('::', '\\:\\:') + ':hover').length != 0); };
                                             $(ElVal).attr('id', NewID + '_o' + String(EditID));
-                                            $(ElVal).parent().after('<li id="' + thisObjID + '" class="fa fa-pen" style="position: relative;right: 40px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '') + '"></li>');
+                                            $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times" style="position: relative;right: 45px;font-size: 10px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '') + '"></li>');
+                                            $(ElVal).parent().after('<li id="' + thisObjID + '" class="fa fa-pen" style="position: relative;right: 48px;font-size: 10px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '') + '"></li>');
 
                                             $('#' + thisObjID).parent().on('mouseover', function() {
                                                 if (!IsEditing && CurrIsActive(CurrID)) { // dont edit other inactive Projects for now.
                                                     $('#' + thisObjID).show();
+                                                    $('#' + delObjID).show();
                                                 }
                                             });
                                             $('#' + thisObjID).parent().on('mouseout', function() {
                                                 $('#' + thisObjID).hide();
+                                                $('#' + delObjID).hide();
                                             });
                                             $('#' + thisObjID).parent().on('click', function(evt) {
                                                 $app.triggerEvent('ultiflow::operator_unselect');
@@ -146,7 +146,10 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                 }
                                                 setTimeout(function() {
                                                     $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
-                                                    if (!IsEditing && isMouseOver()) $('#' + thisObjID).show();
+                                                    if (!IsEditing && isMouseOver()) {
+                                                        $('#' + thisObjID).show();
+                                                        $('#' + delObjID).show();
+                                                    }
                                                 }, 0);
                                             });
                                             self.editTitleStop = function() {
@@ -160,7 +163,10 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                 IsEditing = true;
                                                 self._editTitleID = inputObjID;
                                                 var prevText = $('#' + thisObjID).prev().text();
+
                                                 $('#' + thisObjID).hide();
+                                                $('#' + delObjID).hide();
+
                                                 if (!$('#' + inputObjID).length) $('#' + thisObjID).after('<input id="' + inputObjID + '" value="' + prevText + '" style="right: 6px;position: absolute;width: 165px;height: 24px;">');
                                                 $('#' + inputObjID).on('keyup', function(evt) {
                                                     if (evt.key == 'Enter') {
@@ -188,8 +194,20 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                     $('#' + thisObjID).prev().html().replace(new RegExp(prevText + '$', 'g'), prevText + '1')
                                                 );*/
                                             };
+                                            self.deleteProject = function(dEvt) {
+                                                var delObj = $(dEvt.target).parent();
+                                                //console.log('deleteProject:', { this: this, event: dEvt, parent: this.parent().attr('id') });
+                                                var PrjFile = '';
+                                                try { PrjFile = "\n\nProject:\n" + ultiflow.data.modulesInfos.operators.list[delObj.attr('id')].path; } catch (err) {}
+                                                var dRes = confirm("Confirm delete " + delObj.attr('id') + ' := ' + delObj.text() + " !\n\n" + 'WARNING: Undo is impossible, because files and directories will be deleted!!!' + PrjFile);
+                                                //console.log('deleteProject:', { result: dRes });
+                                                if (dRes) {
+                                                    ultiflow.deleteProject(delObj.attr('id'));
+                                                }
+                                            };
 
                                             $('#' + thisObjID).on('click', self.editTitleStart);
+                                            $('#' + delObjID).on('click', self.deleteProject);
 
                                             EditID++;
                                         }
@@ -267,6 +285,10 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                         }
                     });
             }
+
+            app.ultiflow.$uf_tree = Object.assign(app.ultiflow.$uf_tree || {}, {
+                [self.id]: self
+            });
 
         }
     });

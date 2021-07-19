@@ -19,6 +19,7 @@ define([
 
             // the constructor
             _create: function() {
+                console.log('@ultiflow.uf_design_view: create! readyState:', document.readyState);
                 this.els.toolBar = $('<div class="uf-side-bar left uf-toolbar"></div>');
                 this.els.toolBar.appendTo(this.element);
                 this.els.toolBar.uf_toolbar();
@@ -75,12 +76,16 @@ define([
                 });
 
                 $('#btn_add_library').on('click', function(evt) {
-                    console.log('btn_add_library.click:', evt);
+                    // console.log('btn_add_library.click:', evt);
+                    Object.keys(app.ultiflow.$uf_tree).forEach(function(el) { try { app.ultiflow.$uf_tree[el].editTitleStop(); } catch (err) {} });
+                    app.triggerEvent('ultiflow::operator_unselect');
                     $ultiflow.addLibraryOp();
                 });
 
                 $('#btn_add_workspace').on('click', function(evt) {
-                    console.log('btn_add_workspace.click:', evt);
+                    // console.log('btn_add_workspace.click:', evt);
+                    Object.keys(app.ultiflow.$uf_tree).forEach(function(el) { try { app.ultiflow.$uf_tree[el].editTitleStop(); } catch (err) {} });
+                    app.triggerEvent('ultiflow::operator_unselect');
                     $ultiflow.addWorkspaceOp();
                 });
 
