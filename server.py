@@ -156,11 +156,11 @@ def msg_received(message):
                     if ( module_key == 'core' or module_key == 'ultiflow' ): 
                         print('@server: module method', (session, module_key, method, message));sys.stdout.flush();
                         getattr(module_py, method)(data, response_data, session_data);  # modules: Fix: allow only from core or ultiflow
-        print('@server: response:',response);sys.stdout.flush();
+        print('@server: response: ' + method, response);sys.stdout.flush();
         response['data'] = response_data
     else:
         response['auth_error'] = True
-        print('@server: response:',response);sys.stdout.flush();
+        print('@server: response.err: ' + method, response);sys.stdout.flush();
     
     emit('msg', response)
     
@@ -178,6 +178,7 @@ def modules_static(path):
 @socketio.on('connect', namespace='/uide')
 def test_connect():
     sessions_data[session['uuid']] = get_init_session_data()
+    print(('@server: Client connected:', request.sid, session['uuid']));sys.stdout.flush();
 
 @socketio.on('disconnect', namespace='/uide')
 def test_disconnect():

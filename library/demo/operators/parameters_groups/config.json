@@ -12,11 +12,9 @@
             "label": "Output"
         }
     },
-    "parameters": [
-        {
+    "parameters": [{
             "title": "Parameters group 1",
-            "fields": [
-                {
+            "fields": [{
                     "id": "param_1_1",
                     "label": "Parameter 1:",
                     "type": "ultiflow::text",
@@ -36,8 +34,7 @@
         },
         {
             "title": "Parameters group 2",
-            "fields": [
-                {
+            "fields": [{
                     "id": "param_2_1",
                     "label": "Parameter 1:",
                     "type": "ultiflow::text",

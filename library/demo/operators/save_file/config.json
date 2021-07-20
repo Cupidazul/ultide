@@ -8,17 +8,15 @@
         }
     },
     "outputs": {},
-    "parameters": [
-        {
-            "id": "filepath",
-            "label": "Path:",
-            "type": "ultiflow::file",
-            "config": {
-                "fileChooser": {
-                    "type": "file",
-                    "action": "save"
-                }
+    "parameters": [{
+        "id": "filepath",
+        "label": "Path:",
+        "type": "ultiflow::file",
+        "config": {
+            "fileChooser": {
+                "type": "file",
+                "action": "save"
             }
         }
-    ]
+    }]
 }

@@ -1,11 +1,11 @@
-
-
 .flowchart-container {
     position: relative;
     overflow: hidden;
 }
 
-.flowchart-links-layer, .flowchart-operators-layer, .flowchart-temporary-link-layer {
+.flowchart-links-layer,
+.flowchart-operators-layer,
+.flowchart-temporary-link-layer {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -13,7 +13,8 @@
     height: 100%;
 }
 
-.flowchart-operators-layer, .flowchart-temporary-link-layer {
+.flowchart-operators-layer,
+.flowchart-temporary-link-layer {
     pointer-events: none;
 }
 
@@ -21,12 +22,10 @@
     display: none;
 }
 
-
-
-.flowchart-link, .flowchart-operator {
+.flowchart-link,
+.flowchart-operator {
     cursor: default;
 }
-
 
 .flowchart-operator-connector {
     position: relative;
@@ -62,7 +61,8 @@
     height: 0px;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 5px solid transparent; /*rgb(100, 100, 100);*/
+    border-left: 5px solid transparent;
+    /*rgb(100, 100, 100);*/
     position: absolute;
     top: 5px;
     pointer-events: none;
@@ -89,16 +89,15 @@
 }
 
 .unselectable {
-   -moz-user-select: none;
-   -khtml-user-select: none;
-   -webkit-user-select: none;
-
-   /*
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    /*
      Introduced in IE 10.
      See http://ie.microsoft.com/testdrive/HTML5/msUserSelect/
    */
-   -ms-user-select: none;
-   user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 
@@ -137,7 +136,8 @@
     margin-bottom: 5px;
 }
 
-.flowchart-operator .flowchart-operator-inputs, .flowchart-default-operator .flowchart-operator-outputs {
+.flowchart-operator .flowchart-operator-inputs,
+.flowchart-default-operator .flowchart-operator-outputs {
     display: table-cell;
     width: 50%;
 }

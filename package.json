@@ -1,9 +1,9 @@
 {
     "name": "ultide_v2",
-    "ProductName": "Ultide v2.0",
-    "productName": "Ultide v2.0",
+    "ProductName": "UltIDE v2.0",
+    "productName": "UltIDE v2.0",
     "version": "2.0.0",
-    "description": "Ultide",
+    "description": "UltIDE",
     "main": "index.js",
     "license": "MIT",
     "keywords": [],

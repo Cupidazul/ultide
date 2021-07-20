@@ -1,10 +1,9 @@
 define([
     'jquery',
     'jquery-ui'
-],function($) {
-    $.widget( "ultide.main_nav_bar", {
-        options: {
-        },
+], function($) {
+    $.widget("ultide.main_nav_bar", {
+        options: {},
         els: {
             topNavBar: null,
             buttons: {}
@@ -27,8 +26,8 @@ define([
             $a.text(text);
             var self = this;
             this.els.buttons[key] = $li;
-            
-            
+
+
             var position = this.orders.length;
             for (var i = 0; i < this.orders.length; i++) {
                 if (this.orders[i] > order) {
@@ -41,7 +40,7 @@ define([
             this.buttonsCbs.splice(position, 0, cbClicked);
             this.refreshButtons();
         },
-        
+
         refreshButtons: function() {
             var self = this;
             this.els.topNavBar.empty();

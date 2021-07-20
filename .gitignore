@@ -1,6 +1,6 @@
 .DS_STORE
+.vscode/
 data/
 workspaces/*/scripts/*
 ultide/config.py
 workspaces/**/prj*/config.json
-
