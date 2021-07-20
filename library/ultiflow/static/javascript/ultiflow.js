@@ -1,7 +1,7 @@
-define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
+define(['app', '_', 'bootstrap'], function(app, _) {
     var self = this;
-    console.log('@library/ultiflow: app:', app);
     var ultiflow = { data: {}, versions: {}, ui: {} };
+    console.log('@library/ultiflow: app:', { app: app, ultiflow: ultiflow, _: _ });
     app.ultiflow = ultiflow;
 
     ultiflow.timeoutChangeLength = 200;
@@ -9,8 +9,8 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
     ultiflow.getAppVersions = function() {
         return app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
-            setTimeout(function() {
-                app.versions = Object.assign(app.versions || {}, { os: response });
+            return setTimeout(function() {
+                window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
                 try { app.versions.Browser = navigator.appVersion; } catch (err) { console.log('err:', err); }
                 try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.jquery = jQuery.fn.jquery; } catch (err) { console.log('err:', err); }
@@ -33,9 +33,11 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
                     // fadeOut complete. Remove the loading div
                     //$("#loadingDiv").remove(); //makes page more lightweight 
                 });
-                console.log('@library/ultiflow: app.versions:', app.versions);
+                console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
                 ultiflow.versions = app.versions;
-            }, 500);
+                ultiflow.app = app;
+                return app;
+            }, 10);
         });
     };
     ultiflow.getAppVersions();
@@ -498,7 +500,7 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
                     $primaryButton.removeClass('disabled');
                     selectedOperatorId = data.node.id;
                     $operatorId.html('<p>' + data.node.id + '</p>');
-                    console.log('data:', { data: data });
+                    //console.log('select_node.jstree:', { data: data });
 
                     if (data.node.parent !== "#") {
                         //$operatorId.append($('<input id="addiPrj" parent="' + data.node.parent + '" class="form-control form-control-sm" type="text" placeholder="New Project Name" style="float: left;">'));
@@ -515,7 +517,7 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
     </div>
 </div>`));
                         $modal.edit_objDATA = data.instance._model.data[data.node.id];
-                        $modal.copy_Obj = {};
+                        $modal.copy_Obj = Object.assign({}, $modal.copy_Obj || {});
                         $modal.copy_Obj.isCopy = $('#addiCopyTF').prop('checked');
 
                         data.node.children.forEach(function(ElVal, ElIdx) {
@@ -644,8 +646,8 @@ define(['app', '_', 'bootstrap'], function(app, _, bootstrap) {
         });
     };
 
-    window.$ultiflow = {...window.$ultiflow, ...ultiflow };
-    window.$app = {...window.$app, ...app };
+    window.$ultiflow = Object.assign(window.$ultiflow || {}, ultiflow);
+    window.$app = Object.assign(window.$app || {}, app);
 
     return ultiflow;
 });

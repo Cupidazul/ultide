@@ -258,6 +258,7 @@
 
 .jstree-default .jstree-anchor {
     width: -webkit-fill-available;
+    width: -moz-available;
     margin-right: 24px;
 }
 

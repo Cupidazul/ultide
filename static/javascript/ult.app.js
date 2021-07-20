@@ -1,5 +1,8 @@
 define(['socket-io'], function(io) {
+    var self = this;
+
     var app = {};
+    console.log('@ult.app: init:', { app: app, self: self, io: io, readyState: document.readyState });
 
     app.config = {
         server: {
@@ -20,7 +23,7 @@ define(['socket-io'], function(io) {
 
     app.start = function(cb) {
         var self = this;
-        console.log('@ult.app: start: ', 'ws://' + this.config.server.host + ':' + this.config.server.port + '/uide doc.readyState:' + document.readyState);
+        console.log('@ult.app: app.start: ', 'ws://' + this.config.server.host + ':' + this.config.server.port + '/uide doc.readyState:' + document.readyState);
 
         this.socket = io.connect('ws://' + this.config.server.host + ':' + this.config.server.port + '/uide');
 
@@ -99,7 +102,7 @@ define(['socket-io'], function(io) {
     };
 
     app.updatePyServerStatus = function() {
-        if (app.socket.connected) {
+        if (app.socket.connected && $('#btn_ioStatus').length != 0) {
             $('#btn_ioStatus').removeClass('SrvKO').addClass('SrvOK'); // # OK!
         } else {
             $('#btn_ioStatus').removeClass('SrvOK').addClass('SrvKO'); // # KO!

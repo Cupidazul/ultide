@@ -1,7 +1,7 @@
-document.onreadystatechange = function() {
+document.onreadystatechange = function($) {
+    console.log('@index:main: ', { readyState: document.readyState, this: this });
 
     if (document.readyState === 'interactive') {
-        console.log('@index: doc.readyState:' + document.readyState + ' this:', this);
         require.config({
             map: {
                 '*': {
@@ -25,6 +25,7 @@ document.onreadystatechange = function() {
         });
 
         require(['jquery', 'app', 'json!package.json', 'main-nav-bar', 'main-view'], function($, app, pkg) {
+            console.log('@static/main: init:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
 
             var $mainNavBar = $('.main-nav-bar');
             $mainNavBar.main_nav_bar();
@@ -45,19 +46,25 @@ document.onreadystatechange = function() {
             });
             $mainNavBar.main_nav_bar('activateButton', 'welcome');
 
-
             app.start(function() {
-                console.log('@static/main: app.start:', app, document.readyState);
+                console.log('@static/main: app.start:', { app: app, readyState: document.readyState });
                 setTimeout(function() {
                     app.sendRequest('get_js', {}, function(data) {
                         require.config({ 'paths': data.require_paths });
-                        console.log('@app.start: require:', data.require_paths, data.main_js, document.readyState);
+                        console.log('@app.start: require:', { data: data });
                         require(data.main_js);
                     });
-                }, 100);
+                }, 1);
             });
 
+        }, function(err) {
+            console.log('@static/main: fn.error:', { error: err });
         });
+
+        requirejs.onError = function(err) {
+            console.log('@main: onError:', { error: err });
+            throw err;
+        };
     }
 
 };
