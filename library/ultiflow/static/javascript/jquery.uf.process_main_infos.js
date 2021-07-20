@@ -10,6 +10,11 @@ define(['app'], function(app) {
 
         // the constructor
         _create: function() {
+            var self = this;
+            console.log('@ultiflow.uf_process_main_infos: create! readyState:', document.readyState);
+
+            window.$ultiflow.uf_process_main_infos = self;
+
             this.els.menubtn = $('<button id="menu_btn" class="glyphicon glyphicon-menu-hamburger"></button>');
             this.els.menubtn.appendTo(this.element);
 
@@ -32,7 +37,6 @@ define(['app'], function(app) {
             this.els.path = $('<span class="uf-process-path"></span>');
             this.els.path.appendTo(this.element);
 
-            var self = this;
             app.onEvent('ultiflow::process_open', function(e, operatorData) {
                 self.setProcess(operatorData);
             });

@@ -19,7 +19,11 @@ define([
 
             // the constructor
             _create: function() {
+                var self = this;
                 console.log('@ultiflow.uf_design_view: create! readyState:', document.readyState);
+
+                window.$ultiflow.uf_design_view = self;
+
                 this.els.toolBar = $('<div class="uf-side-bar left uf-toolbar"></div>');
                 this.els.toolBar.appendTo(this.element);
                 this.els.toolBar.uf_toolbar();
@@ -41,8 +45,6 @@ define([
                 this.els.flowchartNoFile.appendTo(this.element);
 
                 this.changeState('unopened');
-
-                var self = this;
 
                 app.onEvent('ultiflow::process_open', function(e, processData) {
                     self.changeState('opened');

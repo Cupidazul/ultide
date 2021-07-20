@@ -23,7 +23,7 @@ define([
         _create: function() {
             var self = this;
 
-            window.$ultiflow.file_chooser = Object.assign(window.$ultiflow.file_chooser || {}, self);
+            window.$ultiflow.file_chooser = self;
 
             var $inputGroup = $('<div class="input-group"></div>');
             var $inputGroupBtn = $('<span class="input-group-btn"></span>');

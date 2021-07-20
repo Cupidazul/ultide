@@ -46,7 +46,7 @@ define(['socket-io'], function(io) {
                                 app.updatePyServerStatus();
                                 clearInterval(checkExist);
                             }
-                        }, 500); // check every 500ms
+                        }, 700); // check every 500ms
 
                     });
                     cb();

@@ -1,8 +1,9 @@
 define([
+    'app',
     'jquery',
     'jquery-ui'
-], function($) {
-    console.log('@ultide.main_nav_bar: ', { this: this, readyState: document.readyState });
+], function(app, $) {
+    console.log('@ultide.main_nav_bar: init', { this: this, readyState: document.readyState });
     $.widget("ultide.main_nav_bar", {
         options: {},
         els: {
@@ -15,8 +16,11 @@ define([
 
         // the constructor
         _create: function() {
-            this.els.topNavBar = $('<ul class="nav navbar-nav navbar-top"></ul>');
-            this.els.topNavBar.appendTo(this.element);
+            var self = this;
+            app.mainNavBar = self;
+            console.log('@ultide.main_nav_bar: create', { this: self, readyState: document.readyState });
+            self.els.topNavBar = $('<ul class="nav navbar-nav navbar-top"></ul>');
+            self.els.topNavBar.appendTo(self.element);
         },
 
         addButton: function(key, text, icon, order, cbClicked) {
@@ -48,11 +52,11 @@ define([
                 var $button = self.buttons[i];
                 $button.data('index', i);
                 self.els.topNavBar.append($button);
-                $button.click(function(e) {
+                /*$button.click(function(e) {
                     var $this = $(this);
                     e.preventDefault();
                     self.buttonsCbs[$this.data('index')]();
-                });
+                });*/
             };
 
             for (let i = 0; i < this.buttons.length; i++) {
@@ -65,4 +69,5 @@ define([
             this.els.buttons[key].addClass('active');
         }
     });
+
 });

@@ -17,7 +17,9 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
         // the constructor
         _create: function() {
             var self = this;
-            window.$ultiflow.$uf_propbar = self;
+            console.log('@ultiflow.uf_propbar: create! readyState:', document.readyState);
+
+            window.$ultiflow.uf_propbar = self;
 
             this.els.content = $('<div class="uf-propbar-content"></div>');
             this.els.content.appendTo(this.element);

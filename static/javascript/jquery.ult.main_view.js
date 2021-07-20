@@ -1,7 +1,8 @@
 define([
+    'app',
     'jquery',
     'jquery-ui'
-], function($) {
+], function(app, $) {
     $.widget("ultide.main_view", {
         options: {},
         els: {
@@ -11,7 +12,7 @@ define([
 
         // the constructor
         _create: function() {
-
+            app.main_view = this;
         },
 
         createView: function(name, $content) {
