@@ -44,182 +44,185 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
 
                     var el = $(evt.target);
 
-                    //console.log('ready.jstree', options, el, this);
+                    var elDescendant = $('#' + el.prop('id') + ' >ul >li').first();
 
-                    _.debounce(() => {
-                        //console.log('ready.jstree:', el); //, el.find('ul.jstree-container-ul').find('li.jstree-node'));
+                    let checkExist = setInterval(function() {
+                        elDescendant = $('#' + el.prop('id') + ' >ul >li').first();
+                        if (elDescendant.length) {
+                            self.jstreeInit();
+                            clearInterval(checkExist);
+                        }
+                    }, 700);
 
-                        setTimeout(function() {
+                    self.jstreeInit = function() {
+                        el.jstree('open_all'); // expand/open all jstree's
+                        console.log('ready.jstree: [' + String(elDescendant.length) + ']:', options, el, this);
 
-                            //console.log('ready.jstree1:', el, $(document).find('ul.jstree-container-ul li.jstree-node ul.jstree-children').children());
-                            el.jstree('open_all'); // expand/open all jstree's
+                        // # Click Only Once on Open Project, and resize/close views := Prepare User Environment
+                        if (new RegExp('^workspace\-.*', 'g').test(elDescendant.prop('id'))) {
+                            var LastId = '';
+                            $("a.jstree-anchor").each(function(ElIdx, ElVal) {
+                                var thisTree = this;
+                                //console.dir(ElVal);
+                                //console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
+                                if (!$flowchart._isStarted() && (new RegExp('^workspace\-.*', 'g').test(LastId))) { // Click Open Project on 1st Element after 'Workspace'
+                                    _.debounce(function(oElVal) {
+                                        oElVal.click();
+                                        $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
+                                        $flowchart._isStarted(true);
+                                    }, 1000, { trailing: true })(ElVal);
+                                }
+                                LastId = ElVal.id;
+                            });
+                            $('.main-view').css('left', '0px');
+                            window.$flowchart.menuState = 0;
 
-                            var elDescendant = $('#' + el.prop('id') + ' >ul >li').first().prop('id');
-
-                            // # Click Only Once on Open Project, and resize/close views := Prepare User Environment
-                            if (new RegExp('^workspace\-.*', 'g').test(elDescendant)) {
-
-                                var LastId = '';
-                                $("a.jstree-anchor").each(function(ElIdx, ElVal) {
-                                    var thisTree = this;
-                                    //console.dir(ElVal);
-                                    //console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
-                                    if (new RegExp('^workspace\-.*', 'g').test(LastId)) { // Click Open Project on 1st Element after 'Workspace'
-                                        _.debounce(function(oElVal) {
-                                            //console.log('OpenProjDebounced:', { id: oElVal.id, idx: ElIdx });
-                                            oElVal.click();
-                                            $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
-                                        }, 1000, { trailing: true })(ElVal);
-                                    }
-                                    LastId = ElVal.id;
-                                    //OpenProjDebounced();
-                                    //} // open project
+                            //$('.uf-side-bar.right').css('right', '-245px');
+                            $('.uf-side-bar.right')
+                                .resizable({
+                                    minWidth: $('.uf-side-bar.right').width(),
+                                    maxWidth: 1000,
+                                    disabled: true,
+                                    handles: "w" // https://api.jqueryui.com/1.8/resizable/#option-handles
+                                })
+                                .on('resize', function(evt) { // bug-fix: https://bugs.jqueryui.com/ticket/4985
+                                    $(evt.target).css('left', '');
                                 });
-                                $('.main-view').css('left', '0px');
-                                window.$flowchart.menuState = 0;
 
-                                //$('.uf-side-bar.right').css('right', '-245px');
-                                $('.uf-side-bar.right')
-                                    .resizable({
-                                        minWidth: $('.uf-side-bar.right').width(),
-                                        maxWidth: 1000,
-                                        disabled: true,
-                                        handles: "w" // https://api.jqueryui.com/1.8/resizable/#option-handles
-                                    })
-                                    .on('resize', function(evt) { // bug-fix: https://bugs.jqueryui.com/ticket/4985
-                                        $(evt.target).css('left', '');
-                                    });
+                            $('.uf-side-bar.right').css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'));
+                            window.$flowchart.menuState = 0;
+                            $('.uf-side-bar.left').css('left', '-245px');
+                            $('.uf-side-bar.left')
+                                .on('mouseover', function(evt) {
+                                    if (typeof(evt.offsetX) !== 'undefined') $('.uf-side-bar.left').css('left', '');
+                                })
+                                .on('mouseout', function(evt) {
+                                    //console.log('mouseout!!', evt.offsetX);
+                                    if (evt.toElement && evt.toElement.className.baseVal === 'flowchart-links-layer' && !(window.$flowchart.menuState)) {
+                                        setTimeout(function() {
+                                            self.editTitleStop();
+                                            $('.uf-side-bar.left').css('left', '-245px');
+                                        }, 350);
+                                    }
+                                });
 
-                                setTimeout(function() {
-                                    $('.uf-side-bar.right').css('right', String(-($('.uf-side-bar.right').width() + 8) + 'px'));
-                                    window.$flowchart.menuState = 0;
-                                    $('.uf-side-bar.left').css('left', '-245px');
-                                    $('.uf-side-bar.left')
-                                        .on('mouseover', function(evt) {
-                                            if (typeof(evt.offsetX) !== 'undefined') $('.uf-side-bar.left').css('left', '');
-                                        })
-                                        .on('mouseout', function(evt) {
-                                            //console.log('mouseout!!', evt.offsetX);
-                                            if (evt.toElement && evt.toElement.className.baseVal === 'flowchart-links-layer' && !(window.$flowchart.menuState)) {
-                                                setTimeout(function() {
-                                                    self.editTitleStop();
-                                                    $('.uf-side-bar.left').css('left', '-245px');
-                                                }, 350);
+                            self.editTitleInit = function() { // Edit Project Title
+                                var EditID = 0;
+                                var IsEditing = false;
+                                el.find('a>i').each(function(ElIdx, ElVal) {
+                                    //console.log('ElVal:', $(ElVal), $(ElVal).parent().attr('role'));
+                                    if ($(ElVal).parent().attr('aria-level') === '2') {
+                                        var CurrID = $(ElVal).parent().parent().attr('id');
+                                        var CurrIsActive = (cid) => { if ($app.ultiflow.processData) return (cid == $app.ultiflow.processData.id); };
+                                        var NewID = CurrID.replace('::', '_');
+                                        var thisObjID = NewID + '_s' + EditID;
+                                        var delObjID = NewID + '_d' + EditID;
+                                        var inputObjID = NewID + '_i' + EditID;
+
+                                        //var isMouseOver = function() { return $(ElVal).parent().is(':hover'); };
+                                        var isMouseOver = function() { return ($('#' + CurrID.replace('::', '\\:\\:') + ':hover').length != 0); };
+                                        $(ElVal).attr('id', NewID + '_o' + String(EditID));
+
+                                        var ElStyle = 'position: relative; right: 54px; font-size: 10px; vertical-align: top; background: white; border-radius: 5px; border: 2px solid lightblue; width: 15px; height: 15px; padding-left: 2px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '');
+                                        $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times" style="' + ElStyle + '"></li>');
+
+                                        ElStyle = 'position: relative; right: 53px; vertical-align: top; background: white; border-radius: 5px; border: 2px solid lightblue; width: 15px; height: 15px; font-size: 8px; padding-left: 2px; padding-top: 1px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '');
+                                        $(ElVal).parent().after('<li id="' + thisObjID + '" class="fa fa-pen" style="' + ElStyle + '"></li>');
+
+                                        $('#' + thisObjID).parent().on('mouseover', function() {
+                                            if (!IsEditing && CurrIsActive(CurrID)) { // dont edit other inactive Projects for now.
+                                                $('#' + thisObjID).show();
+                                                $('#' + delObjID).show();
                                             }
                                         });
-                                }, 100);
-
-                                self.editTitleInit = function() { // Edit Project Title
-                                    var EditID = 0;
-                                    var IsEditing = false;
-                                    el.find('a>i').each(function(ElIdx, ElVal) {
-                                        //console.log('ElVal:', $(ElVal), $(ElVal).parent().attr('role'));
-                                        if ($(ElVal).parent().attr('aria-level') === '2') {
-                                            var CurrID = $(ElVal).parent().parent().attr('id');
-                                            var CurrIsActive = (cid) => { return (cid == $app.ultiflow.processData.id); };
-                                            var NewID = CurrID.replace('::', '_');
-                                            var thisObjID = NewID + '_s' + EditID;
-                                            var delObjID = NewID + '_d' + EditID;
-                                            var inputObjID = NewID + '_i' + EditID;
-
-                                            //var isMouseOver = function() { return $(ElVal).parent().is(':hover'); };
-                                            var isMouseOver = function() { return ($('#' + CurrID.replace('::', '\\:\\:') + ':hover').length != 0); };
-                                            $(ElVal).attr('id', NewID + '_o' + String(EditID));
-                                            $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times" style="position: relative;right: 45px;font-size: 10px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '') + '"></li>');
-                                            $(ElVal).parent().after('<li id="' + thisObjID + '" class="fa fa-pen" style="position: relative;right: 48px;font-size: 10px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '') + '"></li>');
-
-                                            $('#' + thisObjID).parent().on('mouseover', function() {
-                                                if (!IsEditing && CurrIsActive(CurrID)) { // dont edit other inactive Projects for now.
+                                        $('#' + thisObjID).parent().on('mouseout', function() {
+                                            $('#' + thisObjID).hide();
+                                            $('#' + delObjID).hide();
+                                        });
+                                        $('#' + thisObjID).parent().on('click', function(evt) {
+                                            $app.triggerEvent('ultiflow::operator_unselect');
+                                            if (IsEditing) {
+                                                evt.stopImmediatePropagation();
+                                                //evt.preventDefault();
+                                            }
+                                            setTimeout(function() {
+                                                $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
+                                                if (!IsEditing && isMouseOver()) {
                                                     $('#' + thisObjID).show();
                                                     $('#' + delObjID).show();
                                                 }
-                                            });
-                                            $('#' + thisObjID).parent().on('mouseout', function() {
-                                                $('#' + thisObjID).hide();
-                                                $('#' + delObjID).hide();
-                                            });
-                                            $('#' + thisObjID).parent().on('click', function(evt) {
-                                                $app.triggerEvent('ultiflow::operator_unselect');
-                                                if (IsEditing) {
-                                                    evt.stopImmediatePropagation();
-                                                    //evt.preventDefault();
-                                                }
-                                                setTimeout(function() {
-                                                    $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
-                                                    if (!IsEditing && isMouseOver()) {
-                                                        $('#' + thisObjID).show();
-                                                        $('#' + delObjID).show();
-                                                    }
-                                                }, 0);
-                                            });
-                                            self.editTitleStop = function() {
-                                                if (IsEditing) {
-                                                    IsEditing = false;
-                                                    $('#' + self._editTitleID).remove();
-                                                    self._editTitleID = '';
-                                                }
-                                            };
-                                            self.editTitleStart = function() {
-                                                IsEditing = true;
-                                                self._editTitleID = inputObjID;
-                                                var prevText = $('#' + thisObjID).prev().text();
+                                            }, 0);
+                                        });
+                                        self.editTitleStop = function() {
+                                            if (IsEditing) {
+                                                IsEditing = false;
+                                                $('#' + self._editTitleID).remove();
+                                                self._editTitleID = '';
+                                            }
+                                        };
+                                        self.editTitleStart = function() {
+                                            IsEditing = true;
+                                            self._editTitleID = inputObjID;
+                                            var prevText = $('#' + thisObjID).prev().text();
 
-                                                $('#' + thisObjID).hide();
-                                                $('#' + delObjID).hide();
+                                            $('#' + thisObjID).hide();
+                                            $('#' + delObjID).hide();
 
-                                                if (!$('#' + inputObjID).length) $('#' + thisObjID).after('<input id="' + inputObjID + '" value="' + prevText + '" style="right: 6px;position: absolute;width: 165px;height: 24px;">');
-                                                $('#' + inputObjID).on('keyup', function(evt) {
-                                                    if (evt.key == 'Enter') {
-                                                        var NewValue = $('#' + inputObjID).val();
-                                                        if (NewValue !== prevText) {
-                                                            $('#' + thisObjID).prev().html($('#' + thisObjID).prev().html().replace(new RegExp(prevText + '$', 'g'), NewValue));
-                                                            if (CurrIsActive(CurrID)) {
-                                                                // CurrID has now been Edited by User and, Yes! its the Active Project!
-                                                                ultiflow.renameTitle(NewValue);
-                                                                $('.uf-process-title').text(NewValue);
-                                                            } else {
-                                                                // CurrID has now been Edited by User and, NO! its Another Project!
-                                                                console.log('Error: We should never get here!');
-                                                            }
+                                            if (!$('#' + inputObjID).length) {
+                                                $('#' + thisObjID).after('<input id="' + inputObjID + '" value="' + prevText + '" style="right: 6px;position: absolute;width: 165px;height: 24px;">');
+                                                $('#' + inputObjID).focus();
+                                                var fldLength = $('#' + inputObjID).val().length;
+                                                $('#' + inputObjID)[0].setSelectionRange(fldLength, fldLength); // cursor to end!
+                                            }
+                                            $('#' + inputObjID).on('keyup', function(evt) {
+                                                if (evt.key == 'Enter') {
+                                                    var NewValue = $('#' + inputObjID).val();
+                                                    if (NewValue !== prevText) {
+                                                        $('#' + thisObjID).prev().html($('#' + thisObjID).prev().html().replace(new RegExp(prevText + '$', 'g'), NewValue));
+                                                        if (CurrIsActive(CurrID)) {
+                                                            // CurrID has now been Edited by User and, Yes! its the Active Project!
+                                                            ultiflow.renameTitle(NewValue);
+                                                            $('.uf-process-title').text(NewValue);
+                                                        } else {
+                                                            // CurrID has now been Edited by User and, NO! its Another Project!
+                                                            console.log('Error: We should never get here!');
                                                         }
-                                                        self.editTitleStop();
-                                                    } else if (evt.key == 'Escape') {
-                                                        // Abort Edit
-                                                        self.editTitleStop();
-                                                    } else {
-                                                        console.log('@uf.tree: edit.Key:', evt.key);
                                                     }
-                                                });
-                                                /*$('#' + thisObjID).prev().html(
-                                                    $('#' + thisObjID).prev().html().replace(new RegExp(prevText + '$', 'g'), prevText + '1')
-                                                );*/
-                                            };
-                                            self.deleteProject = function(dEvt) {
-                                                var delObj = $(dEvt.target).parent();
-                                                //console.log('deleteProject:', { this: this, event: dEvt, parent: this.parent().attr('id') });
-                                                var PrjFile = '';
-                                                try { PrjFile = "\n\nProject:\n" + ultiflow.data.modulesInfos.operators.list[delObj.attr('id')].path; } catch (err) {}
-                                                var dRes = confirm("Confirm delete " + delObj.attr('id') + ' := ' + delObj.text() + " !\n\n" + 'WARNING: Undo is impossible, because files and directories will be deleted!!!' + PrjFile);
-                                                //console.log('deleteProject:', { result: dRes });
-                                                if (dRes) {
-                                                    ultiflow.deleteProject(delObj.attr('id'));
+                                                    self.editTitleStop();
+                                                } else if (evt.key == 'Escape') {
+                                                    // Abort Edit
+                                                    self.editTitleStop();
+                                                } else {
+                                                    console.log('@uf.tree: edit.Key:', evt.key);
                                                 }
-                                            };
+                                            });
+                                            /*$('#' + thisObjID).prev().html(
+                                                $('#' + thisObjID).prev().html().replace(new RegExp(prevText + '$', 'g'), prevText + '1')
+                                            );*/
+                                        };
+                                        self.deleteProject = function(dEvt) {
+                                            var delObj = $(dEvt.target).parent();
+                                            //console.log('deleteProject:', { this: this, event: dEvt, parent: this.parent().attr('id') });
+                                            var PrjFile = '';
+                                            try { PrjFile = "\n\nProject:\n" + ultiflow.data.modulesInfos.operators.list[delObj.attr('id')].path; } catch (err) {}
+                                            var dRes = confirm("Confirm delete " + delObj.attr('id') + ' := ' + delObj.text() + " !\n\n" + 'WARNING: Undo is impossible, because files and directories will be deleted!!!' + PrjFile);
+                                            //console.log('deleteProject:', { result: dRes });
+                                            if (dRes) {
+                                                ultiflow.deleteProject(delObj.attr('id'));
+                                            }
+                                        };
 
-                                            $('#' + thisObjID).on('click', self.editTitleStart);
-                                            $('#' + delObjID).on('click', self.deleteProject);
+                                        $('#' + thisObjID).on('click', self.editTitleStart);
+                                        $('#' + delObjID).on('click', self.deleteProject);
 
-                                            EditID++;
-                                        }
-                                    });
-                                };
+                                        EditID++;
+                                    }
+                                });
+                            };
 
-                                setTimeout(function() { self.editTitleInit(); }, 1000);
-                            }
-
-                        }, 100);
-
-                    }, 200, { trailing: true })();
+                            self.editTitleInit();
+                        }
+                    };
 
                 });
 

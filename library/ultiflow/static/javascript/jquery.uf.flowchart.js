@@ -26,7 +26,12 @@ define([
         currentZoomRatio: 1,
         $ufPanzoom: null,
         menuState: 1,
+        isStarted: false,
 
+        _isStarted: function(val) {
+            if (typeof(val)) this.isStarted = val;
+            return this.isStarted;
+        },
         // the constructor
         _create: function() {
             console.log('@ultiflow.uf_flowchart: create! readyState:', document.readyState);

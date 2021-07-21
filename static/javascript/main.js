@@ -13,6 +13,7 @@ document.onreadystatechange = function($) {
                 'json': 'static/plugins/require.js/lib/json',
                 'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
                 'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
+                'jquery-exist': 'static/plugins/jquery/jquery-plugin-exist.min',
                 'socket-io': 'static/javascript/socket.io.min',
                 'bootstrap': 'static/plugins/bootstrap/js/bootstrap.min',
 
@@ -24,8 +25,8 @@ document.onreadystatechange = function($) {
             }
         });
 
-        require(['jquery', 'app', 'json!package.json', 'main-nav-bar', 'main-view'], function($, app, pkg) {
-            console.log('@static/main: init:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
+        require(['jquery', 'app', 'json!package.json', 'jquery-exist', 'main-nav-bar', 'main-view'], function($, app, pkg) {
+            console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
 
             var $mainNavBar = $('.main-nav-bar');
             $mainNavBar.main_nav_bar();
@@ -63,7 +64,9 @@ document.onreadystatechange = function($) {
 
         requirejs.onError = function(err) {
             console.log('@main: onError:', { error: err });
-            throw err;
+            alert('@main: onError:', JSON.stringify(err));
+            //throw err;
+            setTimeout(function() { document.location.reload(); }, 1000);
         };
     }
 

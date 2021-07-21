@@ -2,7 +2,6 @@ define(['socket-io'], function(io) {
     var self = this;
 
     var app = {};
-    console.log('@ult.app: init:', { app: app, self: self, io: io, readyState: document.readyState });
 
     app.config = {
         server: {
@@ -20,6 +19,7 @@ define(['socket-io'], function(io) {
     app.requestCallbacks = {};
     app.data = {};
     app.ui = {};
+    console.log('@ult.app: init[' + app.request_id + ']:', { app: app, self: self, io: io, readyState: document.readyState });
 
     app.start = function(cb) {
         var self = this;
@@ -33,7 +33,7 @@ define(['socket-io'], function(io) {
         });
 
         this.socket.on('connect', function() {
-            console.log('@ult.app: socket-io: connect!');
+            console.log('@ult.app: socket-io: connect!', typeof($.exist));
             self.sendRequest('login', self.config.user, function(data) {
                 if (data.connected) {
                     $(function() {
@@ -41,12 +41,16 @@ define(['socket-io'], function(io) {
                         self.session = data;
 
                         // WaitFor: #btn_ioStatus
-                        let checkExist = setInterval(function() {
+                        /*let checkExist = setInterval(function() {
                             if ($('#btn_ioStatus').length) {
                                 app.updatePyServerStatus();
                                 clearInterval(checkExist);
                             }
-                        }, 700); // check every 500ms
+                        }, 700); // check every 700ms */
+
+                        $('#btn_ioStatus').exist(function(exist) { //	param is STRING && CALLBACK METHOD
+                            app.updatePyServerStatus();
+                        });
 
                     });
                     cb();
@@ -61,7 +65,7 @@ define(['socket-io'], function(io) {
                 alert('@ult.app: Authentification error! Please try again!');
             }
             if (window.console) {
-                console.log('@ult.app: socket.on.msg:received', response);
+                console.log('@ult.app: socket.on.msg:received[' + response.request_id + ']:', response);
             }
             if (typeof app.requestCallbacks[response.request_id] != 'undefined') {
                 app.requestCallbacks[response.request_id](response.data);
@@ -74,7 +78,7 @@ define(['socket-io'], function(io) {
         var reqId = app.request_id;
         app.request_id++;
         if (window.console)
-            console.log('@ult.app: sendRequest:', request, data);
+            console.log('@ult.app: sendRequest[' + app.request_id + ']:', request, data);
         this.socket.emit('msg', { request_id: reqId, request: request, data: data });
         if (typeof cb != 'undefined') {
             this.requestCallbacks[reqId] = cb;

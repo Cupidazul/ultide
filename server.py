@@ -130,6 +130,10 @@ def index():
     session['uuid'] = str(uuid.uuid4())
     return render_template('index.html')
 
+@app.route('/favicon.ico') 
+def favicon(): 
+    return send_from_directory(os.path.join(app.root_path, 'templates'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 @app.route('/package.json', methods=['GET'])
 @nocache
 def module_static():
@@ -172,7 +176,7 @@ def modules_static(path):
     splitted_path = path.split('/')
     module = splitted_path.pop(0)
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
-    print('@server: module load:', "./" + module_path.replace("\\","/") + '/'.join(splitted_path));sys.stdout.flush();
+    print('@server: module load:', "./" + module_path.replace("\\","/") + '/' + '/'.join(splitted_path));sys.stdout.flush();
     return send_from_directory(module_path, '/'.join(splitted_path))
 
 @socketio.on('connect', namespace='/uide')

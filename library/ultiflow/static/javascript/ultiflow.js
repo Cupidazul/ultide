@@ -6,8 +6,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.timeoutChangeLength = 200;
 
-    ultiflow.getAppVersions = function() {
-        return app.sendRequest('get_os_versions', {}, function(response) {
+    ultiflow.getAppVersions = async function() {
+        await app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
             return setTimeout(function() {
                 window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
@@ -42,17 +42,17 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     };
     ultiflow.getAppVersions();
 
-    ultiflow.getModulesInfos = function(cb) {
+    ultiflow.getModulesInfos = async function(cb) {
         var _self = this;
+        //console.log('@library/ultiflow.getModulesInfos:', _self);
         if (typeof this.data.modulesInfos == 'undefined') {
-            app.sendRequest('modules_infos', {}, function(response) {
-                console.log('@library/ultiflow.getModulesInfos:', response);
-
+            await app.sendRequest('modules_infos', {}, async function(response) {
+                console.log('@library/ultiflow.getModulesInfos: res:', response);
                 _self.data.modulesInfos = response;
-                cb(_self.data.modulesInfos);
+                await cb(_self.data.modulesInfos);
             });
         } else {
-            cb(_self.data.modulesInfos);
+            await cb(_self.data.modulesInfos);
         }
     };
 
