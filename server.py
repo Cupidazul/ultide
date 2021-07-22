@@ -47,7 +47,7 @@ from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
 import ultide.config as config
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from ultide.models import db, User, DevLang, Library
 import ultide.core as core
 import uuid
@@ -55,6 +55,7 @@ import ultide.common as common
 import json
 from datetime import datetime
 import sys
+from pprint import pprint
 
 # Check if Exists: ./data  and create it if not...
 data_dir = os.path.dirname('./data/')
@@ -77,7 +78,7 @@ common.user_manager = UserManager(db_adapter, app)  # Initialize Flask-User
 
 # from: https://github.com/Faouzizi/Create_LoginPage
 login_manager = LoginManager() # Create a Login Manager instance
-login_manager.login_view = 'auth.login' # define the redirection path when login required and we attempt to access without being logged in
+login_manager.login_view = '/login' # define the redirection path when login required and we attempt to access without being logged in
 login_manager.init_app(app) # configure it for login
 @login_manager.user_loader
 def load_user(user_id): #reload user object from the user ID stored in the session
@@ -150,13 +151,20 @@ def login():
             return redirect('/')
     return render_template('login.html', error=error)
 
+@app.route('/logout') # define logout path
+@login_required
+def logout(): #define the logout function
+    logout_user()
+    return redirect('/login')
+
 @app.route('/')
 def index():
     session['uuid'] = str(uuid.uuid4())
-    #if ( app.LoginOK == True ):
-    return render_template('index.html')
-    #else:
-    #    return redirect('/login')
+    pprint(('current_user:', vars(current_user), 'login_manager:', vars(login_manager)))
+    if ( hasattr(current_user,'active') and current_user.active == True ):
+        return render_template('index.html', name=current_user.username, email=current_user.email)
+    else:
+        return redirect('/login')
 
 @app.route('/favicon.ico') 
 def favicon(): 
