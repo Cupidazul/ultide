@@ -4,8 +4,9 @@ import sys
 import platform
 import subprocess
 import ultide.config as config
-from ultide.models import DevLang
+from ultide.models import DevLang, Library
 from datetime import datetime
+from pprint import pprint
 
 WORKSPACE_DIR = 'workspaces'
 OPERATORS_DIR = 'operators'
@@ -19,10 +20,12 @@ def get_workspace(session_data):
     return workspace
 
 def get_operators_infos(path, proj_name, session_data):
+    #print('@lib/ultiflow/main.py: get_operators_infos:',path)
     items = os.listdir(path)
     operators_tree = {}
     operators_list = {}
     for item in items:
+        #print('@lib/ultiflow/main.py: get_operators_infos:', item, path, proj_name)
         item_path = path + os.path.sep + item
         if (os.path.isdir(item_path)):
             config_path = item_path + os.path.sep + CONFIG_FILE #'config.json'
@@ -46,22 +49,59 @@ def get_operators_infos(path, proj_name, session_data):
     return operators_tree, operators_list
 
 def update_operators_infos(directory, proj_name, operators_path, operators_list, operators_tree, session_data):
+    print('@lib/ultiflow/main.py: update_operators_infos:', directory, proj_name, operators_path)
     if (os.path.isdir(operators_path)):
         module_operators_tree, module_operators_list = get_operators_infos(operators_path, proj_name, session_data)
         operators_list.update(module_operators_list)
         operators_tree[directory][proj_name] = module_operators_tree
 
+    hasNewItems = False
+    # SQLAlchemy Get Operators from DB: Library
+    # SQLite ex: INSERT INTO "library" VALUES(1,1,'Perl: Procs','perl_init1','{"id":"perl_procs::perl_init1","title":"Perl: Init 1","type":"operator","inputs":{},"outputs":{"data":{"label":"Start"}},"parameters":[{"id":"perl_incdirs","label":"Include Directories (@INC):","type":"ultiflow::list","config":{"fieldType":"ultiflow::text","fieldTypeConfig":{"default":""}}},{"id":"perl_add_use","label":"Include pod (use <module>;):","type":"ultiflow::list","config":{"fieldType":"ultiflow::text","fieldTypeConfig":{"default":""}}},{"id":"perl_init","label":"Perl Code:","type":"ultiflow::textarea","config":{"attr":{"rows":10},"css":{"font-size":"11px","white-space":"nowrap","width":"100%","font-family":"monospace"},"default":"#!/usr/bin/perl\n\nuse warnings;\nuse strict ''vars'';\nuse Data::Dumper;\nuse Encode qw(decode encode is_utf8);\nuse Getopt::Long;\nuse IO::Handle;\nuse LWP::UserAgent;\nuse Time::Piece;\nuse URI::Escape;\nuse utf8;\n"}}]}');
+    ALLdbLibs = Library.query.filter(Library.lib_name==proj_name).all()
+    #pprint(('Library filter('+proj_name+'):', ALLdbLibs));
+    for row in ALLdbLibs:
+        hasNewItems = True
+        #print ("ID:", row.id, "User:", row.uid, "Name: ",row.lib_name, "Oper:",row.lib_oper, "Code:",row.lib_code)
+        config = json.loads(row.lib_code)
+        db_operators_tree = {}
+        db_operators_list = {}
+        item = row.lib_oper
+        item_path = '@db:Library'
+        config_path = item_path + ':' + str(row.id)
+        if (not hasattr(config, "path") or len(config['path'])<1) : config['path'] = config_path
+        if (not hasattr(config, "fs")   or len(config['fs']  )<1) : config['fs']   = dict( workspace_dir=WORKSPACE_DIR, operators_dir=OPERATORS_DIR, config_file=CONFIG_FILE, work_dir=session_data['user'].get_property('workspace'), oper_path=directory, oper_name=item, user_id=session_data['user'].id, proj_name=proj_name )
+        operator_id = config['id']
+        db_operators_tree[operator_id] = True
+        db_operators_list[operator_id] = config
+        operators_list.update(db_operators_list)
+        operators_tree[directory][proj_name].update(db_operators_tree)
+
+    if (hasNewItems):
+        # Sort dict by Name
+        temp_list = operators_list
+        temp_tree = operators_tree[directory][proj_name]
+        operators_list                       = dict(sorted(temp_list.items(), key=lambda x: x[0]))
+        operators_tree[directory][proj_name] = dict(sorted(temp_tree.items(), key=lambda x: x[0]))
+
 def on_modules_infos(data, response, session_data):
     operators_list = {}
     workspace = get_workspace(session_data)
     operators_tree = {'library': {}, 'workspace': {}}
+    #print('@lib/ultiflow/main.py: on_modules_infos:');pprint((session_data['modules_infos']));
     for module_name in session_data['modules_infos']:
         module_infos = session_data['modules_infos'][module_name]
         if 'config' in module_infos:
+            #print('@lib/ultiflow/main.py: on_modules_infos['+module_name+']:');pprint((module_infos));
+            #print("\n"+'@lib/ultiflow/main.py: on_modules_infos['+module_name+'][main]:');pprint((vars(module_infos['main'])));
+            #print("\n"+'@lib/ultiflow/main.py: on_modules_infos['+module_name+'][config]:');pprint((vars(module_infos['config'])));
+            #print("\n")
             proj_name = module_infos['config'].name
             operators_path = module_infos['path'] + os.path.sep + OPERATORS_DIR
             update_operators_infos('library', proj_name, operators_path, operators_list, operators_tree, session_data)
+
     for dir_name in os.listdir(workspace):
+        #print('@lib/ultiflow/main.py: on_modules_infos:proj_name:'+dir_name);
         proj_name = dir_name
         operators_path = workspace + os.path.sep + dir_name + os.path.sep + OPERATORS_DIR
         update_operators_infos('workspace', proj_name, operators_path, operators_list, operators_tree, session_data)
@@ -122,16 +162,25 @@ def on_perl_CodeRun(data, response, session_data):
     perl_code = perlobj['perl_init']
 
     # Then ADD @INC DIRs:
-    if ( hasattr(perlobj['perl_incdirs'], "__len__") and not perl_code.endswith("\n") ): # Add NewLine if it's not there
+    if ( hasattr(perlobj['perl_incdirs'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
         perl_code += "\n"
     for add_incdir in perlobj['perl_incdirs']:
         perl_code += 'BEGIN { push(@INC, "' + add_incdir + '"); };' + "\n"
 
     # Then ADD modules:
-    if ( hasattr(perlobj['perl_add_use'], "__len__") and not perl_code.endswith("\n") ): # Add NewLine if it's not there
+    if ( hasattr(perlobj['perl_add_use'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
         perl_code += "\n"
     for add_module in perlobj['perl_add_use']:
         perl_code += 'use ' + add_module + ';' + "\n"
+
+    # Then ADD require's:
+    if ( hasattr(perlobj['perl_add_require'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
+        perl_code += "\n"
+    for add_require in perlobj['perl_add_require']:
+        if ( "/" not in add_require ):
+            perl_code += 'require "./' + add_require + '";' + "\n"
+        else:
+            perl_code += 'require "' + add_require + '";' + "\n"
 
     from tempfile import mkstemp
     fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.today().strftime('%Y%m%d%H%M%S') + "-perl_script", suffix = '.pl')

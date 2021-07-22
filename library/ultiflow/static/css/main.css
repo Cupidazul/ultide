@@ -99,6 +99,7 @@
     /* border-top: 1px solid #AAA; */
     overflow: hidden;
     z-index: 1;
+    pointer-events: none;
 }
 
 .uf-flowchart-mini-view-focus {

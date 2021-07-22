@@ -52,11 +52,11 @@ define([
                 var $button = self.buttons[i];
                 $button.data('index', i);
                 self.els.topNavBar.append($button);
-                /*$button.click(function(e) {
+                $button.on('click', function(e) {
                     var $this = $(this);
                     e.preventDefault();
                     self.buttonsCbs[$this.data('index')]();
-                });*/
+                });
             };
 
             for (let i = 0; i < this.buttons.length; i++) {

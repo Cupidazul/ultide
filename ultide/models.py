@@ -26,7 +26,7 @@ class User(db.Model, UserMixin):
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='0')
     first_name = db.Column(db.String(100), nullable=False, server_default='')
     last_name = db.Column(db.String(100), nullable=False, server_default='')
-    
+
     def verify_password(self, password):
         return common.user_manager.verify_password(password, self)
       
@@ -47,18 +47,17 @@ class User(db.Model, UserMixin):
       
       
 class UserProperties(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True, autoincrement=False)
-    name = db.Column(db.String(255), primary_key=True, autoincrement=False, nullable=False, server_default='')
-    value = db.Column(db.Text(), nullable=True)
+    user_id = db.Column(db.Integer,     primary_key=True, autoincrement=False)
+    name    = db.Column(db.String(255), primary_key=True, autoincrement=False, nullable=False, server_default='')
+    value   = db.Column(db.Text(),      nullable=True)
     
 
-class DevLang(db.Model, UserMixin):
+class DevLang(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
-    # User authentication information
-    lang_name = db.Column(db.String(50), nullable=False, unique=True)
+    lang_name    = db.Column(db.String(50),  nullable=False, unique=True)
     lang_version = db.Column(db.String(255), nullable=False, server_default='')
-    lang_modules = db.Column(db.Text(), nullable=False, server_default='')
+    lang_modules = db.Column(db.Text(),      nullable=False, server_default='')
 
     def get_version_perl ():  # returns perl version
         cmd = [ 'perl', '-e print $^V;' ]
@@ -96,3 +95,10 @@ class DevLang(db.Model, UserMixin):
             all_packages.update( obj )
         return json.dumps(all_packages)
 
+class Library(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    uid = db.Column(db.Integer, nullable=False)
+    lib_name = db.Column(db.String(255), nullable=False, server_default='', autoincrement=False)
+    lib_oper = db.Column(db.String(255), nullable=False, server_default='', autoincrement=False)
+    lib_code = db.Column(db.Text(),      nullable=False, server_default='')

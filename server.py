@@ -42,12 +42,13 @@ elif async_mode == 'gevent':
     monkey.patch_all()
 
 import time
-from flask import Flask, render_template, session, request, send_from_directory, make_response
+from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, url_for
 from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
 import ultide.config as config
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
-from ultide.models import db, User, DevLang
+from flask_login import LoginManager, login_user
+from ultide.models import db, User, DevLang, Library
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -69,10 +70,19 @@ db.app = app
 db.init_app(app)
 # Create all database tables
 db.create_all()
-
+    
 # Setup Flask-User
 db_adapter = SQLAlchemyAdapter(db, User)            # Register the User model
 common.user_manager = UserManager(db_adapter, app)  # Initialize Flask-User
+
+# from: https://github.com/Faouzizi/Create_LoginPage
+login_manager = LoginManager() # Create a Login Manager instance
+login_manager.login_view = 'auth.login' # define the redirection path when login required and we attempt to access without being logged in
+login_manager.init_app(app) # configure it for login
+@login_manager.user_loader
+def load_user(user_id): #reload user object from the user ID stored in the session
+    # since the user_id is just the primary key of our user table, use it in the query for the user
+    return User.query.get(int(user_id))
 
 if not User.query.filter(User.username=='root').first():
     user1 = User(username='root', email='root@example.com', confirmed_at=datetime.now(), active=True,
@@ -124,11 +134,29 @@ def get_init_session_data():
     data['modules_infos'] = {'core': {'main': core, 'path': 'ultide'}}
     return data
 
+# Route for handling the login page logic
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        remember = True if request.form.get('remember') else False
+        user = User.query.filter(User.email == email).first()
+        if email != 'root@example.com' or password != 'root':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            login_user(user, remember=remember)
+            return redirect('/')
+    return render_template('login.html', error=error)
 
 @app.route('/')
 def index():
     session['uuid'] = str(uuid.uuid4())
+    #if ( app.LoginOK == True ):
     return render_template('index.html')
+    #else:
+    #    return redirect('/login')
 
 @app.route('/favicon.ico') 
 def favicon(): 
@@ -158,7 +186,7 @@ def msg_received(message):
                 module_py = module_infos['main']
                 if (hasattr(module_py, method)):
                     if ( module_key == 'core' or module_key == 'ultiflow' ): 
-                        print('@server: module method', (session, module_key, method, message));sys.stdout.flush();
+                        print('@server: module getattr('+module_py.__name__+','+method+'):', ('session:', session, 'module_key:', module_key, 'method:', method, 'message:', message));sys.stdout.flush();
                         getattr(module_py, method)(data, response_data, session_data);  # modules: Fix: allow only from core or ultiflow
         print('@server: response: ' + method, response);sys.stdout.flush();
         response['data'] = response_data

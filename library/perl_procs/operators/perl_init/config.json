@@ -33,6 +33,17 @@
             }
         },
         {
+            "id": "perl_add_require",
+            "label": "Include file (require './<file_name>';):",
+            "type": "ultiflow::list",
+            "config": {
+                "fieldType": "ultiflow::text",
+                "fieldTypeConfig": {
+                    "default": ""
+                }
+            }
+        },
+        {
             "id": "perl_init",
             "label": "Perl Code:",
             "type": "ultiflow::textarea",

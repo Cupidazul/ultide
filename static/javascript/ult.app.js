@@ -41,16 +41,16 @@ define(['socket-io'], function(io) {
                         self.session = data;
 
                         // WaitFor: #btn_ioStatus
-                        /*let checkExist = setInterval(function() {
+                        let checkExist = setInterval(function() {
                             if ($('#btn_ioStatus').length) {
                                 app.updatePyServerStatus();
                                 clearInterval(checkExist);
                             }
-                        }, 700); // check every 700ms */
+                        }, 700); // check every 700ms
 
-                        $('#btn_ioStatus').exist(function(exist) { //	param is STRING && CALLBACK METHOD
+                        /*$('#btn_ioStatus').exist(function(exist) { //	param is STRING && CALLBACK METHOD
                             app.updatePyServerStatus();
-                        });
+                        });*/
 
                     });
                     cb();

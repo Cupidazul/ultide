@@ -56,7 +56,10 @@ helper.createPanel = function(title, content) {
     $content.append(content);
     $content.appendTo($panel);
 
-    window.$ultiflow.$panel = [...window.$ultiflow.$panel || [], ...$panel];
+    window.$ultiflow.panel = [...window.$ultiflow.panel || []];
+    window.$ultiflow.panel.push(this);
+    window.$ultiflow.$panel = [...window.$ultiflow.$panel || []];
+    window.$ultiflow.$panel.push($panel);
     return $panel;
 };
 
@@ -74,7 +77,8 @@ helper.treeDataFromOperatorData = function(tree, operators, path) {
             res.push({
                 id: newPath,
                 text: key,
-                children: this.treeDataFromOperatorData(tree[key], operators, newPath)
+                children: this.treeDataFromOperatorData(tree[key], operators, newPath),
+                type: 'root'
             });
         }
     }

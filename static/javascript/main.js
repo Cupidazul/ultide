@@ -64,7 +64,7 @@ document.onreadystatechange = function($) {
 
         requirejs.onError = function(err) {
             console.log('@main: onError:', { error: err });
-            alert('@main: onError:', JSON.stringify(err));
+            alert('@main: onError: type:' + err.requireType + ' modules: ' + err.requireModules + "\n" + JSON.stringify(err));
             //throw err;
             setTimeout(function() { document.location.reload(); }, 1000);
         };
