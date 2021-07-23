@@ -1,6 +1,7 @@
 define([
     'app',
 ], function(app) {
+    /*
     var $mainView = app.ui.mainView;
     var $mainNavBar = app.ui.mainNavBar;
 
@@ -19,5 +20,5 @@ define([
             alert(response.demo_response); //alert(response['demo_response']);
         });
     });
-
+    */
 });

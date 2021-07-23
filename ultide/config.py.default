@@ -11,7 +11,8 @@ MAIL_USERNAME =           os.getenv('MAIL_USERNAME',        'email@example.com')
 MAIL_PASSWORD =           os.getenv('MAIL_PASSWORD',        'password')
 MAIL_DEFAULT_SENDER =     os.getenv('MAIL_DEFAULT_SENDER',  '"MyApp" <noreply@example.com>')
 MAIL_SERVER =             os.getenv('MAIL_SERVER',          'smtp.gmail.com')
-MAIL_PORT =           int(os.getenv('MAIL_PORT',            '465'))
+MAIL_PORT =           int(os.getenv('MAIL_PORT',            '587'))
+MAIL_USE_TLS =        int(os.getenv('MAIL_USE_TLS',         True))
 MAIL_USE_SSL =        int(os.getenv('MAIL_USE_SSL',         True))
 
 # Flask-User settings
@@ -19,3 +20,12 @@ USER_APP_NAME        = "AppName"                # Used by email templates
 
 PERL_EXEC            = ""
 PYTHON_EXEC          = ""
+
+default_user = {
+    'first_name': '',
+    'last_name': '',
+    'username': 'root',
+    'password': 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6', # avoid unencrypted passwords in cleartext,
+    'email': 'root@example.com',
+    'role': 'Admin'
+}

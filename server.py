@@ -46,9 +46,9 @@ from flask import Flask, render_template, session, request, send_from_directory,
 from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
 import ultide.config as config
-from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
+from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter, roles_required
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from ultide.models import db, User, DevLang, Library
+from ultide.models import db, User, Role, DevLang, Library
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -65,7 +65,6 @@ app = Flask(__name__)
 app.config.from_object(config)
 socketio = SocketIO(app, async_mode=async_mode)
 thread = None
-
 
 db.app = app
 db.init_app(app)
@@ -85,9 +84,19 @@ def load_user(user_id): #reload user object from the user ID stored in the sessi
     # since the user_id is just the primary key of our user table, use it in the query for the user
     return User.query.get(int(user_id))
 
-if not User.query.filter(User.username=='root').first():
-    user1 = User(username='root', email='root@example.com', confirmed_at=datetime.now(), active=True,
-            password=common.user_manager.hash_password('root'))
+if not User.query.filter(User.username==app.config['DEFAULT_USER']['username']).first():
+    user1 = User(
+        first_name   = app.config['DEFAULT_USER']['first_name'],
+        last_name    = app.config['DEFAULT_USER']['last_name'],
+        username     = app.config['DEFAULT_USER']['username'],
+        email        = app.config['DEFAULT_USER']['email'],
+        confirmed_at = datetime.now(),
+        active       = True
+    )
+    user1.set_password(app.config['DEFAULT_USER']['password'])
+    if ( app.config['DEFAULT_USER']['role'] != '' ):
+        user1.roles.append(Role(name=app.config['DEFAULT_USER']['role']))
+
     db.session.add(user1)
     db.session.commit()
 
@@ -135,6 +144,12 @@ def get_init_session_data():
     data['modules_infos'] = {'core': {'main': core, 'path': 'ultide'}}
     return data
 
+@app.route('/admin/dashboard')    # @route() must always be the outer-most decorator
+@roles_required('Admin')
+def admin_dashboard():
+    # render the admin dashboard
+    return render_template('admin.html')
+
 # Route for handling the login page logic
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -144,7 +159,8 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
         user = User.query.filter(User.email == email).first()
-        if email != 'root@example.com' or password != 'root':
+        #if email != 'root@example.com' or password != 'root':
+        if not user.verify_password(password):
             error = 'Invalid Credentials. Please try again.'
         else:
             login_user(user, remember=remember)
@@ -160,7 +176,7 @@ def logout(): #define the logout function
 @app.route('/')
 def index():
     session['uuid'] = str(uuid.uuid4())
-    pprint(('current_user:', vars(current_user), 'login_manager:', vars(login_manager)))
+    # pprint(('current_user:', vars(current_user), 'login_manager:', vars(login_manager)))
     if ( hasattr(current_user,'active') and current_user.active == True ):
         return render_template('index.html', name=current_user.username, email=current_user.email)
     else:

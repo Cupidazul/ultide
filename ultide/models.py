@@ -3,14 +3,19 @@ import json
 import subprocess
 import pkg_resources
 from flask_sqlalchemy import SQLAlchemy
-from flask_user import UserMixin
+#from flask_user import UserMixin, RoleMixin
+# https://github.com/ckraczkowsky91/flask-admin-flask-security
+from flask_security import current_user, Security, SQLAlchemyUserDatastore, RoleMixin, UserMixin
 import ultide.common as common
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
 
 # Define the User data model. Make sure to add flask.ext.user UserMixin !!!
 class User(db.Model, UserMixin):
+    __tablename__ = 'users'
+
     id = db.Column(db.Integer, primary_key=True)
 
     # User authentication information
@@ -27,8 +32,20 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(100), nullable=False, server_default='')
     last_name = db.Column(db.String(100), nullable=False, server_default='')
 
+    # Define the relationship to Role via UserRoles : https://flask-user.readthedocs.io/en/latest/basic_app.html
+    roles = db.relationship('Role', secondary='user_roles')
+
+    def set_password(self, password):
+        if ( password.startswith('sha256$') ):
+            # password is allready a hash
+            self.password = password
+        else:
+            # generate a hash from text password
+            self.password = generate_password_hash(password, method='sha256')
+
     def verify_password(self, password):
-        return common.user_manager.verify_password(password, self)
+        return check_password_hash(self.password, password)
+        #return common.user_manager.verify_password(password, self)
       
     def get_property(self, name):
         prop = UserProperties.query.filter_by(name=name).first()
@@ -44,7 +61,19 @@ class User(db.Model, UserMixin):
             prop = UserProperties(user_id=self.id, name=name, value=value)
             db.session.add(prop)
         db.session.commit()
-      
+
+# Define the Role data-model
+class Role(db.Model, RoleMixin):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+# Define the UserRoles association table
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
       
 class UserProperties(db.Model):
     user_id = db.Column(db.Integer,     primary_key=True, autoincrement=False)

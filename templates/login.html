@@ -7,18 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>UltIDE v2.0 Login</title>
+
+    <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="./static/plugins/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./static/css/bulma.min.css" />
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
 </head>
 
 <body>
     <section class="hero is-fullheight" style="background-color:#222;">
-
         <div class="hero-body">
             <div class="container has-text-centered">
-
                 <div class="column is-4 is-offset-4">
-                    <h3 class="title" style="color: #fff;">UltIDE v2.0 Login</h3>
+                    <h3 class="title" style="color: #fff;border: 2px solid darkblue;padding: 5px;border-radius: 20px;background-color: #3082c5;box-shadow: 3px 3px #fff;">
+                        <img src="/favicon.ico"> UltIDE v2.0 Login
+                    </h3>
                     <div class="box" style="background-color: lavender;">
                         {% with messages = get_flashed_messages() %} {% if messages %}
                         <div class="notification is-danger">
@@ -39,15 +41,13 @@
                             </div>
                             <div class="field">
                                 <label class="checkbox">
-                        <input type="checkbox">
-                        Remember me
-                    </label>
+                                    <input type="checkbox">Remember me
+                                </label>
                             </div>
                             <button class="button is-block is-info is-large is-fullwidth">Login</button>
                         </form>
                     </div>
                 </div>
-
             </div>
         </div>
     </section>
