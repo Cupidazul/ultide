@@ -1,7 +1,8 @@
 define(['socket-io'], function(io) {
+    console.log(this);
     var self = this;
 
-    var app = {};
+    var app = Object.assign(app || {}, app);
 
     app.config = {
         server: {
@@ -10,7 +11,7 @@ define(['socket-io'], function(io) {
         },
         user: {
             'login': 'root',
-            'password': 'root'
+            'password': 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6'
         }
     };
 
@@ -32,12 +33,14 @@ define(['socket-io'], function(io) {
             app.updatePyServerStatus();
         });
 
-        this.socket.on('connect', function() {
-            console.log('@ult.app: socket-io: connect!', typeof($.exist));
+        this.socket.on('connect', async function() {
+            console.log('@ult.app: socket-io: connect!');
+
             self.sendRequest('login', self.config.user, function(data) {
+                console.log('@ult.app: login!', { user: self.config.user, data: data });
                 if (data.connected) {
                     $(function() {
-                        //console.log('@ult.app: document.ready!', data);
+                        //console.log('@ult.app: connected!', data);
                         self.session = data;
 
                         // WaitFor: #btn_ioStatus
@@ -48,21 +51,26 @@ define(['socket-io'], function(io) {
                             }
                         }, 700); // check every 700ms
 
-                        /*$('#btn_ioStatus').exist(function(exist) { //	param is STRING && CALLBACK METHOD
-                            app.updatePyServerStatus();
-                        });*/
-
                     });
                     cb();
                 } else {
-                    alert('@ult.app: Error ! Did not succeed to connect!');
+                    if (window.console) {
+                        console.log('@ult.app: Error ! Did not succeed to connect!');
+                    } else {
+                        alert('@ult.app: Error ! Did not succeed to connect!');
+                    }
                 }
             });
+
         });
 
         this.socket.on('msg', function(response) {
             if (typeof response.auth_error != 'undefined' && response.auth_error) {
-                alert('@ult.app: Authentification error! Please try again!');
+                if (window.console) {
+                    console.log('@ult.app: Authentification error! Please try again!', response);
+                } else {
+                    alert('@ult.app: Authentification error! Please try again!');
+                }
             }
             if (window.console) {
                 console.log('@ult.app: socket.on.msg:received[' + response.request_id + ']:', response);

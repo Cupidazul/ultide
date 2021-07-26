@@ -6,6 +6,25 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.timeoutChangeLength = 200;
 
+    ultiflow.getAppConfig = () => {
+        /*var ret = await app.sendRequest('get_os_config', {}, async function(response) {
+            return response;
+        });
+        await ret.then(() => {
+            return ret;
+        });*/
+        return new Promise(function(resolve, reject) {
+            app.sendRequest('get_os_config', {}, function(res, err) {
+                if (err) {
+                    //console.log('ERROR!!!', err);
+                    return reject(err);
+                }
+                //console.log('resolve!!!', res);
+                return resolve(res);
+            });
+        });
+    };
+
     ultiflow.getAppVersions = async function() {
         await app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
@@ -36,6 +55,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
                 ultiflow.versions = app.versions;
                 ultiflow.app = app;
+                //window.$app.config = Object.assign(window.$app.config, app.versions.os.config);
                 return app;
             }, 10);
         });

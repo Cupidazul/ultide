@@ -44,15 +44,19 @@ class User(db.Model, UserMixin):
             self.password = generate_password_hash(password, method='sha256')
 
     def verify_password(self, password):
-        return check_password_hash(self.password, password)
+        if ( password.startswith('sha256$') ):
+            return (self.password == password)
+        else:
+            return check_password_hash(self.password, password)
         #return common.user_manager.verify_password(password, self)
-      
+
     def get_property(self, name):
         prop = UserProperties.query.filter_by(name=name).first()
         if (prop is None):
             return None
         else:
             return prop.value
+
     def set_property(self, name, value):
         prop = UserProperties.query.filter_by(user_id=self.id,name=name).first()
         if (prop is not None):
@@ -74,12 +78,11 @@ class UserRoles(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
-      
+
 class UserProperties(db.Model):
     user_id = db.Column(db.Integer,     primary_key=True, autoincrement=False)
     name    = db.Column(db.String(255), primary_key=True, autoincrement=False, nullable=False, server_default='')
     value   = db.Column(db.Text(),      nullable=True)
-    
 
 class DevLang(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -1,5 +1,5 @@
 document.onreadystatechange = function($) {
-    console.log('@index:main: ', { readyState: document.readyState, this: this });
+    console.log('@index:main: ', { readyState: document.readyState, this: globalThis });
 
     if (document.readyState === 'interactive') {
         require.config({
@@ -13,7 +13,6 @@ document.onreadystatechange = function($) {
                 'json': 'static/plugins/require.js/lib/json',
                 'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
                 'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
-                'jquery-exist': 'static/plugins/jquery/jquery-plugin-exist.min',
                 'socket-io': 'static/javascript/socket.io.min',
                 'bootstrap': 'static/plugins/bootstrap/js/bootstrap.min',
 
@@ -25,7 +24,7 @@ document.onreadystatechange = function($) {
             }
         });
 
-        require(['jquery', 'app', 'json!package.json', 'jquery-exist', 'main-nav-bar', 'main-view'], function($, app, pkg) {
+        require(['text', 'json!package.json', 'jquery', 'app', 'main-nav-bar', 'main-view'], function(undefined, pkg, $, app) {
             console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
 
             var $mainNavBar = $('.main-nav-bar');

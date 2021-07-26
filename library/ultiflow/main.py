@@ -7,6 +7,7 @@ import ultide.config as config
 from ultide.models import DevLang, Library
 from datetime import datetime
 from pprint import pprint
+import pystache
 
 WORKSPACE_DIR = 'workspaces'
 OPERATORS_DIR = 'operators'
@@ -130,6 +131,29 @@ def on_get_os_versions(data, response, session_data):
         response['perl'] = devlang_perl.lang_version
         response['perl-Modules'] = devlang_perl.lang_modules
 
+def mod_2_dict(Modobj):
+    all_vars = dict()
+    if ( hasattr(Modobj,'__dict__') ):
+        mObjs = vars(Modobj)
+        for i in mObjs:
+            #pprint(('ii0 := ', i, type(Modobj.__dict__[i]), Modobj.__dict__[i]))
+            if (type(Modobj.__dict__[i]) is dict):
+                all_vars[i] = mod_2_dict(Modobj.__dict__[i])
+            elif ( (type(Modobj.__dict__[i]) is bool or type(Modobj.__dict__[i]) is str or type(Modobj.__dict__[i]) is int) ):
+                all_vars[i] = Modobj.__dict__[i]
+    else:
+        for i in Modobj:
+            #pprint(('ii1 := ', i, type(Modobj[i]), Modobj[i]))
+            if (type(Modobj[i]) is dict):
+                all_vars[i] = mod_2_dict(Modobj[i])
+            elif ( (type(Modobj[i]) is bool or type(Modobj[i]) is str or type(Modobj[i]) is int) ):
+                all_vars[i] = Modobj[i]
+    return all_vars
+
+def on_get_os_config(data, response, session_data):
+    all_vars = mod_2_dict(config)
+    #pprint(('allvars:::',all_vars))
+    response['config'] = all_vars
 
 def exception_as_dict(ex):
     errno = ''
@@ -160,6 +184,7 @@ def on_perl_CodeRun(data, response, session_data):
 
     # First ADD Perl Init Code:
     perl_code = perlobj['perl_init']
+    perl_code = pystache.render(perl_code, vars(config)); ## Apply Mustache {{}} from config variables
 
     # Then ADD @INC DIRs:
     if ( hasattr(perlobj['perl_incdirs'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
@@ -229,6 +254,7 @@ def on_python_CodeRun(data, response, session_data):
 
     # First ADD python Init Code:
     python_code = pythonobj['python_init']
+    python_code = pystache.render(python_code, vars(config)); ## Apply Mustache {{}} from config variables
 
     from tempfile import mkstemp
     fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.today().strftime('%Y%m%d%H%M%S') + "-python_script", suffix = '.py')

@@ -178,7 +178,7 @@ def index():
     session['uuid'] = str(uuid.uuid4())
     # pprint(('current_user:', vars(current_user), 'login_manager:', vars(login_manager)))
     if ( hasattr(current_user,'active') and current_user.active == True ):
-        return render_template('index.html', name=current_user.username, email=current_user.email)
+        return render_template('index.html', username=current_user.username, email=current_user.email)
     else:
         return redirect('/login')
 
