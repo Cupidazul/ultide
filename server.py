@@ -43,7 +43,7 @@ elif async_mode == 'gevent':
     monkey.patch_all()
 
 import time
-from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, url_for
+from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, flash
 from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter, roles_required
@@ -167,12 +167,13 @@ def login():
         remember = True if request.form.get('remember') else False
         user = User.query.filter(User.email == email).first()
         #if email != 'root@example.com' or password != 'root':
-        if not user.verify_password(password):
+        if password.startswith('sha256$') or not user.verify_password(password): #SECURITY: FIX: disallow login with hash !
             error = 'Invalid Credentials. Please try again.'
+            flash(error)
         else:
             login_user(user, remember=remember)
             return redirect('/')
-    return render_template('login.html', error=error)
+    return render_template('login.html')
 
 @app.route('/logout') # define logout path
 @login_required
