@@ -7,7 +7,9 @@ from flask_sqlalchemy import SQLAlchemy
 # https://github.com/ckraczkowsky91/flask-admin-flask-security
 from flask_security import current_user, Security, SQLAlchemyUserDatastore, RoleMixin, UserMixin
 import ultide.common as common
+import ultide.config as config
 from werkzeug.security import generate_password_hash, check_password_hash
+from pprint import pprint
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
@@ -34,6 +36,8 @@ class User(db.Model, UserMixin):
 
     # Define the relationship to Role via UserRoles : https://flask-user.readthedocs.io/en/latest/basic_app.html
     roles = db.relationship('Role', secondary='user_roles')
+    #roles = db.relationship('Role', secondary='user_roles', back_populates="parent")
+    #allroles = db.ListField(db.ReferenceField('Role'), secondary='user_roles', default=[])
 
     def set_password(self, password):
         if ( password.startswith('sha256$') ):
@@ -50,8 +54,12 @@ class User(db.Model, UserMixin):
             return check_password_hash(self.password, password)
         #return common.user_manager.verify_password(password, self)
 
+    def isAdmin(self):
+        return self.has_role(config.DB_USER['role']) # config.DB_USER['role'] = 'Admin'
+
     def get_property(self, name):
-        prop = UserProperties.query.filter_by(name=name).first()
+        prop = UserProperties.query.filter_by(user_id=self.id,name=name).first()
+        #pprint(('@get_property:', name, prop))
         if (prop is None):
             return None
         else:
@@ -59,6 +67,7 @@ class User(db.Model, UserMixin):
 
     def set_property(self, name, value):
         prop = UserProperties.query.filter_by(user_id=self.id,name=name).first()
+        #pprint(('@set_property:', name, prop, value))
         if (prop is not None):
             prop.value = value
         else:
@@ -71,6 +80,7 @@ class Role(db.Model, RoleMixin):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50), unique=True)
+    #parent = db.relationship("User", secondary='user_roles', back_populates="roles")
 
 # Define the UserRoles association table
 class UserRoles(db.Model):

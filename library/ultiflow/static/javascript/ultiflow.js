@@ -6,13 +6,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.timeoutChangeLength = 200;
 
-    ultiflow.getAppConfig = () => {
-        /*var ret = await app.sendRequest('get_os_config', {}, async function(response) {
-            return response;
-        });
-        await ret.then(() => {
-            return ret;
-        });*/
+    // get_os_config : #Security: Avoid exposing ServerConfig for Security Reasons !
+    /*ultiflow.getAppConfig = () => {
         return new Promise(function(resolve, reject) {
             app.sendRequest('get_os_config', {}, function(res, err) {
                 if (err) {
@@ -23,7 +18,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 return resolve(res);
             });
         });
-    };
+    };*/
 
     ultiflow.getAppVersions = async function() {
         await app.sendRequest('get_os_versions', {}, function(response) {
@@ -90,7 +85,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     ultiflow.openProcess = function(processId) {
         this.setOpenedProcess(processId);
         this.processData = this.getOpenedProcessData();
-        app.triggerEvent('ultiflow::process_open', this.getOpenedProcessData());
+        app.triggerEvent('ultiflow::process_open', this.processData);
     };
 
     ultiflow.setOpenedProcess = function(processId) {

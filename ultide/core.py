@@ -1,9 +1,15 @@
+import datetime
+import ultide.config as config
 from ultide.models import User
 import json
 import sys
 import os
 import os.path
 import imp
+from flask_login import current_user
+from pprint import pprint
+
+DEBUG = config.DEBUG
 
 def initialize_user_session(user, session_data):
     modules_containers_paths = user.get_property('modules_containers_paths')
@@ -42,14 +48,38 @@ def refresh_users_modules(session_data):
     session_data['modules_infos'] = modules_infos
 
 def on_login(data, response, session_data):
-    user = User.query.filter_by(username=data['login']).first()
     connected = False
-    if (user.verify_password(data['password'])):
+    #pprint(('@core.on_login: data:',data))
+    if (not data.get('uid') is None):
+        user = User.query.filter_by(id=data['uid']).first()
+        # if (user.verify_password(data['password'])): #Security: bypass, validated on /login page
         initialize_user_session(user, session_data)
         refresh_users_modules(session_data)
         session_data['user'] = user
         connected = True
-    response['user'] = dict( id=user.id , username= user.username, reset_password_token= user.reset_password_token, email= user.email, confirmed_at= user.confirmed_at.isoformat(), active= user.active,first_name= user.first_name, last_name= user.last_name)
+    else:
+        user = User.query.filter_by(username=data['login']).first()
+        if (user.verify_password(data['password'])):
+            initialize_user_session(user, session_data)
+            refresh_users_modules(session_data)
+            session_data['user'] = user
+            connected = True
+
+    if (connected):
+        response['user'] = dict( 
+            id                   = user.id ,
+            username             = user.username,
+            reset_password_token = user.reset_password_token,
+            email                = user.email,
+            confirmed_at         = user.confirmed_at.isoformat(),
+            first_name           = user.first_name,
+            last_name            = user.last_name,
+            is_active            = user.is_active,
+            is_authenticated     = user.is_authenticated,
+            is_admin             = user.isAdmin()
+        )
+    
+    #pprint(('@core.on_login: OUT:session_data:', mod_2_dict(session_data['user'])))
     response['connected'] = connected
 
 def on_set_user_property(data, response, session_data):
@@ -78,7 +108,7 @@ def on_list_files(data, response, session_data):
     response['parent'] = os.path.abspath(os.path.join(path, os.pardir))
     response['ds'] = os.path.sep
     
-    print('@core.on_list_files:', path)
+    #if (DEBUG): print('@core.on_list_files:', path)
     for dirname, dirnames, filenames in os.walk(path):
         response['dirs'] = dirnames
         response['files'] = filenames
@@ -94,11 +124,70 @@ def on_get_js(data, response, session_data):
         if ('config' in module_infos):
             config = module_infos['config']
             if (hasattr(config, 'requirejs_paths')):
-                print('@core.on_get_js: require_paths.update:', config.requirejs_paths)
+                if (DEBUG): print('@core.on_get_js: require_paths.update:', config.requirejs_paths)
                 require_paths.update(config.requirejs_paths)
             if (hasattr(config, 'main_js') and not (config.main_js in main_js)):
-                print('@core.on_get_js: main_js.append:', config.main_js)
+                if (DEBUG): print('@core.on_get_js: main_js.append:', config.main_js)
                 main_js.append(config.main_js)
     
     response['require_paths'] = require_paths
     response['main_js'] = main_js
+
+def mod_2_dict(Modobj):
+    all_vars = dict()
+    if ( hasattr(Modobj,'__dict__') ):
+        mObjs = vars(Modobj)
+        for i in mObjs:
+            #pprint(('ii0 := ', i, type(Modobj.__dict__[i]), Modobj.__dict__[i]))
+            if (type(Modobj.__dict__[i]) is dict):
+                all_vars[i] = mod_2_dict(Modobj.__dict__[i])
+            elif ( (type(Modobj.__dict__[i]) is bool or type(Modobj.__dict__[i]) is str or type(Modobj.__dict__[i]) is int ) ):
+                all_vars[i] = Modobj.__dict__[i]
+            elif ( type(Modobj.__dict__[i]) is datetime.datetime ):
+                all_vars[i] = Modobj.__dict__[i].isoformat()
+    else:
+        for i in Modobj:
+            #pprint(('ii1 := ', i, type(Modobj[i]), Modobj[i]))
+            if (type(Modobj[i]) is dict):
+                all_vars[i] = mod_2_dict(Modobj[i])
+            elif ( (type(Modobj[i]) is bool or type(Modobj[i]) is str or type(Modobj[i]) is int) ):
+                all_vars[i] = Modobj[i]
+            elif ( type(Modobj[i]) is datetime.datetime ):
+                all_vars[i] = Modobj[i].isoformat()
+    return all_vars
+
+# Initialize ALL sessions_data for each session
+def get_init_session_data(_core_):
+    data = {}
+    data['modules_infos'] = {'core': {'main': _core_, 'path': 'ultide'}}
+    return data
+
+# Get session_data for a session UUID
+def get_session_data( s_data, session_uuid ):
+    session_data = s_data[session_uuid]
+    session_data['uuid'] = session_uuid
+    #try:
+    #    print ('@get_session_data:'+ str(session_data['user'].id))
+    #except:
+    #    None
+    return session_data
+
+# Get ALL session_info for a session UUID
+def get_session_info( sdata, session_uuid ):
+    s_data = get_session_data( sdata, session_uuid )
+    session_info = {'initial_session_data': {}}
+    session_info['initial_session_data'] = mod_2_dict( s_data )
+    #session_info['config'] = core.mod_2_dict(config),                     #Security: Avoid exposing ServerConfig for Security Reasons !
+    #session_info['current_user'] = core.mod_2_dict(current_user),                     #Security: Avoid exposing ServerConfig for Security Reasons !
+    session_info['uid'] = current_user.id if current_user.is_authenticated else 'anonymous'
+    session_info['initial_session_data']['user'] = dict(
+        id           = current_user.id,
+        username     = current_user.username,
+        first_name   = current_user.first_name,
+        last_name    = current_user.last_name,
+        create_dt    = current_user.confirmed_at.isoformat(),
+        is_active    = current_user.is_active,
+        is_auth      = current_user.is_authenticated,
+        is_admin     = current_user.isAdmin()
+    )
+    return session_info

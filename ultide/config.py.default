@@ -1,5 +1,13 @@
 import os
 
+#Security: Sensitive information !!! Carefull with handling...
+
+# Python SocketIO Server
+IO_SERVER = {
+    'host' : '0.0.0.0',
+    'port' : '8000'
+}
+
 # Flask settings
 SECRET_KEY =              os.getenv('SECRET_KEY',       'THIS IS AN INSECURE SECRET')
 SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL',     'sqlite:///data/db.sqlite')
@@ -17,17 +25,30 @@ MAIL_USE_SSL =        int(os.getenv('MAIL_USE_SSL',         True))
 
 # Flask-User settings
 USER_APP_NAME        = "AppName"                # Used by email templates
-
+DEBUG                = False
 PERL_BIN             = "/usr/bin/perl"
 PERL_EXEC            = ""
 PYTHON_BIN           = "/usr/bin/python3"
 PYTHON_EXEC          = ""
 
-DEFAULT_USER = {
-    'first_name': '',
-    'last_name': '',
-    'username': 'root',
-    'password': 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6', # avoid unencrypted passwords in cleartext,
-    'email': 'root@example.com',
-    'role': 'Admin'
+# DB Connection User
+DB_USER = {
+    'first_name' : '',
+    'last_name'  : '',
+    'username'   : 'root',
+    'password'   : 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6', # avoid unencrypted passwords in cleartext,
+    'email'      : 'root@example.com',
+    'role'       : 'Admin'
 }
+
+PRJ = {
+    'DEFAULT_TITLE' : 'Workflow Process',
+    'PROJECT_DIR'   : 'My Project',
+    'WORKSPACE_DIR' : 'workspaces',
+    'OPERATORS_DIR' : 'operators',
+    'OPERATOR_DIR'  : 'custom_operator',
+    'CONFIG_FILE'   : 'config.json',
+    'DEFAULT_ID'    : 'custom::'
+}
+
+PRJ['DEFAULT_ID'] = 'custom::' + PRJ['OPERATOR_DIR']

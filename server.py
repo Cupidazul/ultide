@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 import sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
+import ultide.config as config
 import os;
 from shutil import copyfile;
+
+DEBUG = config.DEBUG
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
 # the best option based on available packages.
 async_mode = None
-LISTENHOST = '0.0.0.0'
-LISTENPORT = '8000'
 
 # DEFAULT CONFIG Setting: ./ultide/config.py.default -> ./ultide/config.py
 if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.default', './ultide/config.py');
@@ -45,7 +46,6 @@ import time
 from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, url_for
 from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
-import ultide.config as config
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter, roles_required
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from ultide.models import db, User, Role, DevLang, Library
@@ -84,26 +84,39 @@ def load_user(user_id): #reload user object from the user ID stored in the sessi
     # since the user_id is just the primary key of our user table, use it in the query for the user
     return User.query.get(int(user_id))
 
-if not User.query.filter(User.username==app.config['DEFAULT_USER']['username']).first():
+if not User.query.filter(User.username==app.config['DB_USER']['username']).first():
     user1 = User(
-        first_name   = app.config['DEFAULT_USER']['first_name'],
-        last_name    = app.config['DEFAULT_USER']['last_name'],
-        username     = app.config['DEFAULT_USER']['username'],
-        email        = app.config['DEFAULT_USER']['email'],
+        first_name   = app.config['DB_USER']['first_name'],
+        last_name    = app.config['DB_USER']['last_name'],
+        username     = app.config['DB_USER']['username'],
+        email        = app.config['DB_USER']['email'],
         confirmed_at = datetime.now(),
         active       = True
     )
-    user1.set_password(app.config['DEFAULT_USER']['password'])
-    if ( app.config['DEFAULT_USER']['role'] != '' ):
-        user1.roles.append(Role(name=app.config['DEFAULT_USER']['role']))
-
+    user1.set_password(app.config['DB_USER']['password'])
+    if ( app.config['DB_USER']['role'] != '' ):
+        user1.roles.append(Role(name=app.config['DB_USER']['role']))
     db.session.add(user1)
+
+    """ # Create Second User for testing purposes
+    user2 = User(
+        first_name   = '',
+        last_name    = '',
+        username     = 'admin',
+        email        = 'admin@example.com',
+        confirmed_at = datetime.now(),
+        active       = True
+    )
+    user2.set_password('admin')
+    user2.roles.append(Role.query.filter(Role.name=='Admin').first())
+    db.session.add(user2) """
+
     db.session.commit()
 
 sessions_data = {}
 
 ## DevLang init db  .START.
-print('@server: Loading: python info...');sys.stdout.flush();
+if (DEBUG): print('@server: Loading: python info...');sys.stdout.flush();
 if not DevLang.query.filter(DevLang.lang_name=='python').first():
     devlang_python = DevLang(lang_name='python', lang_version=DevLang.get_version_python(), lang_modules=DevLang.get_version_python_modules())
     db.session.add(devlang_python)
@@ -114,7 +127,7 @@ else:
     devlang_python.lang_modules = DevLang.get_version_python_modules()
     db.session.commit()
 
-print('@server: Loading: perl info...');sys.stdout.flush();
+if (DEBUG): print('@server: Loading: perl info...');sys.stdout.flush();
 if not DevLang.query.filter(DevLang.lang_name=='perl').first():
     devlang_perl = DevLang(lang_name='perl', lang_version=DevLang.get_version_perl(), lang_modules=DevLang.get_version_perl_modules())
     db.session.add(devlang_perl)
@@ -137,12 +150,6 @@ def nocache(view):
         return response
         
     return update_wrapper(no_cache, view)
-
-
-def get_init_session_data():
-    data = {}
-    data['modules_infos'] = {'core': {'main': core, 'path': 'ultide'}}
-    return data
 
 @app.route('/admin/dashboard')    # @route() must always be the outer-most decorator
 @roles_required('Admin')
@@ -171,13 +178,14 @@ def login():
 @login_required
 def logout(): #define the logout function
     logout_user()
+    sessions_data.pop(session['uuid'], None)
     return redirect('/login')
 
 @app.route('/')
 def index():
     session['uuid'] = str(uuid.uuid4())
-    # pprint(('current_user:', vars(current_user), 'login_manager:', vars(login_manager)))
-    if ( hasattr(current_user,'active') and current_user.active == True ):
+    #pprint(('@server: current_user:', vars(current_user), 'login_manager:', vars(login_manager)));sys.stdout.flush();
+    if ( current_user.is_active and current_user.is_authenticated):
         return render_template('index.html', username=current_user.username, email=current_user.email)
     else:
         return redirect('/login')
@@ -189,14 +197,13 @@ def favicon():
 @app.route('/package.json', methods=['GET'])
 @nocache
 def module_static():
-    print('@server: load_static: ./package.json');sys.stdout.flush();
+    if (DEBUG): print('@server: load_static: ./package.json');sys.stdout.flush();
     static_loadfile = open('package.json').read()
     return static_loadfile
 
 @socketio.on('msg', namespace='/uide')
 def msg_received(message):
-    session_data = sessions_data[session['uuid']]
-    session_data['uuid'] = session['uuid']
+    session_data = core.get_session_data( sessions_data, session['uuid'] )
     request_id = message['request_id']
     method = 'on_' + message['request']
     response = {'request_id': request_id}
@@ -204,48 +211,58 @@ def msg_received(message):
         data = message['data']
         response_data = {}
         for module_key in session_data['modules_infos']:
-            print('@server: module:', module_key);sys.stdout.flush();
+            if (DEBUG): print('@server: module:', module_key);sys.stdout.flush();
             module_infos = session_data['modules_infos'][module_key]
             if ('main' in module_infos):
                 module_py = module_infos['main']
                 if (hasattr(module_py, method)):
                     if ( module_key == 'core' or module_key == 'ultiflow' ): 
-                        print('@server: module getattr('+module_py.__name__+','+method+'):', ('session:', session, 'module_key:', module_key, 'method:', method, 'message:', message));sys.stdout.flush();
+                        if (DEBUG): print('@server: module getattr('+module_py.__name__+','+method+'):', ('session:', session, 'module_key:', module_key, 'method:', method, 'message:', message));sys.stdout.flush();
                         getattr(module_py, method)(data, response_data, session_data);  # modules: Fix: allow only from core or ultiflow
-        print('@server: response: ' + method, response);sys.stdout.flush();
+        if (DEBUG): print('@server: response: ' + method, response);sys.stdout.flush();
         response['data'] = response_data
     else:
         response['auth_error'] = True
-        print('@server: response.err: ' + method, response);sys.stdout.flush();
+        if (DEBUG): print('@server: response.err: ' + method, response);sys.stdout.flush();
     
     emit('msg', response)
     
 @app.route('/static/modules/<path:path>', methods=['GET'])
 @nocache
 def modules_static(path):
-    session_data = sessions_data[session['uuid']]
-    session_data['uuid'] = session['uuid']
+    session_data = core.get_session_data( sessions_data, session['uuid'] )
     splitted_path = path.split('/')
     module = splitted_path.pop(0)
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
-    print('@server: module load:', "./" + module_path.replace("\\","/") + '/' + '/'.join(splitted_path));sys.stdout.flush();
+    if (DEBUG): print('@server: module load:', "./" + module_path.replace("\\","/") + '/' + '/'.join(splitted_path));sys.stdout.flush();
     return send_from_directory(module_path, '/'.join(splitted_path))
 
 @socketio.on('connect', namespace='/uide')
 def test_connect():
-    sessions_data[session['uuid']] = get_init_session_data()
-    print(('@server: Client connected:', request.sid, session['uuid']));sys.stdout.flush();
+    sessions_data[session['uuid']] = core.get_init_session_data(core)
+    session_info = core.get_session_info( sessions_data, session['uuid'] )
+    emit('refresh-session', session_info)   # Send session_info to upstream javascript
+    if (DEBUG): print(('@server: Client connected:', request.sid, session['uuid']));sys.stdout.flush();
 
 @socketio.on('disconnect', namespace='/uide')
 def test_disconnect():
     sessions_data.pop(session['uuid'], None)
-    print(('@server: Client disconnected:', request.sid, session['uuid']));sys.stdout.flush();
+    if (DEBUG): print(('@server: Client disconnected:', request.sid, session['uuid']));sys.stdout.flush();
 
+@socketio.on('get-session', namespace='/uide')
+def get_session():
+    #pprint(('@server: io: get-session!', sessions_data, current_user, dir(current_user)));sys.stdout.flush();
+    session_info = core.get_session_info( sessions_data, session['uuid'] )
+    emit('refresh-session', session_info)   # Send session_info to upstream javascript
+    print(('@server: Client get-session:', request.sid, session['uuid']));sys.stdout.flush();
 
 if __name__ == '__main__':
+    if (DEBUG): pprint(('@server.main: app.config:', app.config)); sys.stdout.flush();
+    LISTENHOST = app.config['IO_SERVER']['host']
+    LISTENPORT = app.config['IO_SERVER']['port']
     if (LISTENHOST == '0.0.0.0'):
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://127.0.0.1:'+LISTENPORT );sys.stdout.flush();
     else:
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
-    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=True)
+    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG)

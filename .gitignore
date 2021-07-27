@@ -1,7 +1,9 @@
 .DS_STORE
 .vscode/
 data/
-workspaces/*/scripts/*
 ultide/config.py
-workspaces/**/prj*/config.json
 ultide/__pycache__/*
+!workspaces/1/*
+workspaces/**/prj*/config.json
+workspaces/*/scripts/*
+workspaces/*
