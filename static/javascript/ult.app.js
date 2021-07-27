@@ -12,8 +12,8 @@ define(['socket-io'], function(io) {
         },
         user: {
             // #Security: Avoid exposing root user information to other users!
-            //'login': 'root',
-            //'password': 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6'
+            //'login': '',
+            //'password': ''
         }
     };
 
