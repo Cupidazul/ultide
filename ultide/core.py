@@ -73,6 +73,7 @@ def on_login(data, response, session_data):
             last_name            = user.last_name,
             email                = user.email,
             group                = user.group,
+            avatar               = user.avatar,
             reset_password_token = user.reset_password_token,
             confirmed_at         = user.confirmed_at.isoformat(),
             is_active            = user.is_active,
@@ -188,6 +189,7 @@ def get_session_info( sdata, session_uuid ):
         last_name    = current_user.last_name,
         create_dt    = current_user.confirmed_at.isoformat(),
         group        = current_user.group,
+        avatar       = current_user.avatar,
         is_active    = current_user.is_active,
         is_auth      = current_user.is_authenticated,
         is_admin     = current_user.is_admin

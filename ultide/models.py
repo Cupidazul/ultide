@@ -26,6 +26,7 @@ class User(db.Model, UserMixin):
 
     # User email information
     email = db.Column(db.String(255), nullable=False, unique=True)
+    avatar = db.Column(db.String(255), nullable=False, unique=True)
     confirmed_at = db.Column(db.DateTime())
 
     # User information

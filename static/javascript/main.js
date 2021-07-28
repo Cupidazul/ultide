@@ -31,6 +31,9 @@ document.onreadystatechange = function($) {
                 console.log('@static/main: app.start[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
 
                 if (!app.data.AppInited) {
+                    var user = { username: '', avatar: './favicon.ico' };
+                    try { user = app.user; } catch (er) {}
+
                     var $mainNavBar = $('.main-nav-bar');
                     $mainNavBar.main_nav_bar();
                     app.ui.mainNavBar = $mainNavBar;
@@ -41,7 +44,7 @@ document.onreadystatechange = function($) {
                     app.ui.mainView = $mainView;
 
                     var HelloUserMSg = '';
-                    try { HelloUserMSg = 'Hello ' + app.user.username + '! '; } catch (er) {}
+                    HelloUserMSg = 'Hello ' + user.username + '! ';
                     var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
                     $mainView.main_view('createView', 'welcome', $(`<div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
                     $mainView.main_view('showView', 'welcome');
@@ -51,6 +54,9 @@ document.onreadystatechange = function($) {
                         $mainNavBar.main_nav_bar('activateButton', 'welcome');
                     });
                     $mainNavBar.main_nav_bar('activateButton', 'welcome');
+
+                    $mainView.main_view('createUserBtn', user);
+
                     app.data.AppInited = true;
                 }
 

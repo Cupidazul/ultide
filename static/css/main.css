@@ -69,3 +69,39 @@
     padding: 4px;
     font-size: 17px;
 }
+
+.userMenuMask {
+    right: 0px;
+    top: 0px;
+    width: 50px;
+    height: 40px;
+    position: fixed;
+    background-color: #F9F9F9;
+}
+
+#userMenuBtn1 {
+    min-width: 50px;
+    text-align: right;
+    right: -109px;
+    padding: 6px 6px;
+    background-color: transparent;
+    top: -1px;
+    height: 41px;
+    border-bottom: 1px solid #DDD;
+}
+
+#userMenuBtn1:active {
+    border-color: none;
+}
+
+#userMenuBtn1:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.avatar {
+    vertical-align: middle;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}

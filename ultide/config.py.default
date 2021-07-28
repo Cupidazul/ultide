@@ -38,6 +38,7 @@ DB_USER = {
     'username'   : 'root',
     'password'   : 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6', # avoid unencrypted passwords in cleartext,
     'email'      : 'root@example.com',
+    'avatar'     : './static/modules/ultiflow/images/img_avatar0.png',
     'group'      : 255
 }
 

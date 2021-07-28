@@ -92,6 +92,7 @@ if not User.query.filter(User.username==app.config['DB_USER']['username']).first
         password     = app.config['DB_USER']['password'],
         email        = app.config['DB_USER']['email'],
         group        = app.config['DB_USER']['group'],
+        avatar       = app.config['DB_USER']['avatar'],
         confirmed_at = datetime.now(),
         active       = True
     )
