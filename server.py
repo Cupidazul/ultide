@@ -46,9 +46,9 @@ import time
 from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, flash
 from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
-from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter, roles_required
+from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from ultide.models import db, User, Role, DevLang, Library
+from ultide.models import db, User, DevLang, Library
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -90,12 +90,10 @@ if not User.query.filter(User.username==app.config['DB_USER']['username']).first
         last_name    = app.config['DB_USER']['last_name'],
         username     = app.config['DB_USER']['username'],
         email        = app.config['DB_USER']['email'],
+        group        = app.config['DB_USER']['group'],
         confirmed_at = datetime.now(),
-        active       = True
+        active       = True,
     )
-    user1.set_password(app.config['DB_USER']['password'])
-    if ( app.config['DB_USER']['role'] != '' ):
-        user1.roles.append(Role(name=app.config['DB_USER']['role']))
     db.session.add(user1)
 
     """ # Create Second User for testing purposes
@@ -105,10 +103,10 @@ if not User.query.filter(User.username==app.config['DB_USER']['username']).first
         username     = 'admin',
         email        = 'admin@example.com',
         confirmed_at = datetime.now(),
-        active       = True
+        active       = True,
+        group        = 255
     )
     user2.set_password('admin')
-    user2.roles.append(Role.query.filter(Role.name=='Admin').first())
     db.session.add(user2) """
 
     db.session.commit()
@@ -151,12 +149,6 @@ def nocache(view):
         
     return update_wrapper(no_cache, view)
 
-@app.route('/admin/dashboard')    # @route() must always be the outer-most decorator
-@roles_required('Admin')
-def admin_dashboard():
-    # render the admin dashboard
-    return render_template('admin.html')
-
 # Route for handling the login page logic
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -173,7 +165,7 @@ def login():
         else:
             login_user(user, remember=remember)
             return redirect('/')
-    return render_template('login.html')
+    return render_template('login.html')#, error=error)
 
 @app.route('/logout') # define logout path
 @login_required

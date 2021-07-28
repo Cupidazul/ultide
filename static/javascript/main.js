@@ -27,27 +27,30 @@ document.onreadystatechange = function($) {
         require(['text', 'json!package.json', 'jquery', 'app', 'main-nav-bar', 'main-view'], function(undefined, pkg, $, app) {
             console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
 
-            var $mainNavBar = $('.main-nav-bar');
-            $mainNavBar.main_nav_bar();
-            app.ui.mainNavBar = $mainNavBar;
-            app.pkg = pkg;
-
-            var $mainView = $('.main-view');
-            $mainView.main_view();
-            app.ui.mainView = $mainView;
-
-            var WelcomeMessage = '<h1 style="align:center;">Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
-            $mainView.main_view('createView', 'welcome', $(`<div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
-            $mainView.main_view('showView', 'welcome');
-
-            $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
-                $mainView.main_view('showView', 'welcome');
-                $mainNavBar.main_nav_bar('activateButton', 'welcome');
-            });
-            $mainNavBar.main_nav_bar('activateButton', 'welcome');
-
             app.start(function() {
-                console.log('@static/main: app.start:', { app: app, readyState: document.readyState });
+                console.log('@static/main: app.start[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
+
+                var $mainNavBar = $('.main-nav-bar');
+                $mainNavBar.main_nav_bar();
+                app.ui.mainNavBar = $mainNavBar;
+                app.pkg = pkg;
+
+                var $mainView = $('.main-view');
+                $mainView.main_view();
+                app.ui.mainView = $mainView;
+
+                var HelloUserMSg = '';
+                try { HelloUserMSg = 'Hello ' + app.user.username + '! '; } catch (er) {}
+                var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
+                $mainView.main_view('createView', 'welcome', $(`<div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
+                $mainView.main_view('showView', 'welcome');
+
+                $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
+                    $mainView.main_view('showView', 'welcome');
+                    $mainNavBar.main_nav_bar('activateButton', 'welcome');
+                });
+                $mainNavBar.main_nav_bar('activateButton', 'welcome');
+
                 setTimeout(function() {
                     app.sendRequest('get_js', {}, function(data) {
                         require.config({ 'paths': data.require_paths });
@@ -55,6 +58,7 @@ document.onreadystatechange = function($) {
                         require(data.main_js);
                     });
                 }, 1);
+
             });
 
         }, function(err) {
@@ -63,9 +67,9 @@ document.onreadystatechange = function($) {
 
         requirejs.onError = function(err) {
             console.log('@main: onError:', { error: err });
-            alert('@main: onError: type:' + err.requireType + ' modules: ' + err.requireModules + "\n" + JSON.stringify(err));
+            //alert('@main: onError: type:' + err.requireType + ' modules: ' + err.requireModules + "\n" + JSON.stringify(err));
             //throw err;
-            setTimeout(function() { document.location.reload(); }, 1000);
+            setTimeout(function() { document.location.reload(); }, 30000);
         };
     }
 

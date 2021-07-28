@@ -3,9 +3,8 @@ import json
 import subprocess
 import pkg_resources
 from flask_sqlalchemy import SQLAlchemy
-#from flask_user import UserMixin, RoleMixin
 # https://github.com/ckraczkowsky91/flask-admin-flask-security
-from flask_security import current_user, Security, SQLAlchemyUserDatastore, RoleMixin, UserMixin
+from flask_security import current_user, Security, SQLAlchemyUserDatastore, UserMixin
 import ultide.common as common
 import ultide.config as config
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -34,10 +33,17 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(100), nullable=False, server_default='')
     last_name = db.Column(db.String(100), nullable=False, server_default='')
 
-    # Define the relationship to Role via UserRoles : https://flask-user.readthedocs.io/en/latest/basic_app.html
-    roles = db.relationship('Role', secondary='user_roles')
-    #roles = db.relationship('Role', secondary='user_roles', back_populates="parent")
-    #allroles = db.ListField(db.ReferenceField('Role'), secondary='user_roles', default=[])
+    group = db.Column('group', db.Integer(), nullable=False, server_default='0')
+    # 0000 0000
+    # ││││ ││││
+    # ││││ │││└── (1)   - Role 1
+    # ││││ ││└─── (2)   - Role 2
+    # ││││ │└──── (4)   - Role 3
+    # ││││ └───── (8)   - Role 4
+    # │││└─────── (16)  - Role 5
+    # ││└──────── (32)  - Role 6
+    # │└───────── (64)  - Role 7
+    # └────────── (128) - Admin
 
     def set_password(self, password):
         if ( password.startswith('sha256$') ):
@@ -55,7 +61,7 @@ class User(db.Model, UserMixin):
         #return common.user_manager.verify_password(password, self)
 
     def isAdmin(self):
-        return self.has_role(config.DB_USER['role']) # config.DB_USER['role'] = 'Admin'
+        return ( int(self.group) & 128 ) == 128 # config.DB_USER['group'] = 255 = 'Superuser'
 
     def get_property(self, name):
         prop = UserProperties.query.filter_by(user_id=self.id,name=name).first()
@@ -74,20 +80,6 @@ class User(db.Model, UserMixin):
             prop = UserProperties(user_id=self.id, name=name, value=value)
             db.session.add(prop)
         db.session.commit()
-
-# Define the Role data-model
-class Role(db.Model, RoleMixin):
-    __tablename__ = 'roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(50), unique=True)
-    #parent = db.relationship("User", secondary='user_roles', back_populates="roles")
-
-# Define the UserRoles association table
-class UserRoles(db.Model):
-    __tablename__ = 'user_roles'
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
 
 class UserProperties(db.Model):
     user_id = db.Column(db.Integer,     primary_key=True, autoincrement=False)

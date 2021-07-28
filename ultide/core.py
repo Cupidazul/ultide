@@ -66,14 +66,15 @@ def on_login(data, response, session_data):
             connected = True
 
     if (connected):
-        response['user'] = dict( 
+        response['user'] = dict(
             id                   = user.id ,
             username             = user.username,
-            reset_password_token = user.reset_password_token,
-            email                = user.email,
-            confirmed_at         = user.confirmed_at.isoformat(),
             first_name           = user.first_name,
             last_name            = user.last_name,
+            email                = user.email,
+            group                = user.group,
+            reset_password_token = user.reset_password_token,
+            confirmed_at         = user.confirmed_at.isoformat(),
             is_active            = user.is_active,
             is_authenticated     = user.is_authenticated,
             is_admin             = user.isAdmin()
@@ -186,6 +187,7 @@ def get_session_info( sdata, session_uuid ):
         first_name   = current_user.first_name,
         last_name    = current_user.last_name,
         create_dt    = current_user.confirmed_at.isoformat(),
+        group        = current_user.group,
         is_active    = current_user.is_active,
         is_auth      = current_user.is_authenticated,
         is_admin     = current_user.isAdmin()
