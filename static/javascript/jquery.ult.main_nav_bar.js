@@ -28,7 +28,7 @@ define([
         addButton: function(key, text, icon, order, cbClicked) {
             var $li = $('<li></li>');
             //$li.appendTo(this.els.topNavBar);
-            var $a = $('<a href="#"></a>');
+            var $a = $('<a id="main_navBar_' + key + '" href="#"></a>');
             $a.appendTo($li);
             $a.text(text);
             var self = this;

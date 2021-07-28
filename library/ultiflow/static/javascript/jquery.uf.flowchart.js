@@ -166,15 +166,19 @@ define([
             $("#menu_btn").on('click', function(evt) {
                 //console.log('menuState:', self.menuState, evt);
                 if (!self.menuState) {
+                    // Show
                     self.menuState = 1;
                     $('.main-view').css('left', '100px');
                     $('.navbar-fixed-left').css('z-index', '1');
                     setTimeout(function() { $('.uf-side-bar.left').css('left', ''); }, 400);
+                    if (!$('#view_welcome').is(':hidden')) $('.navbar.navbar-fixed-left').animate({ left: "+=100" }, 300);
                 } else {
+                    // Hide
                     self.menuState = 0;
                     $('.navbar-fixed-left').css('z-index', '');
                     $('.main-view').css('left', '0px');
                     setTimeout(function() { $('.uf-side-bar.left').css('left', '-245px'); }, 400);
+                    if (!$('#view_welcome').is(':hidden')) $('.navbar.navbar-fixed-left').animate({ left: "-=100" }, 300);
                 }
             });
 

@@ -11,7 +11,7 @@ define([
     var $mainView = app.ui.mainView;
     var $mainNavBar = app.ui.mainNavBar;
 
-    $designView = $('<div class="uf_design_view"></div>');
+    $designView = $('<div id="view_Flowchart" class="uf_design_view"></div>');
     $mainView.main_view('createView', 'flowchart', $designView);
 
     $mainNavBar.main_nav_bar('addButton', 'flowchart', 'Flowchart', '', 10, function() {

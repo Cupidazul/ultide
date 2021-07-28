@@ -182,6 +182,8 @@
     border-bottom: 1px solid #DDD;
     padding: 5px;
     overflow: hidden;
+    padding-left: 30px;
+    padding-right: 50px;
 }
 
 .uf-process-main-infos .uf-process-title {

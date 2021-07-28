@@ -46,7 +46,7 @@ document.onreadystatechange = function($) {
                     var HelloUserMSg = '';
                     HelloUserMSg = 'Hello ' + user.username + '! ';
                     var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
-                    $mainView.main_view('createView', 'welcome', $(`<div class="uf-process-main-infos"></div><div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
+                    $mainView.main_view('createView', 'welcome', $(`<div class="uf-process-main-infos"></div><div id="view_welcome" style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
                     $mainView.main_view('showView', 'welcome');
 
                     $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
