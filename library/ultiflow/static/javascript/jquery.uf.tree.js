@@ -67,7 +67,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                 //console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
                                 if (!$flowchart._isStarted() && (new RegExp('^workspace\-.*', 'g').test(LastId))) { // Click Open Project on 1st Element after 'Workspace'
                                     _.debounce(function(oElVal) {
-                                        $('#userMenuBtn1').parent().show();
+                                        //$('#userMenuBtn1').parent().show();
                                         oElVal.click();
                                         $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
                                         $flowchart._isStarted(true);

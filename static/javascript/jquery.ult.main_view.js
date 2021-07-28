@@ -36,7 +36,7 @@ define([
 
         createUserBtn: function(user) {
 
-            var $userMenuBtn = $(`<div class="btn-group" role="group" style="float: right;right: 112px;display:none;">
+            var $userMenuBtn = $(`<div class="btn-group" role="group" style="float: right;right: 112px;float: right;right: 112px;top: 0px;position: absolute;">
     <div class="userMenuMask"></div>
     <button id="userMenuBtn1" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img class="avatar" src="${user.avatar}">
