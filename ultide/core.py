@@ -77,7 +77,7 @@ def on_login(data, response, session_data):
             confirmed_at         = user.confirmed_at.isoformat(),
             is_active            = user.is_active,
             is_authenticated     = user.is_authenticated,
-            is_admin             = user.isAdmin()
+            is_admin             = user.is_admin
         )
     
     #pprint(('@core.on_login: OUT:session_data:', mod_2_dict(session_data['user'])))
@@ -190,6 +190,6 @@ def get_session_info( sdata, session_uuid ):
         group        = current_user.group,
         is_active    = current_user.is_active,
         is_auth      = current_user.is_authenticated,
-        is_admin     = current_user.isAdmin()
+        is_admin     = current_user.is_admin
     )
     return session_info

@@ -30,26 +30,29 @@ document.onreadystatechange = function($) {
             app.start(function() {
                 console.log('@static/main: app.start[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
 
-                var $mainNavBar = $('.main-nav-bar');
-                $mainNavBar.main_nav_bar();
-                app.ui.mainNavBar = $mainNavBar;
-                app.pkg = pkg;
+                if (!app.data.AppInited) {
+                    var $mainNavBar = $('.main-nav-bar');
+                    $mainNavBar.main_nav_bar();
+                    app.ui.mainNavBar = $mainNavBar;
+                    app.pkg = pkg;
 
-                var $mainView = $('.main-view');
-                $mainView.main_view();
-                app.ui.mainView = $mainView;
+                    var $mainView = $('.main-view');
+                    $mainView.main_view();
+                    app.ui.mainView = $mainView;
 
-                var HelloUserMSg = '';
-                try { HelloUserMSg = 'Hello ' + app.user.username + '! '; } catch (er) {}
-                var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
-                $mainView.main_view('createView', 'welcome', $(`<div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
-                $mainView.main_view('showView', 'welcome');
-
-                $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
+                    var HelloUserMSg = '';
+                    try { HelloUserMSg = 'Hello ' + app.user.username + '! '; } catch (er) {}
+                    var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
+                    $mainView.main_view('createView', 'welcome', $(`<div style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
                     $mainView.main_view('showView', 'welcome');
+
+                    $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
+                        $mainView.main_view('showView', 'welcome');
+                        $mainNavBar.main_nav_bar('activateButton', 'welcome');
+                    });
                     $mainNavBar.main_nav_bar('activateButton', 'welcome');
-                });
-                $mainNavBar.main_nav_bar('activateButton', 'welcome');
+                    app.data.AppInited = true;
+                }
 
                 setTimeout(function() {
                     app.sendRequest('get_js', {}, function(data) {

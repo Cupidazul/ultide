@@ -22,7 +22,7 @@ define(['socket-io'], function(io) {
     self.session = null;
     app.request_id = 0;
     app.requestCallbacks = {};
-    app.data = {};
+    app.data = { AppInited: false };
     app.ui = {};
     console.log('@ult.app: init[' + app.request_id + ']:', { app: app, self: self, io: io, readyState: document.readyState });
 

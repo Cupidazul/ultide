@@ -60,7 +60,8 @@ class User(db.Model, UserMixin):
             return check_password_hash(self.password, password)
         #return common.user_manager.verify_password(password, self)
 
-    def isAdmin(self):
+    @property
+    def is_admin(self):
         return ( int(self.group) & 128 ) == 128 # config.DB_USER['group'] = 255 = 'Superuser'
 
     def get_property(self, name):
