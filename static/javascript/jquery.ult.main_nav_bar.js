@@ -21,8 +21,10 @@ define([
             console.log('@ultide.main_nav_bar: create', { this: self, readyState: document.readyState });
             self.els.topNavBar = $('<ul class="nav navbar-nav navbar-top"></ul>');
             self.els.topNavBar.appendTo(self.element);
-            self.els.logoutNavBar = $('<ul class="nav navbar-nav navbar-top"><li><a href="/logout">Logout</a></li></ul>');
-            self.els.logoutNavBar.appendTo(self.element);
+
+            // Migrated to User Menu Button
+            //self.els.logoutNavBar = $('<ul class="nav navbar-nav navbar-top"><li><a href="/logout">Logout</a></li></ul>');
+            //self.els.logoutNavBar.appendTo(self.element);
         },
 
         addButton: function(key, text, icon, order, cbClicked) {
