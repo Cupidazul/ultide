@@ -49,6 +49,7 @@ from flask_socketio import SocketIO, emit, disconnect
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from ultide.models import db, User, DevLang, Library
+from ultide.core import sessions_data
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -112,8 +113,6 @@ if not User.query.filter(User.username==app.config['DB_USER']['username']).first
     db.session.add(user2) """
 
     db.session.commit()
-
-sessions_data = {}
 
 ## DevLang init db  .START.
 if (DEBUG): print('@server: Loading: python info...');sys.stdout.flush();

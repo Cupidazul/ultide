@@ -10,6 +10,7 @@ from flask_login import current_user
 from pprint import pprint
 
 DEBUG = config.DEBUG
+sessions_data = {}
 
 def initialize_user_session(user, session_data):
     modules_containers_paths = user.get_property('modules_containers_paths')
@@ -135,29 +136,87 @@ def on_get_js(data, response, session_data):
     response['require_paths'] = require_paths
     response['main_js'] = main_js
 
-def mod_2_dict(Modobj):
-    all_vars = dict()
-    if ( hasattr(Modobj,'__dict__') ):
-        mObjs = vars(Modobj)
-        for i in mObjs:
-            #pprint(('ii0 := ', i, type(Modobj.__dict__[i]), Modobj.__dict__[i]))
-            if (type(Modobj.__dict__[i]) is dict):
-                all_vars[i] = mod_2_dict(Modobj.__dict__[i])
-            elif ( (type(Modobj.__dict__[i]) is bool or type(Modobj.__dict__[i]) is str or type(Modobj.__dict__[i]) is int ) ):
-                all_vars[i] = Modobj.__dict__[i]
-            elif ( type(Modobj.__dict__[i]) is datetime.datetime ):
-                all_vars[i] = Modobj.__dict__[i].isoformat()
-    else:
-        for i in Modobj:
-            #pprint(('ii1 := ', i, type(Modobj[i]), Modobj[i]))
-            if (type(Modobj[i]) is dict):
-                all_vars[i] = mod_2_dict(Modobj[i])
-            elif ( (type(Modobj[i]) is bool or type(Modobj[i]) is str or type(Modobj[i]) is int) ):
-                all_vars[i] = Modobj[i]
-            elif ( type(Modobj[i]) is datetime.datetime ):
-                all_vars[i] = Modobj[i].isoformat()
+def mod_2_dict2(Modobj,options={}):
+    all_vars = {}
+    if ( hasattr(Modobj,'__dict__') ): Modobj = vars(Modobj)
+    for i in Modobj:
+        #pprint(('ii1 := ', i, type(Modobj[i]), Modobj[i]))
+        if   ( type(Modobj[i]) is dict                    ): all_vars[i] = mod_2_dict2(Modobj[i])
+        elif ( type(Modobj[i]) in [bool, str, int, float] ): all_vars[i] = Modobj[i]
+        elif ( type(Modobj[i]) is datetime.datetime       ): all_vars[i] = Modobj[i].isoformat()
+        elif ( type(Modobj[i]) is datetime.timedelta      ): all_vars[i] = Modobj[i].total_seconds()
+        elif ( type(Modobj[i]) is list                    ): all_vars[i] = str(Modobj[i])
     return all_vars
 
+def mod_2_dict(Modobj, options={'exclude':[],'include':[],'depth': 0,'maxdepth':20,'tree':'','parent':''}):
+    all_vars = {}
+
+    #if (not options.__contains__('tree' )):    options['tree']  = ''
+    if (not options.__contains__('exclude' )): options['exclude']  = []
+    if (not options.__contains__('include' )): options['include']  = []
+    if (not options.__contains__('maxdepth')): options['maxdepth'] = 20
+    #if (not options.__contains__('depth')   ): options['depth']    = 0
+    try:    depth = options['depth']
+    except: options['depth'] = 0
+    try:    parent = options['parent']
+    except: options['parent'] = ''
+
+    #pprint(('mod_2_dict', options))
+    #if (options['depth'] >= options['maxdepth']): return all_vars  # AVOID stack overflow. will occur bellow.
+    
+    if ( hasattr(Modobj,'__dict__') ): Modobj = vars(Modobj)
+    for i in Modobj:
+        #pprint(('ii1 := ', i, type(Modobj[i]), Modobj[i]))
+        if (i not in options['exclude']):
+            
+            iStr = str(i)
+            isClass = True
+            className = ''
+            try:    className = Modobj[i].__class__.__name__
+            except: isClass = False
+            if (iStr == None): iStr = 'None'
+
+            NameisIncluded = (iStr in options['include'])
+            DepthNotExceeded = (options['depth'] <= options['maxdepth'])
+            NameisNotExcluded = (not iStr in ['_keepaliveset','_watcher_ref','sys','IO_SERVER'])
+            ClassisNotExcluded = (not className in ['NoneType','SourceFileLoader','getset_descriptor','builtin_function_or_method','ellipsis','NotImplementedType','wrapper_descriptor','method_descriptor','classmethod_descriptor','member_descriptor','tuple','ModuleSpec','staticmethod','type','classmethod','function','list','_Helper','DefaultMeta','InstrumentedAttribute','weakref','Quitter','ColumnProperty','CachingEntityRegistry','sessionmaker','scoped_session','object','Server','Socket','Event','FFI','_CDataBase','__CDataOwnGC','__CDataOwn','deque','loop','async_','method','_multiplexwatcher','WSGIServer','LockType','SQLAlchemy','_SQLAlchemyState','Blueprint','TraversibleType','property','_FunctionGenerator','symbol','SQLAlchemyAdapter','UserManager','_SocketIOMiddleware','TextIOWrapper','LocalProxy','DispatchingJinjaLoader','LRUCache','AutoEscapeExtension','WithExtension','Environment','PyCapsule','_abc_data','module'])
+            RulesPass = DepthNotExceeded and ( NameisIncluded or ( NameisNotExcluded and ClassisNotExcluded) )
+            #if (iStr in options['include'].expand(['config','app'])): # Safer
+            #if (str(iStr) == 'config'): pprint(' --- i0 := ' +str(options['depth'])+' : '+options['tree']+'.'+iStr+'('+className+'%'+str(type(Modobj[i]))+')');sys.stdout.flush();
+
+            if (options['depth'] == 0): options['tree']=options['parent']+'.'+iStr+'('+className+')'
+
+            #pprint(('mod_2_dict1 := ', Modobj, options, '£:'+options['tree']+'.'+iStr))
+            #pprint('mod_2_dict1 := £:'+str(options['depth'])+' : '+options['tree']+'.'+iStr+'('+className+'%'+str(type(Modobj[i]))+')');sys.stdout.flush();
+
+            if   ( type(Modobj[i]) in [bool, str, int, float] ): all_vars[i] = Modobj[i]
+            elif ( type(Modobj[i]) is datetime.datetime       ): all_vars[i] = Modobj[i].isoformat()
+            elif ( type(Modobj[i]) is datetime.timedelta      ): all_vars[i] = Modobj[i].total_seconds()
+            elif ( type(Modobj[i]) is list                    ): all_vars[i] = str(Modobj[i])
+            else:
+                if ( RulesPass and type(Modobj[i]) is dict ):
+                    if hasattr(Modobj[i],'items'):
+                        if (options['depth'] > 0): options['tree']+='.'+iStr+'('+className+')'
+                        options['depth'] += 1
+                        all_vars[i] = mod_2_dict(dict(Modobj[i].items()), options)
+                    else:
+                        if (options['depth'] > 0): options['tree']+='.'+iStr+'('+className+')'
+                        options['depth'] += 1
+                        all_vars[i] = mod_2_dict(Modobj[i], options)
+                else:                    
+                    if ( RulesPass ):
+                        if hasattr(Modobj[i],'items'):
+                            if (options['depth'] > 0): options['tree']+='.'+iStr+'('+className+')'
+                            options['depth'] += 1
+                            all_vars[i] = mod_2_dict(dict(Modobj[i].items()), options)
+                        else:
+                            if (options['depth'] > 0): options['tree']+='.'+iStr+'('+className+')'
+                            options['depth'] += 1
+                            all_vars[i] = mod_2_dict(Modobj[i], options)
+                    else:
+                        all_vars[i] = { 'value':str(Modobj[i]), 'type':str(type(Modobj[i])), 'name':str(iStr), 'isclass':isClass, 'className': className }
+    return all_vars
+                    
 # Initialize ALL sessions_data for each session
 def get_init_session_data(_core_):
     data = {}
@@ -177,10 +236,11 @@ def get_session_data( s_data, session_uuid ):
 # Get ALL session_info for a session UUID
 def get_session_info( sdata, session_uuid ):
     s_data = get_session_data( sdata, session_uuid )
-    session_info = {'initial_session_data': {}}
-    session_info['initial_session_data'] = mod_2_dict( s_data )
-    #session_info['config'] = core.mod_2_dict(config),                     #Security: Avoid exposing ServerConfig for Security Reasons !
-    #session_info['current_user'] = core.mod_2_dict(current_user),                     #Security: Avoid exposing ServerConfig for Security Reasons !
+    session_info = {}
+    session_info['initial_session_data'] = mod_2_dict(s_data)
+    #session_info['initial_session_data'] = mod_2_dict(s_data,{'include': ['main']})
+    #session_info['config'] = mod_2_dict(config)                                 #Security: Avoid exposing ServerConfig for Security Reasons !
+    #session_info['current_user'] = mod_2_dict(current_user)                     #Security: Avoid exposing ServerConfig for Security Reasons !
     session_info['uid'] = current_user.id if current_user.is_authenticated else 'anonymous'
     session_info['initial_session_data']['user'] = dict(
         id           = current_user.id,

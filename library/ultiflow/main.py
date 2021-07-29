@@ -4,8 +4,10 @@ import sys
 import platform
 import subprocess
 import ultide.config as config
+from ultide.core import sessions_data
 import ultide.core as core
 from ultide.models import db, DevLang, Library
+from flask import session
 from datetime import datetime
 from pprint import pprint
 import pystache
@@ -99,7 +101,8 @@ def update_operators_infos(directory, proj_name, operators_path, operators_list,
 
 def on_modules_infos(data, response, session_data):
     operators_list = {}
-    response['session_data'] = core.mod_2_dict(session_data)
+    #response['session_data'] = core.mod_2_dict(session_data,{'include': ['main'],'obj': 'session_data'}) #SECURITY: oops carefull ! session_data contains password. remember: we can exclude 'password' prop from dict.
+    #response['session_data']['DBapp'] = core.mod_2_dict(db,{'include': ['app','config'],'obj': 'db.app'})
     workspace = get_workspace(session_data)
     operators_tree = {'library': {}, 'workspace': {}}
     #pprint('@lib/ultiflow/main: on_modules_infos: session_data:' + str(session_data['user'].id));
@@ -137,7 +140,9 @@ def on_modules_infos(data, response, session_data):
         proj_name = dir_name
         operators_path = workspace + os.path.sep + dir_name + os.path.sep + db.app.config['PRJ']['OPERATORS_DIR']
         update_operators_infos('workspace', proj_name, operators_path, operators_list, operators_tree, session_data)
-    response['operators'] = {'list': operators_list, 'tree': operators_tree, 'work_dir': workspace }
+    
+    # response['operators'] = {'list': operators_list, 'tree': operators_tree, 'work_dir': workspace, 'session_data': core.mod_2_dict(core.get_session_data( sessions_data, session['uuid'] ))} #SECURITY: oops carefull ! sessions_data contains password. remember: we can exclude 'password' prop from dict.
+    response['operators'] = {'list': operators_list, 'tree': operators_tree, 'work_dir': workspace}
 
 def on_get_os_versions(data, response, session_data):
     # this fn.name:= sys._getframe().f_code.co_name
@@ -162,7 +167,7 @@ def on_get_os_versions(data, response, session_data):
         response['perl'] = devlang_perl.lang_version
         response['perl-Modules'] = devlang_perl.lang_modules
 
-def on_get_os_config(data, response, session_data):
+def on_get_os_config(data, response, session_data): # Still Unused .
     all_vars = dict()
     #all_vars = core.mod_2_dict(config) #Security: Avoid exposing ServerConfig for Security Reasons !
     #pprint(('@lib/ultiflow/main: get_os_config.allvars:',all_vars))
