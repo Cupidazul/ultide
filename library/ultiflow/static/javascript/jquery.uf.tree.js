@@ -125,7 +125,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                         $(ElVal).attr('id', NewID + '_o' + String(EditID));
 
                                         var ElStyle = 'position: relative; right: 54px; font-size: 10px; vertical-align: top; background: white; border-radius: 5px; border: 2px solid lightblue; width: 15px; height: 15px; padding-left: 2px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '');
-                                        $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times" style="' + ElStyle + '"></li>');
+                                        $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times"' + ((String(EditID) === '0') ? ' disabled="disabled"' : '') + ' style="' + ElStyle + '"></li>');
 
                                         ElStyle = 'position: relative; right: 53px; vertical-align: top; background: white; border-radius: 5px; border: 2px solid lightblue; width: 15px; height: 15px; font-size: 8px; padding-left: 2px; padding-top: 1px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '');
                                         $(ElVal).parent().after('<li id="' + thisObjID + '" class="fa fa-pen" style="' + ElStyle + '"></li>');
@@ -202,14 +202,18 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                             );*/
                                         };
                                         self.deleteProject = function(dEvt) {
-                                            var delObj = $(dEvt.target).parent();
-                                            //console.log('deleteProject:', { this: this, event: dEvt, parent: this.parent().attr('id') });
-                                            var PrjFile = '';
-                                            try { PrjFile = "\n\nProject:\n" + ultiflow.data.modulesInfos.operators.list[delObj.attr('id')].path; } catch (err) {}
-                                            var dRes = confirm("Confirm delete " + delObj.attr('id') + ' := ' + delObj.text() + " !\n\n" + 'WARNING: Undo is impossible, because files and directories will be deleted!!!' + PrjFile);
-                                            //console.log('deleteProject:', { result: dRes });
-                                            if (dRes) {
-                                                ultiflow.deleteProject(delObj.attr('id'));
+                                            if ($(dEvt.target).attr('disabled')) { // If Button Disabled! Avoid deleting First Project!
+                                                return false;
+                                            } else {
+                                                var delObj = $(dEvt.target).parent();
+                                                //console.log('deleteProject:', { this: this, event: dEvt, parent: this.parent().attr('id') });
+                                                var PrjFile = '';
+                                                try { PrjFile = "\n\nProject:\n" + ultiflow.data.modulesInfos.operators.list[delObj.attr('id')].path; } catch (err) {}
+                                                var dRes = confirm("Confirm delete " + delObj.attr('id') + ' := ' + delObj.text() + " !\n\n" + 'WARNING: Undo is impossible, because files and directories will be deleted!!!' + PrjFile);
+                                                //console.log('deleteProject:', { result: dRes });
+                                                if (dRes) {
+                                                    ultiflow.deleteProject(delObj.attr('id'));
+                                                }
                                             }
                                         };
 

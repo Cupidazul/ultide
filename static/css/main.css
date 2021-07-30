@@ -105,3 +105,8 @@
     height: 30px;
     border-radius: 50%;
 }
+
+.jstree-node>li.fa-times[disabled] {
+    color: #666 !important;
+    opacity: .3;
+}
