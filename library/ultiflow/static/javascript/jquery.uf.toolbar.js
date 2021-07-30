@@ -34,7 +34,6 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
                 }
             });
 
-
             $(window).resize(function() {
                 self._refresh();
             });
@@ -44,7 +43,6 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
             });
 
             this._refresh();
-
             this.refreshTrees();
         },
 
@@ -59,11 +57,7 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
 
                     self.els.trees[key].jstree(true).settings.core.data = treeData;
                     self.els.trees[key].jstree(true).refresh(true);
-
                 }
-
-
-
             });
         },
 
