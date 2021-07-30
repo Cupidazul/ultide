@@ -34,7 +34,7 @@ define([
         },
         // the constructor
         _create: function() {
-            console.log('@ultiflow.uf_flowchart: create! readyState:', document.readyState);
+            if ($app.debug) console.log('@ultiflow.uf_flowchart: create! readyState:', document.readyState);
 
             var $flowchart = $('<div class="uf-flowchart"></div>');
             this.els.flowchart = $flowchart;
@@ -348,7 +348,7 @@ define([
 
         addOperator: function(operatorData) {
             this.isSettingData = true;
-            console.log('addOperator:', JSON.stringify(operatorData));
+            if ($app.debug) console.log('addOperator:', JSON.stringify(operatorData));
             //this.postProcessOperatorData(operatorData);
             // todo: check same ids ?
 

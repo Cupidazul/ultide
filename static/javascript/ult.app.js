@@ -1,8 +1,8 @@
 define(['socket-io'], function(io) {
-    console.log(this);
+    //console.log(this);
     var self = this;
 
-    var app = Object.assign(app || {}, app);
+    var app = Object.assign(app || {}, app, $app || {});
 
     app.config = {
         io: {},
@@ -17,25 +17,26 @@ define(['socket-io'], function(io) {
         }
     };
 
-    app.user = app.config.user;
+    //app.user = app.config.user;
+    //app.debug = app.config.io.debug;
     app.socket = null;
     self.session = null;
     app.request_id = 0;
     app.requestCallbacks = {};
     app.data = { AppInited: false };
     app.ui = {};
-    console.log('@ult.app: init[' + app.request_id + ']:', { app: app, self: self, io: io, readyState: document.readyState });
+    if ($app.debug) console.log('@ult.app: init[' + app.request_id + ']:', { app: app, self: self, io: io, readyState: document.readyState });
 
     app.start = function(cb) {
         var self = this;
-        console.log('@ult.app: app.start: ', 'ws://' + self.config.server.host + ':' + self.config.server.port + '/uide doc.readyState:' + document.readyState);
+        if ($app.debug) console.log('@ult.app: app.start: ', 'ws://' + self.config.server.host + ':' + self.config.server.port + '/uide doc.readyState:' + document.readyState);
 
         self.socket = io.connect('ws://' + self.config.server.host + ':' + self.config.server.port + '/uide');
         //self.socket.emit('get-session'); // not needed: 'refresh-session' is called in @server.py: socketio.on.connect !
         //console.log('@ult.app: socket-io: get-session!!!', { config: self.config });
 
         self.socket.on('disconnect', function() {
-            console.log('@ult.app: socket-io: disconnect!');
+            if ($app.debug) console.log('@ult.app: socket-io: disconnect!');
             window.$app.user = app.user = app.config.user = {};
             self.session = null;
             app.updatePyServerStatus();
@@ -54,10 +55,11 @@ define(['socket-io'], function(io) {
 
                         if (data.connected) {
                             $(function() {
-                                console.log('@ult.app: connected!', data);
+                                if ($app.debug) console.log('@ult.app: connected!', data);
                                 self.session = data;
                                 app.user = app.config.user = Object.assign(self.config.io.initial_session_data.user, app.config.user);
-                                try { if (window.$app) window.$app.user = app.config.user; } catch (err) {}
+                                //app.debug = app.config.debug = Object.assign(self.config.io.debug, app.config.debug);
+                                //try { if (window.$app) window.$app.user = app.config.user; } catch (err) {}
 
                                 // WaitFor: #btn_ioStatus
                                 let checkExist = setInterval(function() {
@@ -82,7 +84,7 @@ define(['socket-io'], function(io) {
                     clearInterval(checkUID);
                 } else {
                     self.socket.emit('get-session');
-                    console.log('@ult.app: socket-io: get-session!!!', { config: self.config, loginUSR: loginUSR });
+                    if ($app.debug) console.log('@ult.app: socket-io: get-session!!!', { config: self.config, loginUSR: loginUSR });
                 }
                 //self.sendRequest('login', self.config.user, function(data) {
 
@@ -98,7 +100,7 @@ define(['socket-io'], function(io) {
                     alert('@ult.app: Authentification error! Please try again!');
                 }
             }
-            if (window.console) {
+            if ($app.debug && window.console) {
                 console.log('@ult.app: socket.on.msg:received[' + response.request_id + ']:', response);
             }
             if (typeof app.requestCallbacks[response.request_id] != 'undefined') {
@@ -108,7 +110,7 @@ define(['socket-io'], function(io) {
         });
 
         self.socket.on('refresh-session', function(data) {
-            console.log('@ult.app: socket-io: refresh-session: ', data);
+            if ($app.debug) console.log('@ult.app: socket-io: refresh-session: ', data);
             app.config.io = Object.assign(app.config.io || {}, data);
         });
 
@@ -117,7 +119,7 @@ define(['socket-io'], function(io) {
     app.sendRequest = function(request, data, cb) {
         var reqId = app.request_id;
         app.request_id++;
-        if (window.console)
+        if ($app.debug && window.console)
             console.log('@ult.app: sendRequest[' + app.request_id + ']:', request, data);
         this.socket.emit('msg', { request_id: reqId, request: request, data: data });
         if (typeof cb != 'undefined') {

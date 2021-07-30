@@ -8,7 +8,9 @@ import os.path
 import imp
 from flask_login import current_user
 from pprint import pprint
+import inspect
 
+PKG = json.loads(open('package.json').read())
 DEBUG = config.DEBUG
 sessions_data = {}
 
@@ -23,7 +25,6 @@ def initialize_user_session(user, session_data):
     
 def refresh_users_modules(session_data):
     modules_infos = {'core': {'main': sys.modules[__name__], 'path': 'ultide'}}
-    modules_paths = {}
     
     for modules_container_path in session_data['modules_containers_paths']:
         modules = os.listdir(modules_container_path)
@@ -67,7 +68,7 @@ def on_login(data, response, session_data):
             connected = True
 
     if (connected):
-        response['user'] = dict(
+        response['user']  = dict(
             id                   = user.id ,
             username             = user.username,
             first_name           = user.first_name,
@@ -135,6 +136,9 @@ def on_get_js(data, response, session_data):
     
     response['require_paths'] = require_paths
     response['main_js'] = main_js
+
+def var_name(var):
+    return (str([k for k, v in inspect.currentframe().f_back.f_locals.items() if v is var][0]))
 
 def mod_2_dict2(Modobj,options={}):
     all_vars = {}
@@ -255,3 +259,12 @@ def get_session_info( sdata, session_uuid ):
         is_admin     = current_user.is_admin
     )
     return session_info
+
+def AppInitScript():
+    ExposeVars = {'debug':(bool(DEBUG)), 'pkg':{'ProductName':PKG['ProductName']} }     #SECURITY: carefull injecting vars into index.html template here!
+    Script  =   '<script>'
+    Script  +=      'window.$app=' + json.dumps(ExposeVars) + ';'
+    Script  +=      "const uaData=(typeof(navigator.userAgentData)!=='undefined')?(navigator.userAgentData):{userAgent:navigator.userAgent};uaData.highEntropyValues={};(async ()=>{if (uaData.getHighEntropyValues) uaData.highEntropyValues=await uaData.getHighEntropyValues(['brands','mobile','platform','architecture','bitness','platform bitness','user agent','model','platformVersion','uaFullVersion']);})();"
+    #Script  +=      'document.getElementsByTagName("base")[0].nextElementSibling.remove();'  #SECURITY: Magic!
+    Script  +=  '</script>'
+    return Script

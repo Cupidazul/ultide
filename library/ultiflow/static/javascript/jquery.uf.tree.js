@@ -56,7 +56,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
 
                     self.jstreeInit = function() {
                         el.jstree('open_all'); // expand/open all jstree's
-                        console.log('ready.jstree: [' + String(elDescendant.length) + ']:', options, el, this);
+                        if ($app.debug) console.log('ready.jstree: [' + String(elDescendant.length) + ']:', options, el, this);
 
                         // # Click Only Once on Open Project, and resize/close views := Prepare User Environment
                         if (new RegExp('^workspace\-.*', 'g').test(elDescendant.prop('id'))) {
@@ -194,7 +194,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                                     // Abort Edit
                                                     self.editTitleStop();
                                                 } else {
-                                                    console.log('@uf.tree: edit.Key:', evt.key);
+                                                    if ($app.debug) console.log('@uf.tree: edit.Key:', evt.key);
                                                 }
                                             });
                                             /*$('#' + thisObjID).prev().html(

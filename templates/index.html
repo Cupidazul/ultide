@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang=en>
 
 <head>
-    <title>UltIDE v2.0</title>
+    <title>{{ pkg.ProductName }}</title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="Expires" content="-1">
@@ -18,7 +18,7 @@
 <body>
     <div id="ultide">
         <div class="navbar navbar-inverse navbar-fixed-left">
-            <a class="navbar-brand" href="#">UltIDE v2</a>
+            <a class="navbar-brand" href="#">{{ pkg.productName }}</a>
             <div class="main-nav-bar">
             </div>
         </div>
@@ -27,8 +27,7 @@
     <div id="loadingDiv">
         <div class="loader">Loading...</div>
     </div>
-
-    <base alt="require scripts here!">
+    <base alt="require scripts here!">{{ AppInitScript|safe }}
     <script src="static/plugins/require.js/require.js"></script>
     <script src="static/javascript/main.js"></script>
 </body>

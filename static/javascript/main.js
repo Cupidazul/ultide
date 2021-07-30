@@ -1,16 +1,16 @@
 document.onreadystatechange = function($) {
-    console.log('@index:main: ', { readyState: document.readyState, this: globalThis });
+    if ($app.debug) console.log('@index:main: ', { readyState: document.readyState, this: globalThis });
 
     if (document.readyState === 'interactive') {
         require.config({
             map: {
                 '*': {
-                    'css': 'static/plugins/require-css/css',
+                    'css': 'static/plugins/require-css/css.min',
                 }
             },
             paths: {
-                'text': 'static/plugins/require.js/lib/text',
-                'json': 'static/plugins/require.js/lib/json',
+                //'text': 'static/plugins/require.js/lib/text',
+                //'json': 'static/plugins/require.js/lib/json',
                 'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
                 'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
                 'socket-io': 'static/javascript/socket.io.min',
@@ -24,11 +24,14 @@ document.onreadystatechange = function($) {
             }
         });
 
-        require(['text', 'json!package.json', 'jquery', 'app', 'main-nav-bar', 'main-view'], function(undefined, pkg, $, app) {
-            console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
+        //require(['text', 'json!package.json', 'jquery', 'app', 'main-nav-bar', 'main-view'], function(undefined, pkg, $, app) {
+        //    console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
+        require(['jquery', 'app', 'main-nav-bar', 'main-view'], function($, app) {
+            app = Object.assign(app || {}, app, $app || {});
+            if ($app.debug) console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, /*pkg: pkg,*/ readyState: document.readyState });
 
             app.start(function() {
-                console.log('@static/main: app.start[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
+                if ($app.debug) console.log('@static/main: app.start[' + app.request_id + ']:', { $: $, app: app, /*pkg: pkg,*/ readyState: document.readyState });
 
                 if (!app.data.AppInited) {
                     var user = { username: '', avatar: './favicon.ico' };
@@ -37,7 +40,7 @@ document.onreadystatechange = function($) {
                     var $mainNavBar = $('.main-nav-bar');
                     $mainNavBar.main_nav_bar();
                     app.ui.mainNavBar = $mainNavBar;
-                    app.pkg = pkg;
+                    //app.pkg = pkg;
 
                     var $mainView = $('.main-view');
                     $mainView.main_view();
@@ -45,7 +48,7 @@ document.onreadystatechange = function($) {
 
                     var HelloUserMSg = '';
                     HelloUserMSg = 'Hello ' + user.username + '! ';
-                    var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + pkg.ProductName + '!</h1>This is a WIP...';
+                    var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + app.pkg.ProductName + '!</h1>This is a WIP...';
                     $mainView.main_view('createView', 'welcome', $(`<div class="uf-process-main-infos"></div><div id="view_welcome" style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
                     $mainView.main_view('showView', 'welcome');
 
@@ -55,7 +58,7 @@ document.onreadystatechange = function($) {
                     });
                     $mainNavBar.main_nav_bar('activateButton', 'welcome');
 
-                    $mainView.main_view('createUserBtn', user);
+                    $mainView.main_view('createUserBtn', user); // username & avatar info goes in here
 
                     app.data.AppInited = true;
                 }
@@ -63,7 +66,7 @@ document.onreadystatechange = function($) {
                 setTimeout(function() {
                     app.sendRequest('get_js', {}, function(data) {
                         require.config({ 'paths': data.require_paths });
-                        console.log('@app.start: require:', { data: data });
+                        if ($app.debug) console.log('@app.start: require:', { data: data });
                         require(data.main_js);
                     });
                 }, 1);

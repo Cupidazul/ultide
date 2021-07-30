@@ -49,7 +49,7 @@ from flask_socketio import SocketIO, emit, disconnect
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from ultide.models import db, User, DevLang, Library
-from ultide.core import sessions_data
+from ultide.core import PKG, sessions_data
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -180,7 +180,7 @@ def index():
     session['uuid'] = str(uuid.uuid4())
     #pprint(('@server: current_user:', vars(current_user), 'login_manager:', vars(login_manager)));sys.stdout.flush();
     if ( current_user.is_active and current_user.is_authenticated):
-        return render_template('index.html', username=current_user.username, email=current_user.email)
+        return render_template('index.html', AppInitScript=core.AppInitScript(), pkg=PKG)
     else:
         return redirect('/login')
 

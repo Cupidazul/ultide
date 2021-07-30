@@ -17,7 +17,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
         // the constructor
         _create: function() {
             var self = this;
-            console.log('@ultiflow.uf_propbar: create! readyState:', document.readyState);
+            if ($app.debug) console.log('@ultiflow.uf_propbar: create! readyState:', document.readyState);
 
             window.$ultiflow.uf_propbar = self;
 

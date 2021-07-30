@@ -11,7 +11,7 @@ define(['app'], function(app) {
         // the constructor
         _create: function() {
             var self = this;
-            console.log('@ultiflow.uf_process_main_infos: create! readyState:', document.readyState);
+            if ($app.debug) console.log('@ultiflow.uf_process_main_infos: create! readyState:', document.readyState);
 
             window.$ultiflow.uf_process_main_infos = self;
 

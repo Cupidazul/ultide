@@ -20,7 +20,7 @@ define([
             // the constructor
             _create: function() {
                 var self = this;
-                console.log('@ultiflow.uf_design_view: create! readyState:', document.readyState);
+                if ($app.debug) console.log('@ultiflow.uf_design_view: create! readyState:', document.readyState);
 
                 window.$ultiflow.uf_design_view = self;
 

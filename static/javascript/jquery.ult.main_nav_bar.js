@@ -3,7 +3,7 @@ define([
     'jquery',
     'jquery-ui'
 ], function(app, $) {
-    console.log('@ultide.main_nav_bar: init', { this: this, readyState: document.readyState });
+    if ($app.debug) console.log('@ultide.main_nav_bar: init', { this: this, readyState: document.readyState });
     $.widget("ultide.main_nav_bar", {
         options: {},
         els: {
@@ -18,7 +18,7 @@ define([
         _create: function() {
             var self = this;
             app.mainNavBar = self;
-            console.log('@ultide.main_nav_bar: create', { this: self, readyState: document.readyState });
+            if ($app.debug) console.log('@ultide.main_nav_bar: create', { this: self, readyState: document.readyState });
             self.els.topNavBar = $('<ul class="nav navbar-nav navbar-top"></ul>');
             self.els.topNavBar.appendTo(self.element);
 

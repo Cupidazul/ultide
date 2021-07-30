@@ -1,7 +1,7 @@
 define(['app', '_', 'bootstrap'], function(app, _) {
     var self = this;
     var ultiflow = { data: {}, versions: {}, ui: {} };
-    console.log('@library/ultiflow: app:', { app: app, ultiflow: ultiflow, _: _ });
+    if ($app.debug) console.log('@library/ultiflow: app:', { app: app, ultiflow: ultiflow, _: _ });
     app.ultiflow = ultiflow;
 
     ultiflow.timeoutChangeLength = 200;
@@ -25,7 +25,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             //alert(response['demo_response']);
             return setTimeout(function() {
                 window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
-                try { app.versions.Browser = navigator.appVersion; } catch (err) { console.log('err:', err); }
+                try { app.versions.Browser = ((typeof(uaData.brands) !== 'undefined') ? (uaData.brands[2].brand + ' ' + uaData.brands[2].version) : navigator.appVersion); } catch (err) { console.log('err:', err); }
                 try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.jquery = jQuery.fn.jquery; } catch (err) { console.log('err:', err); }
                 try { app.versions['jquery-ui'] = jQuery.ui.version; } catch (err) { console.log('err:', err); }
@@ -47,7 +47,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                     // fadeOut complete. Remove the loading div
                     //$("#loadingDiv").remove(); //makes page more lightweight 
                 });
-                console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
+                if ($app.debug) console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
                 ultiflow.versions = app.versions;
                 ultiflow.app = app;
                 //window.$app.config = Object.assign(window.$app.config, app.versions.os.config);
@@ -62,7 +62,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         //console.log('@library/ultiflow.getModulesInfos:', _self);
         if (typeof this.data.modulesInfos == 'undefined') {
             await app.sendRequest('modules_infos', {}, async function(response) {
-                console.log('@library/ultiflow.getModulesInfos: res:', response);
+                if ($app.debug) console.log('@library/ultiflow.getModulesInfos: res:', response);
                 _self.data.modulesInfos = response;
                 await cb(_self.data.modulesInfos);
             });
@@ -162,7 +162,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     ultiflow.showCurrentProcess = function() {
         var processId = ultiflow.openedProcess;
         var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
-        if (operatorData) console.log('operatorData:', operatorData);
+        if ($app.debug && operatorData) console.log('operatorData:', operatorData);
     };
 
     ultiflow.renameTitle = function(NewTitle, processId) {
@@ -175,16 +175,16 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     ultiflow.deleteProject = function(processId) {
         if (typeof(processId) == 'undefined') processId = ultiflow.openedProcess;
         var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
-        console.log('ultiflow.deleteProject:', { processId: processId, operatorData, opList: ultiflow.data.modulesInfos.operators.list });
+        if ($app.debug) console.log('ultiflow.deleteProject:', { processId: processId, operatorData, opList: ultiflow.data.modulesInfos.operators.list });
         app.sendRequest('deleteProject', operatorData, function(response) {
-            console.log('deleteProject: ', response);
+            if ($app.debug) console.log('deleteProject: ', response);
             window.location.reload(true); // refresh / reload page
         });
     };
 
     ultiflow.PerlCodeRun = function() {
         var _self = this;
-        console.log('jsonPerlCodeRun: processData:', ultiflow.processData);
+        if ($app.debug) console.log('jsonPerlCodeRun: processData:', ultiflow.processData);
         if (ultiflow.processData) {
             var data = ultiflow.processData.process; //window.$ultiflow.processData.process;
             var jsonPerlCodeRun = '';
@@ -193,13 +193,13 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             for (var operatorId in operatorObjs) {
                 if (data.operators[operatorId].type && (data.operators[operatorId].type === 'perl_procs::perl_init')) {
                     jsonPerlCodeRun = JSON.stringify(data.parameters[operatorId]);
-                    console.log('jsonPerlCodeRun:', { code: jsonPerlCodeRun, oper: data.parameters[operatorId] });
+                    if ($app.debug) console.log('jsonPerlCodeRun:', { code: jsonPerlCodeRun, oper: data.parameters[operatorId] });
                 }
             }
 
             if (jsonPerlCodeRun !== '' && jsonPerlCodeRun !== '{}') {
                 app.sendRequest('perl_CodeRun', { 'cmd': jsonPerlCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
-                    console.log('PerlCodeRun: ', response);
+                    if ($app.debug) console.log('PerlCodeRun: ', response);
                     //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
                 });
             } else {
@@ -210,7 +210,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.PythonCodeRun = function() {
         var _self = this;
-        console.log('jsonPythonCodeRun: processData:', ultiflow.processData);
+        if ($app.debug) console.log('jsonPythonCodeRun: processData:', ultiflow.processData);
         if (ultiflow.processData) {
             var data = ultiflow.processData.process; //window.$ultiflow.processData.process;
             var jsonPythonCodeRun = '';
@@ -219,13 +219,13 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             for (var operatorId in operatorObjs) {
                 if (data.operators[operatorId].type && (data.operators[operatorId].type === 'python_procs::python_init')) {
                     jsonPythonCodeRun = JSON.stringify(data.parameters[operatorId]);
-                    console.log('jsonPythonCodeRun:', { code: jsonPythonCodeRun, oper: data.parameters[operatorId] });
+                    if ($app.debug) console.log('jsonPythonCodeRun:', { code: jsonPythonCodeRun, oper: data.parameters[operatorId] });
                 }
             }
 
             if (jsonPythonCodeRun !== '' && jsonPythonCodeRun !== '{}') {
                 app.sendRequest('python_CodeRun', { 'cmd': jsonPythonCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
-                    console.log('PythonCodeRun: ', response);
+                    if ($app.debug) console.log('PythonCodeRun: ', response);
                     //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
                 });
             } else {
@@ -549,7 +549,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                                 data: app.ultiflow.data.modulesInfos.operators.list[evt.target.dataset.id]
                             });
 
-                            console.log('evt.target:', { target: evt.target, copy_Obj: $modal.copy_Obj });
+                            if ($app.debug) console.log('evt.target:', { target: evt.target, copy_Obj: $modal.copy_Obj });
                         });
                         $('#addiCopyTF').on('click', (evt) => {
                             evt.stopImmediatePropagation();
@@ -604,7 +604,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                     //selectedPath = $body.file_chooser('getPath');
                     app.sendRequest('getDefaultConfig', {}, function(response) {
                         // Get Default JSON Template
-                        console.log('getDefaultConfig: ', response);
+                        if ($app.debug) console.log('getDefaultConfig: ', response);
                         //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
                         var cfg = response.json;
                         if ($modal.copy_Obj.isCopy) cfg = $modal.copy_Obj.data;
@@ -640,7 +640,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
                             cfg.path = cfg.fs.oper_path + "\\" + 'prj' + NewProjID + '_operator' + "\\config.json"; // "workspaces\\1\\My Project\\operators\\prj0_operator\\config.json";
 
-                            console.log('Save: cfg:', { cfg: cfg, EDIT_OBJ: $modal.edit_objDATA });
+                            if ($app.debug) console.log('Save: cfg:', { cfg: cfg, EDIT_OBJ: $modal.edit_objDATA });
                             app.sendRequest('saveNewProject', { cfg: cfg, EDIT_OBJ: $modal.edit_objDATA }, function(response) {
                                 window.location.reload(true); // refresh / reload page
                             });
