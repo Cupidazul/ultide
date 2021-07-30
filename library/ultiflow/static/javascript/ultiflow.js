@@ -192,8 +192,11 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             var operatorObjs = Object.keys(data.operators);
             for (var operatorId in operatorObjs) {
                 if (data.operators[operatorId].type && (data.operators[operatorId].type === 'perl_procs::perl_init')) {
+                    // Run through Hierarchy:
+                    // window.infos = contains info from last dropped object
+
                     jsonPerlCodeRun = JSON.stringify(data.parameters[operatorId]);
-                    if ($app.debug) console.log('jsonPerlCodeRun:', { code: jsonPerlCodeRun, oper: data.parameters[operatorId] });
+                    if ($app.debug) console.log('jsonPerlCodeRun:', { operatorId: operatorId, code: jsonPerlCodeRun, oper: data.operators[operatorId], param: data.parameters[operatorId] });
                 }
             }
 
@@ -219,7 +222,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             for (var operatorId in operatorObjs) {
                 if (data.operators[operatorId].type && (data.operators[operatorId].type === 'python_procs::python_init')) {
                     jsonPythonCodeRun = JSON.stringify(data.parameters[operatorId]);
-                    if ($app.debug) console.log('jsonPythonCodeRun:', { code: jsonPythonCodeRun, oper: data.parameters[operatorId] });
+                    if ($app.debug) console.log('jsonPythonCodeRun:', { operatorId: operatorId, code: jsonPythonCodeRun, oper: data.operators[operatorId], param: data.parameters[operatorId] });
                 }
             }
 

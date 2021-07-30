@@ -279,26 +279,26 @@ $(function() {
             }
             linkData.internal.els = {};
 
-            var fromOperatorId = linkData.fromOperator;
-            var fromConnectorId = linkData.fromConnector;
-            var toOperatorId = linkData.toOperator;
-            var toConnectorId = linkData.toConnector;
+            var fromOperatorId = String(linkData.fromOperator);
+            var fromConnectorId = String(linkData.fromConnector);
+            var toOperatorId = String(linkData.toOperator);
+            var toConnectorId = String(linkData.toConnector);
 
             var color = this.getLinkMainColor(linkId);
 
-            var fromOperator = this.data.operators[fromOperatorId];
-            var toOperator = this.data.operators[toOperatorId];
+            var fromOperator = String(this.data.operators[fromOperatorId]);
+            var toOperator = String(this.data.operators[toOperatorId]);
 
             var fromSmallConnector = {};
             var toSmallConnector = {};
 
             if (typeof fromOperator !== 'undefined') {
-                fromSmallConnector = fromOperator.internal.els.connectorSmallArrows[fromConnectorId];
-                linkData.internal.els.fromSmallConnector = fromSmallConnector;
+                fromSmallConnector = String(fromOperator.internal.els.connectorSmallArrows[fromConnectorId]);
+                linkData.internal.els.fromSmallConnector = String(fromSmallConnector);
             }
             if (typeof toOperator !== 'undefined') {
-                toSmallConnector = toOperator.internal.els.connectorSmallArrows[toConnectorId];
-                linkData.internal.els.toSmallConnector = toSmallConnector;
+                toSmallConnector = String(toOperator.internal.els.connectorSmallArrows[toConnectorId]);
+                linkData.internal.els.toSmallConnector = String(toSmallConnector);
             }
 
             if (typeof fromOperator !== 'undefined' && typeof toOperator !== 'undefined') {
@@ -582,10 +582,10 @@ $(function() {
             }
             if (connectorCategory == 'inputs' && this.lastOutputConnectorClicked != null) {
                 var linkData = {
-                    fromOperator: this.lastOutputConnectorClicked.operator,
-                    fromConnector: this.lastOutputConnectorClicked.connector,
-                    toOperator: operator,
-                    toConnector: connector
+                    fromOperator: String(this.lastOutputConnectorClicked.operator),
+                    fromConnector: String(this.lastOutputConnectorClicked.connector),
+                    toOperator: String(operator),
+                    toConnector: String(connector)
                 };
 
                 this.addLink(linkData);
