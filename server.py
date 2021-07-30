@@ -166,7 +166,7 @@ def login():
         else:
             login_user(user, remember=remember)
             return redirect('/')
-    return render_template('login.html')#, error=error)
+    return render_template('login.html', pkg=PKG)#, error=error)
 
 @app.route('/logout') # define logout path
 @login_required
@@ -188,12 +188,12 @@ def index():
 def favicon(): 
     return send_from_directory(os.path.join(app.root_path, 'templates'), 'favicon.ico', mimetype='image/x-icon')
 
-@app.route('/package.json', methods=['GET'])
-@nocache
-def module_static():
-    if (DEBUG): print('@server: load_static: ./package.json');sys.stdout.flush();
-    static_loadfile = open('package.json').read()
-    return static_loadfile
+#@app.route('/package.json', methods=['GET'])
+#@nocache
+#def module_static():
+#    if (DEBUG): print('@server: load_static: ./package.json');sys.stdout.flush();
+#    static_loadfile = open('package.json').read()
+#    return static_loadfile
 
 @socketio.on('msg', namespace='/uide')
 def msg_received(message):

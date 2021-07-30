@@ -2,7 +2,7 @@
 
 @Cupidazul:
 
-UltIDE v2.0 is a fork of the great/awesome Sébastien Drouyer work [Ultide](https://github.com/ultide/ultide/).
+UltIDE v2.0 is a fork of the great/awesome work [Ultide](https://github.com/ultide/ultide/) from Sébastien Drouyer.
 
 Putting this work to use here in a v2.0, the attempt is to create a low-code / no-code that might help others with less programattic skills,
 we will try to include most used programming languages...
