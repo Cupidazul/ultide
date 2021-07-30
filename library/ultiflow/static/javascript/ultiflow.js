@@ -184,21 +184,23 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.PerlCodeRun = function() {
         var _self = this;
-        if ($app.debug) console.log('jsonPerlCodeRun: processData:', ultiflow.processData);
-        if (ultiflow.processData) {
-            var data = ultiflow.processData.process; //window.$ultiflow.processData.process;
+        var _data = null;
+        try { _data = ultiflow.processData.process; } catch (er) {}
+        if ($app.debug) console.log('jsonPerlCodeRun: processData:', _data);
+        if (_data !== null) {
             var jsonPerlCodeRun = '';
+            Object.entries(_data.operators).forEach(elm => {
+                const [oKey, oVal] = elm;
 
-            var operatorObjs = Object.keys(data.operators);
-            for (var operatorId in operatorObjs) {
-                if (data.operators[operatorId].type && (data.operators[operatorId].type === 'perl_procs::perl_init')) {
-                    // Run through Hierarchy:
-                    // window.infos = contains info from last dropped object
-
-                    jsonPerlCodeRun = JSON.stringify(data.parameters[operatorId]);
-                    if ($app.debug) console.log('jsonPerlCodeRun:', { operatorId: operatorId, code: jsonPerlCodeRun, oper: data.operators[operatorId], param: data.parameters[operatorId] });
+                if ($app.debug) console.log('jsonPerlCodeRun:', { operatorId: oKey, code: jsonPerlCodeRun, oper: oVal || {}, param: _data.parameters[oKey] || {} });
+                if (oVal) {
+                    if (oVal.type && (oVal.type === 'perl_procs::perl_init')) {
+                        // Run through Hierarchy:
+                        // window.infos = contains info from last dropped object
+                        jsonPerlCodeRun = JSON.stringify(_data.parameters[oKey]);
+                    }
                 }
-            }
+            });
 
             if (jsonPerlCodeRun !== '' && jsonPerlCodeRun !== '{}') {
                 app.sendRequest('perl_CodeRun', { 'cmd': jsonPerlCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
@@ -213,18 +215,23 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.PythonCodeRun = function() {
         var _self = this;
-        if ($app.debug) console.log('jsonPythonCodeRun: processData:', ultiflow.processData);
-        if (ultiflow.processData) {
-            var data = ultiflow.processData.process; //window.$ultiflow.processData.process;
+        var _data = null;
+        try { _data = ultiflow.processData.process; } catch (er) {}
+        if ($app.debug) console.log('jsonPythonCodeRun: processData:', _data);
+        if (_data !== null) {
             var jsonPythonCodeRun = '';
+            Object.entries(_data.operators).forEach(elm => {
+                const [oKey, oVal] = elm;
 
-            var operatorObjs = Object.keys(data.operators);
-            for (var operatorId in operatorObjs) {
-                if (data.operators[operatorId].type && (data.operators[operatorId].type === 'python_procs::python_init')) {
-                    jsonPythonCodeRun = JSON.stringify(data.parameters[operatorId]);
-                    if ($app.debug) console.log('jsonPythonCodeRun:', { operatorId: operatorId, code: jsonPythonCodeRun, oper: data.operators[operatorId], param: data.parameters[operatorId] });
+                if ($app.debug) console.log('jsonPythonCodeRun:', { operatorId: oKey, code: jsonPythonCodeRun, oper: oVal || {}, param: _data.parameters[oKey] || {} });
+                if (oVal) {
+                    if (oVal.type && (oVal.type === 'python_procs::python_init')) {
+                        // Run through Hierarchy:
+                        // window.infos = contains info from last dropped object
+                        jsonPythonCodeRun = JSON.stringify(_data.parameters[oKey]);
+                    }
                 }
-            }
+            });
 
             if (jsonPythonCodeRun !== '' && jsonPythonCodeRun !== '{}') {
                 app.sendRequest('python_CodeRun', { 'cmd': jsonPythonCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {

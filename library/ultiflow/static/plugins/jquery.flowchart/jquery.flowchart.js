@@ -180,7 +180,7 @@ $(function() {
 
             this.data.operators = {};
             for (var operatorId in data.operators) {
-                this.createOperator(operatorId, data.operators[operatorId]);
+                this.createOperator(String(operatorId), data.operators[String(operatorId)]);
             }
             for (var linkId in data.links) {
                 this.createLink(linkId, data.links[linkId]);
@@ -242,9 +242,9 @@ $(function() {
         },
 
         getConnectorPosition: function(operatorId, connectorId) {
-            var operatorData = this.data.operators[operatorId];
+            var operatorData = this.data.operators[String(operatorId)];
             if (typeof operatorData == 'undefined') return;
-            var $connector = operatorData.internal.els.connectorArrows[connectorId];
+            var $connector = operatorData.internal.els.connectorArrows[String(connectorId)];
             if (typeof $connector == 'undefined') return;
 
             var connectorOffset = $connector.offset();
@@ -286,19 +286,19 @@ $(function() {
 
             var color = this.getLinkMainColor(linkId);
 
-            var fromOperator = String(this.data.operators[fromOperatorId]);
-            var toOperator = String(this.data.operators[toOperatorId]);
+            var fromOperator = this.data.operators[fromOperatorId];
+            var toOperator = this.data.operators[toOperatorId];
 
             var fromSmallConnector = {};
             var toSmallConnector = {};
 
             if (typeof fromOperator !== 'undefined') {
-                fromSmallConnector = String(fromOperator.internal.els.connectorSmallArrows[fromConnectorId]);
-                linkData.internal.els.fromSmallConnector = String(fromSmallConnector);
+                fromSmallConnector = fromOperator.internal.els.connectorSmallArrows[fromConnectorId];
+                linkData.internal.els.fromSmallConnector = fromSmallConnector;
             }
             if (typeof toOperator !== 'undefined') {
-                toSmallConnector = String(toOperator.internal.els.connectorSmallArrows[toConnectorId]);
-                linkData.internal.els.toSmallConnector = String(toSmallConnector);
+                toSmallConnector = toOperator.internal.els.connectorSmallArrows[toConnectorId];
+                linkData.internal.els.toSmallConnector = toSmallConnector;
             }
 
             if (typeof fromOperator !== 'undefined' && typeof toOperator !== 'undefined') {
@@ -480,11 +480,11 @@ $(function() {
 
         addOperator: function(operatorData) {
             while (typeof this.data.operators[this.operatorNum] != 'undefined') {
-                this.operatorNum++;
+                this.operatorNum = String(this.operatorNum++);
             }
 
-            this.createOperator(this.operatorNum, operatorData);
-            return this.operatorNum;
+            this.createOperator(String(this.operatorNum), operatorData);
+            return String(this.operatorNum);
         },
 
         createOperator: function(operatorId, operatorData) {
@@ -492,7 +492,7 @@ $(function() {
             this._refreshInternalProperties(operatorData);
 
             var fullElement = this._getOperatorFullElement(operatorData);
-            if (!this.options.onOperatorCreate(operatorId, operatorData, fullElement)) {
+            if (!this.options.onOperatorCreate(String(operatorId), operatorData, fullElement)) {
                 return false;
             }
 
@@ -503,16 +503,16 @@ $(function() {
 
             fullElement.operator.appendTo(this.objs.layers.operators);
             fullElement.operator.css({ top: operatorData.top, left: operatorData.left });
-            fullElement.operator.data('operator_id', operatorId);
+            fullElement.operator.data('operator_id', String(operatorId));
 
-            this.data.operators[operatorId] = operatorData;
-            this.data.operators[operatorId].internal.els = fullElement;
+            this.data.operators[String(operatorId)] = operatorData;
+            this.data.operators[String(operatorId)].internal.els = fullElement;
 
             if (operatorId == this.selectedOperatorId) {
-                this._addSelectedClass(operatorId);
+                this._addSelectedClass(String(operatorId));
             }
 
-            var operatorData1 = this.data.operators[operatorId];
+            var operatorData1 = this.data.operators[String(operatorId)];
 
             var self = this;
 
@@ -557,8 +557,8 @@ $(function() {
                     stop: function(e, ui) {
                         self._unsetTemporaryLink();
                         var operatorId = $(this).data('operator_id');
-                        operatorChangedPosition(operatorId, ui.position);
-                        self.options.onOperatorMoved(operatorId, ui.position);
+                        operatorChangedPosition(String(operatorId), ui.position);
+                        self.options.onOperatorMoved(String(operatorId), ui.position);
                         self.options.onAfterChange('operator_moved');
                     },
                 });
@@ -571,7 +571,7 @@ $(function() {
             if (connectorCategory == 'outputs') {
                 var d = new Date();
                 var currentTime = d.getTime();
-                this.lastOutputConnectorClicked = { operator: operator, connector: connector };
+                this.lastOutputConnectorClicked = { operator: String(operator), connector: String(connector) };
                 this.objs.layers.temporaryLink.show();
                 var position = this.getConnectorPosition(operator, connector);
                 var x = position.x + position.width;
@@ -582,10 +582,10 @@ $(function() {
             }
             if (connectorCategory == 'inputs' && this.lastOutputConnectorClicked != null) {
                 var linkData = {
-                    fromOperator: String(this.lastOutputConnectorClicked.operator),
-                    fromConnector: String(this.lastOutputConnectorClicked.connector),
-                    toOperator: String(operator),
-                    toConnector: String(connector)
+                    fromOperator: this.lastOutputConnectorClicked.operator,
+                    fromConnector: this.lastOutputConnectorClicked.connector,
+                    toOperator: operator,
+                    toConnector: connector
                 };
 
                 this.addLink(linkData);
@@ -635,21 +635,21 @@ $(function() {
         },
 
         _addSelectedClass: function(operatorId) {
-            this.data.operators[operatorId].internal.els.operator.addClass('selected');
+            this.data.operators[String(operatorId)].internal.els.operator.addClass('selected');
         },
 
         selectOperator: function(operatorId) {
-            if (!this.options.onOperatorSelect(operatorId)) {
+            if (!this.options.onOperatorSelect(String(operatorId))) {
                 return;
             }
             this.unselectLink();
             this._removeSelectedClassOperators();
-            this._addSelectedClass(operatorId);
-            this.selectedOperatorId = operatorId;
+            this._addSelectedClass(String(operatorId));
+            this.selectedOperatorId = String(operatorId);
         },
 
         getSelectedOperatorId: function()  {
-            return this.selectedOperatorId;
+            return String(this.selectedOperatorId);
         },
 
         getSelectedLinkId: function()  {
@@ -717,11 +717,11 @@ $(function() {
         },
 
         deleteOperator: function(operatorId) {
-            this._deleteOperator(operatorId, false);
+            this._deleteOperator(String(operatorId), false);
         },
 
         _deleteOperator: function(operatorId, replace) {
-            if (!this.options.onOperatorDelete(operatorId, replace)) {
+            if (!this.options.onOperatorDelete(String(operatorId), replace)) {
                 return false;
             }
             if (!replace) {
@@ -735,8 +735,8 @@ $(function() {
             if (!replace && operatorId == this.selectedOperatorId) {
                 this.unselectOperator();
             }
-            this.data.operators[operatorId].internal.els.operator.remove();
-            delete this.data.operators[operatorId];
+            this.data.operators[String(operatorId)].internal.els.operator.remove();
+            delete this.data.operators[String(operatorId)];
 
             this.options.onAfterChange('operator_delete');
         },
@@ -766,7 +766,7 @@ $(function() {
                 this.deleteLink(this.selectedLinkId);
             }
             if (this.selectedOperatorId != null) {
-                this.deleteOperator(this.selectedOperatorId);
+                this.deleteOperator(String(this.selectedOperatorId));
             }
         },
 
@@ -794,17 +794,17 @@ $(function() {
         },
 
         setOperatorTitle: function(operatorId, title) {
-            this.data.operators[operatorId].internal.els.title.text(title);
-            if (typeof this.data.operators[operatorId].properties == 'undefined') {
-                this.data.operators[operatorId].properties = {};
+            this.data.operators[String(operatorId)].internal.els.title.text(title);
+            if (typeof this.data.operators[String(operatorId)].properties == 'undefined') {
+                this.data.operators[String(operatorId)].properties = {};
             }
-            this.data.operators[operatorId].properties.title = title;
-            this._refreshInternalProperties(this.data.operators[operatorId]);
+            this.data.operators[String(operatorId)].properties.title = title;
+            this._refreshInternalProperties(this.data.operators[String(operatorId)]);
             this.options.onAfterChange('operator_title_change');
         },
 
         getOperatorTitle: function(operatorId) {
-            return this.data.operators[operatorId].internal.properties.title;
+            return this.data.operators[String(operatorId)].internal.properties.title;
         },
 
         setOperatorData: function(operatorId, operatorData) {
@@ -812,9 +812,9 @@ $(function() {
             for (var linkId in this.data.links) {
                 var linkData = this.data.links[linkId];
                 if ((linkData.fromOperator == operatorId &&
-                        typeof infos.outputs[linkData.fromConnector] == 'undefined') ||
+                        typeof infos.outputs[String(linkData.fromConnector)] == 'undefined') ||
                     (linkData.toOperator == operatorId &&
-                        typeof infos.inputs[linkData.toConnector] == 'undefined'))  {
+                        typeof infos.inputs[String(linkData.toConnector)] == 'undefined'))  {
                     this._deleteLink(linkId, true);
                     continue;
                 }
@@ -826,7 +826,7 @@ $(function() {
         },
 
         getOperatorData: function(operatorId) {
-            var data = $.extend(true, {}, this.data.operators[operatorId]);
+            var data = $.extend(true, {}, this.data.operators[String(operatorId)]);
             delete data.internal;
             return data;
         },
