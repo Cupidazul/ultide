@@ -6,6 +6,25 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.timeoutChangeLength = 200;
 
+    ultiflow.endLoading = async function(ElVal) {
+        console.log('@library/ultiflow: ultiflow.endLoading:', ElVal.id);
+
+        if (ElVal.id == 'custom::custom_process_anchor') {
+            $('body').show();
+            _.debounce(function(oElVal) {
+                //$('#userMenuBtn1').parent().show();
+                if (typeof(oElVal) !== 'undefined') oElVal.click();
+                $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
+                $flowchart._isStarted(true);
+                $("#loadingDiv").fadeOut(500, function() {
+                    // fadeOut complete. Remove the loading div
+                    //$("#loadingDiv").remove(); //makes page more lightweight 
+                    $('body').removeAttr("style");
+                });
+            }, 1000, { trailing: true })(ElVal);
+        }
+
+    };
     // get_os_config : #Security: Avoid exposing ServerConfig for Security Reasons !
     /*ultiflow.getAppConfig = () => {
         return new Promise(function(resolve, reject) {
@@ -43,10 +62,6 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
                     app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
                 }
-                $("#loadingDiv").fadeOut(500, function() {
-                    // fadeOut complete. Remove the loading div
-                    //$("#loadingDiv").remove(); //makes page more lightweight 
-                });
                 if ($app.debug) console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
                 ultiflow.versions = app.versions;
                 ultiflow.app = app;
@@ -185,7 +200,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     ultiflow.PerlCodeRun = function() {
         var _self = this;
         var _data = null;
-        try { _data = ultiflow.processData.process; } catch (er) {}
+        try { _data = ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process; /*window.$flowchart.data;*/ } catch (er) {}
         if ($app.debug) console.log('jsonPerlCodeRun: processData:', _data);
         if (_data !== null) {
             var jsonPerlCodeRun = '';

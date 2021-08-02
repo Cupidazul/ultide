@@ -480,7 +480,7 @@ $(function() {
 
         addOperator: function(operatorData) {
             while (typeof this.data.operators[this.operatorNum] != 'undefined') {
-                this.operatorNum = String(this.operatorNum++);
+                this.operatorNum++;
             }
 
             this.createOperator(String(this.operatorNum), operatorData);
