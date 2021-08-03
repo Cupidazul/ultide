@@ -7,7 +7,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     ultiflow.timeoutChangeLength = 200;
 
     ultiflow.endLoading = async function(ElVal) {
-        console.log('@library/ultiflow: ultiflow.endLoading:', ElVal.id);
+        if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', ElVal.id);
 
         if (ElVal.id == 'custom::custom_process_anchor') {
             $('body').show();
@@ -203,14 +203,18 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         // # Generate LinkTree basics with operators and parameters
         for (let [lKey, lVal] of Object.entries(_data.links)) {
             _linkTree[lVal.fromOperator] = Object.assign({
-                //lf: lVal,
+                fid: lKey,
+                fl: lVal,
                 o: _data.operators[lVal.fromOperator],
                 p: _data.parameters[lVal.fromOperator],
+                _depth: 0,
             }, _linkTree[lVal.fromOperator] || {});
             _linkTree[lVal.toOperator] = Object.assign({
-                //lt: lVal,
+                tid: lKey,
+                tl: lVal,
                 o: _data.operators[lVal.toOperator],
                 p: _data.parameters[lVal.toOperator],
+                _depth: 0,
             }, _linkTree[lVal.toOperator] || {});
         }
 
@@ -225,91 +229,110 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         // # Start in StartOpID and run Process, then Start in Other Parents and run Process. while there are (un)runned children repeat.
         // # Definition: root parents dont have parent
 
-        let processTree = [];
-        processTree.push(_linkTree[StartOpID]); // # 1st: StartOpID
+        let rootProcessTree = [];
+        rootProcessTree.push(_linkTree[StartOpID]); // # 1st: StartOpID
         for (let [lKey, lVal] of Object.entries(_linkTree)) {
             //console.log('CompileCode:', { lKey: lKey, lVal: lVal });
-            if (!processTree.includes(lVal) && (typeof(lVal.parents) === 'undefined')) { // if not in processTree, and no Parents, ADD!
-                processTree.push(lVal);
+            if (!rootProcessTree.includes(lVal) && (typeof(lVal.parents) === 'undefined')) { // if not in rootProcessTree, and no Parents, ADD!
+                rootProcessTree.push(lVal);
+                lVal._depth++;
             }
         }
 
-        let Iteration = 1;
-        let Level = 1;
+        let finalProcessList = []; // Sequencial List of Processes to run
+        let Iteration = 0; // Incremental Value that defines when the Process was run
+        let Level = 0; // Incremental Value that defines when the Process should be run
 
-        let RunProcess = (elm) => {
+        Object.getPrototypeOf(finalProcessList).insert = function(item, index) {
+            this.splice(index, 0, item);
+        };
+
+        let RunProcess = async function(elm) {
             elm.res = '';
             elm.date = new Date().toISOString();
-            elm.iter = Iteration++;
+            elm.iter = Iteration;
             // #WIP: Process each type of operantor
+            if ($app.debug) console.log('RunProcess[' + Iteration + ']:', elm.o.type, elm);
+            Iteration++;
         };
 
-        let _fn0 = (hasParents, elm) => {
-            if (typeof(elm.parents) !== 'undefined') hasParents = true;
-            if (typeof(elm.level) === 'undefined') elm.level = Level++;
-            if (typeof(elm.res) === 'undefined') {
-                // # RUN Process Call
-                if (!hasParents) RunProcess(elm);
+
+        {
+            let CurrPos = {};
+            let _fn0 = (hasParents, elm) => {
+                if (typeof(elm.parents) !== 'undefined') hasParents = true;
+                if (typeof(elm.level) === 'undefined') elm.level = Level++;
+                if (!hasParents && !finalProcessList.includes(elm)) {
+                    finalProcessList.push(elm);
+                }
+            };
+
+            // # Iterate rootProcessTree backwards
+            for (let Idx = rootProcessTree.length - 1; Idx >= 0; Idx--) {
+                CurrPos = [rootProcessTree[Idx]];
+                let hasParents = false;
+                do {
+                    hasParents = false;
+                    CurrPos.forEach(_fn0.bind(this, hasParents));
+                    CurrPos = CurrPos.children || [];
+                } while (!hasParents && CurrPos.length > 0);
             }
-        };
-
-        // # Iterate processTree backwards
-        for (let Idx = processTree.length - 1; Idx >= 0; Idx--) {
-            let CurrPos = [processTree[Idx]];
-            let hasParents = false;
-            do {
-                hasParents = false;
-                CurrPos.forEach(_fn0.bind(this, hasParents));
-                CurrPos = CurrPos.children || [];
-            } while (!hasParents && CurrPos.length > 0);
         }
 
         {
             let CurrPos = {};
             let _fn1 = (elm) => {
-                if (typeof(elm.level) === 'undefined') elm.level = Level++;
-                if (typeof(elm.res) === 'undefined') {
-                    // # RUN Process Call
-                    if (typeof(elm.children) !== 'undefined') RunProcess(elm);
+                if (typeof(elm.children) !== 'undefined') {
+                    if (typeof(elm.level) === 'undefined') elm.level = Level++;
+                    if (!finalProcessList.includes(elm)) {
+                        finalProcessList.push(elm);
+                    }
                 }
-                //if (typeof(CurrPos.parents) === 'undefined') hasParents = true;
                 CurrPos = elm;
             };
 
-            // # Iterate all Children in processTree backwards
-            for (let Idx = processTree.length - 1; Idx >= 0; Idx--) {
-                CurrPos = processTree[Idx];
+            // # Iterate all Children in rootProcessTree backwards
+            for (let Idx = rootProcessTree.length - 1; Idx >= 0; Idx--) {
+                CurrPos = rootProcessTree[Idx];
                 do {
                     CurrPos = CurrPos.children;
                     CurrPos.forEach(_fn1.bind(this));
-                    //console.log('CompileCode Process:', Idx, Iteration, CurrPos);
                 } while (typeof(CurrPos.children) !== 'undefined' && CurrPos.children.length > 0);
             }
         }
 
-        // # Get all other Children not runned
-        let finalProcessIds = [];
-        for (let [lKey, lVal] of Object.entries(_linkTree)) {
-            if (typeof(lVal.level) === 'undefined') lVal.level = Level++;
-            if (typeof(lVal.res) === 'undefined') {
-                finalProcessIds.push(lKey);
+        // # ADD all other Children not in finalProcessList
+        // # Note: in the future: we could simply rely on lVal.level and create finalProcessList, only here, from scratch
+        let pos = 0;
+        let ElCnt = Object.entries(_linkTree).length;
+        for (let [lKey, elm] of Object.entries(_linkTree)) {
+            //console.log('Get all other Children:', lKey, elm);
+            if (typeof(elm.level) === 'undefined') elm.level = Level++;
+            if (!finalProcessList.includes(elm)) {
+                finalProcessList.insert(elm, elm.level - pos); // insert in correspondent Level (reverse last Items)
+                elm.level = elm.level + (ElCnt - finalProcessList.length - 1) - pos + 1;
+                pos++;
             }
         }
 
-        // # Iterate last Children not runned in an ordered manner, sortBy: level
-        for (let Idx = processTree.length - 1; Idx >= 0; Idx--) {
-            // # RUN Process Call
-            RunProcess(_linkTree[finalProcessIds[Idx]]);
-        }
+        // # Tests with depth : not in use for now...
+        finalProcessList.forEach(async function(elm) {
+            if (typeof(elm.parents) !== 'undefined') elm._depth = elm.parents[0]._depth + 1;
+        }.bind(this));
 
-        //console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, processTree: processTree, finalProcessIds: finalProcessIds });
+        // # Iterate All Children and Call: RunProcess 
+        finalProcessList.forEach(async function(elm) {
+            await RunProcess(elm);
+        }.bind(this));
+
+        if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, rootProcessTree: rootProcessTree, finalProcessList: finalProcessList });
         return _Code;
     };
 
     ultiflow.PerlCodeRun = function() {
         var _self = this;
         var _data = null;
-        try { _data = ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process; /*window.$flowchart.data;*/ } catch (er) {}
+        try { _data = window.$flowchart.data; /*ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process;*/ } catch (er) {}
         if ($app.debug) console.log('jsonPerlCodeRun: processData:', _data);
         if (_data !== null) {
             var jsonPerlCodeRun = '';

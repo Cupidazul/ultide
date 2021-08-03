@@ -120,20 +120,21 @@ define([
                     self.els.fileList.empty();
 
                     for (var key in fileTypeToClass) {
-                        for (var i = 0; i < data[key].length; i++) {
-                            var $item = $('<div class="uf-file-chooser-item"></div>');
-                            $item.data({
-                                path: folderPath + data[key][i],
-                                type: fileTypeToClass[key].type
-                            });
-                            var $itemIcon = $('<span class="glyphicon"></span>');
-                            $itemIcon.addClass('glyphicon-' + fileTypeToClass[key].icon);
-                            $itemIcon.appendTo($item);
-                            var $itemText = $('<span class="uf-file-chooser-item-label"></span>');
-                            $itemText.text(data[key][i]);
-                            $itemText.appendTo($item);
-                            $item.appendTo(self.els.fileList);
-                        }
+                        if (typeof(data[key]) !== 'undefined')
+                            for (var i = 0; i < data[key].length; i++) {
+                                var $item = $('<div class="uf-file-chooser-item"></div>');
+                                $item.data({
+                                    path: folderPath + data[key][i],
+                                    type: fileTypeToClass[key].type
+                                });
+                                var $itemIcon = $('<span class="glyphicon"></span>');
+                                $itemIcon.addClass('glyphicon-' + fileTypeToClass[key].icon);
+                                $itemIcon.appendTo($item);
+                                var $itemText = $('<span class="uf-file-chooser-item-label"></span>');
+                                $itemText.text(data[key][i]);
+                                $itemText.appendTo($item);
+                                $item.appendTo(self.els.fileList);
+                            }
                     }
 
                     self.els.fileList.scrollTop(0);

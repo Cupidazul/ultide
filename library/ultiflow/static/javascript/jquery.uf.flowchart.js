@@ -34,6 +34,9 @@ define([
         },
         // the constructor
         _create: function() {
+            var self = this;
+            window.$app.flowchart = self;
+
             if ($app.debug) console.log('@ultiflow.uf_flowchart: create! readyState:', document.readyState);
 
             var $flowchart = $('<div class="uf-flowchart"></div>');
@@ -52,7 +55,6 @@ define([
             this.els.flowchartMiniView.append(this.els.flowchartMiniViewFocus);
 
             var $container = this.element;
-            var self = this;
 
             // Panzoom initialization...
             //$flowchart.panzoom({
@@ -458,6 +460,8 @@ define([
 
                 }
             }
+
+            self.data = currentProcessData.process; // # UPDATE flowchart.data with new data
 
             // console.log('changeDetected!', currentProcessData);
             app.triggerEvent('ultiflow::process_change_detected');
