@@ -6,4 +6,3 @@ ultide/__pycache__/*
 !workspaces/1/*
 workspaces/**/prj*/config.json
 workspaces/*/scripts/*
-workspaces/*
