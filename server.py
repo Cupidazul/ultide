@@ -160,7 +160,7 @@ def login():
         remember = True if request.form.get('remember') else False
         user = User.query.filter(User.email == email).first()
         #if email != 'root@example.com' or password != 'root':
-        if password.startswith('sha256$') or not user.verify_password(password): #SECURITY: FIX: disallow login with hash !
+        if not user or password.startswith('sha256$') or not user.verify_password(password): #SECURITY: FIX: disallow login with hash !
             error = 'Invalid Credentials. Please try again.'
             flash(error)
         else:

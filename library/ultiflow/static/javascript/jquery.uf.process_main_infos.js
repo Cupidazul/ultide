@@ -13,7 +13,7 @@ define(['app'], function(app) {
             var self = this;
             if ($app.debug) console.log('@ultiflow.uf_process_main_infos: create! readyState:', document.readyState);
 
-            window.$ultiflow.uf_process_main_infos = self;
+            $app.ultiflow.uf_process_main_infos = self;
 
             this.els.title = $('<span class="uf-process-title"></span>');
             this.els.title.appendTo(this.element);
@@ -21,7 +21,7 @@ define(['app'], function(app) {
             var BtnStatus = '<button id="btn_ioStatus" class="btn">PyServer</button>';
             var BtnSave = '<button id="btn_save" class="fa fa-save" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnPlay = '<button id="btn_play" class="fa fa-play" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
-            var BtnSelect = '<select id="btn_code_lang" class="selectpicker" style="font-size: 14px;"><option>Perl</option><option>Python</option></select>';
+            var BtnSelect = ''; //'<select id="btn_code_lang" class="selectpicker" style="font-size: 14px;"><option>Perl</option><option>Python</option></select>';
             this.els.buttons = $(`
 <nobr><div class="buttons" style="float: right;font-size: 10px;display: flex;padding-top: 5px;"><button class="zoom-in">Zoom In</button><button class="zoom-out">Zoom Out</button><input type="range" class="zoom-range" step="0.5" min="0.5" max="3"><button class="zoom-reset">Reset</button></div></nobr>
 <nobr><div class="buttons" style="font-size: 10px;display: inline-flex;padding-left: 5%;height: -webkit-fill-available;position: relative;text-align: center;">${BtnSave}${BtnPlay}&nbsp;${BtnSelect}${BtnStatus}</div></nobr>

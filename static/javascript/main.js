@@ -15,6 +15,8 @@ document.onreadystatechange = function($) {
                 'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
                 'socket-io': 'static/javascript/socket.io.min',
                 'bootstrap': 'static/plugins/bootstrap/js/bootstrap.min',
+                'JSONSafeStringify': 'static/plugins/fast-safe-stringify/index.min',
+                'lzString': 'static/plugins/lz-string/libs/lz-string.min',
 
                 'app': 'static/javascript/ult.app',
                 'helper': 'static/javascript/ult.helper',
@@ -26,8 +28,12 @@ document.onreadystatechange = function($) {
 
         //require(['text', 'json!package.json', 'jquery', 'app', 'main-nav-bar', 'main-view'], function(undefined, pkg, $, app) {
         //    console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
-        require(['jquery', 'app', 'main-nav-bar', 'main-view'], function($, app) {
-            app = Object.assign(app || {}, app, $app || {});
+        require(['jquery', 'app', 'JSONSafeStringify', 'lzString', 'main-nav-bar', 'main-view'], function($, app, JSONSafeStringify, lzString) {
+            app = Object.assign(app || {}, app, $app || {}, {
+                JSONSafeStringify: JSONSafeStringify,
+                lzString: lzString
+            });
+
             if ($app.debug) console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, /*pkg: pkg,*/ readyState: document.readyState });
 
             app.start(function() {

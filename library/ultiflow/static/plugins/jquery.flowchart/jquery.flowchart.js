@@ -182,9 +182,12 @@ $(function() {
             for (var operatorId in data.operators) {
                 this.createOperator(String(operatorId), data.operators[String(operatorId)]);
             }
+
+            this.data.links = {};
             for (var linkId in data.links) {
                 this.createLink(linkId, data.links[linkId]);
             }
+            //if (typeof(data.links) == 'undefined' || Object.entries(data.links).length == 0) this.destroyLinks();
             this.redrawLinksLayer();
         },
 
@@ -739,6 +742,15 @@ $(function() {
             delete this.data.operators[String(operatorId)];
 
             this.options.onAfterChange('operator_delete');
+        },
+
+        destroyLinks: function() {
+            for (let linkId in this.data.links) {
+                if (this.selectedLinkId == linkId) {
+                    this.unselectLink();
+                }
+                delete this.data.links[linkId];
+            }
         },
 
         deleteLink: function(linkId) {

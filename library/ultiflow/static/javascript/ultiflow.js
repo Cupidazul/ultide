@@ -1,21 +1,25 @@
 define(['app', '_', 'bootstrap'], function(app, _) {
     var self = this;
-    var ultiflow = { data: {}, versions: {}, ui: {} };
+    let ultiflow = { data: {}, versions: {}, ui: {} };
     if ($app.debug) console.log('@library/ultiflow: app:', { app: app, ultiflow: ultiflow, _: _ });
     app.ultiflow = ultiflow;
 
     ultiflow.timeoutChangeLength = 200;
 
     ultiflow.endLoading = async function(ElVal) {
-        if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', ElVal.id);
+        let ElVal_id = $(ElVal).parent().prop('id');
+        //if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', ElVal_id, app.user.last_op);
 
-        if (ElVal.id == 'custom::custom_process_anchor') {
+        let LastProject = app.user.last_op;
+        if (!LastProject || LastProject == '') LastProject = 'custom::custom_process';
+
+        if (String(ElVal_id) === String(LastProject)) {
             $('body').show();
             _.debounce(function(oElVal) {
                 //$('#userMenuBtn1').parent().show();
-                if (typeof(oElVal) !== 'undefined') oElVal.click();
-                $flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
-                $flowchart._isStarted(true);
+                if (typeof(oElVal) !== 'undefined') oElVal.click(); // Click on Last Opened Project (LastProject)
+                $app.ultiflow.flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
+                $app.ultiflow.flowchart._isStarted(true);
                 $("#loadingDiv").fadeOut(500, function() {
                     // fadeOut complete. Remove the loading div
                     //$("#loadingDiv").remove(); //makes page more lightweight 
@@ -52,6 +56,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 try { app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION; } catch (err) { console.log('err:', err); }
                 try { app.versions.lodash = _.VERSION; } catch (err) { console.log('err:', err); }
                 try { app.versions.mousewheel = $.event.special.mousewheel.version; } catch (err) { console.log('err:', err); }
+                try { app.versions.JSONSafeStringify = app.JSONSafeStringify.version; } catch (err) { console.log('err:', err); }
+                try { app.versions.lzString = app.lzString.version; } catch (err) { console.log('err:', err); }
 
                 try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
                 try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }
@@ -98,12 +104,21 @@ define(['app', '_', 'bootstrap'], function(app, _) {
     };
 
     ultiflow.openProcess = function(processId) {
+        //if ($app.debug) console.log('@library/ultiflow: openProcess:', { processId: processId });
+
+        /* RESET flowchart 
+        $app.flowchart.flowchartMethod('setData', { operators: {}, links: {}, operatorTypes: {} });
+        $app.flowchart.flowchartMethod('destroyLinks');
+        $app.flowchart._refreshMiniViewContent();*/
+        //$app.flowchart.reset();
+
         this.setOpenedProcess(processId);
         this.processData = this.getOpenedProcessData();
         app.triggerEvent('ultiflow::process_open', this.processData);
     };
 
     ultiflow.setOpenedProcess = function(processId) {
+        //if ($app.debug) console.log('@library/ultiflow: setOpenedProcess:', { processId: processId });
         this.openedProcess = processId;
         var _self = this;
         app.setUserProperty('ultiflow::opened_process', processId, function(success) {});
@@ -202,42 +217,50 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         let _linkTree = {};
         // # Generate LinkTree basics with operators and parameters
         for (let [lKey, lVal] of Object.entries(_data.links)) {
+
             _linkTree[lVal.fromOperator] = Object.assign({
-                fid: lKey,
-                fl: lVal,
+                id: lVal.fromOperator,
+                //fid: lKey,
                 o: _data.operators[lVal.fromOperator],
                 p: _data.parameters[lVal.fromOperator],
                 _depth: 0,
             }, _linkTree[lVal.fromOperator] || {});
+            if (typeof(_linkTree[lVal.fromOperator].fl) === 'undefined') _linkTree[lVal.fromOperator].fl = [];
+            _linkTree[lVal.fromOperator].fl.push(lVal);
+
             _linkTree[lVal.toOperator] = Object.assign({
-                tid: lKey,
-                tl: lVal,
+                id: lVal.toOperator,
+                //tid: lKey,
                 o: _data.operators[lVal.toOperator],
                 p: _data.parameters[lVal.toOperator],
                 _depth: 0,
             }, _linkTree[lVal.toOperator] || {});
+            if (typeof(_linkTree[lVal.toOperator].tl) === 'undefined') _linkTree[lVal.toOperator].tl = [];
+            _linkTree[lVal.toOperator].tl.push(lVal);
         }
 
         // # Generate add children and parents to basic LinkTree 
         for (let [lKey, lVal] of Object.entries(_data.links)) {
-            if (typeof(_linkTree[lVal.fromOperator].children) === 'undefined') _linkTree[lVal.fromOperator].children = [];
+
             if (typeof(_linkTree[lVal.toOperator].parents) === 'undefined') _linkTree[lVal.toOperator].parents = [];
-            _linkTree[lVal.fromOperator].children.push(_linkTree[lVal.toOperator]);
             _linkTree[lVal.toOperator].parents.push(_linkTree[lVal.fromOperator]);
+
+            // Children object not needed in Compile
+            //if (typeof(_linkTree[lVal.fromOperator].children) === 'undefined') _linkTree[lVal.fromOperator].children = [];
+            //_linkTree[lVal.fromOperator].children.push(_linkTree[lVal.toOperator]);
         }
 
         // # Start in StartOpID and run Process, then Start in Other Parents and run Process. while there are (un)runned children repeat.
         // # Definition: root parents dont have parent
 
-        let rootProcessTree = [];
+        /*let rootProcessTree = [];
         rootProcessTree.push(_linkTree[StartOpID]); // # 1st: StartOpID
         for (let [lKey, lVal] of Object.entries(_linkTree)) {
             //console.log('CompileCode:', { lKey: lKey, lVal: lVal });
             if (!rootProcessTree.includes(lVal) && (typeof(lVal.parents) === 'undefined')) { // if not in rootProcessTree, and no Parents, ADD!
                 rootProcessTree.push(lVal);
-                lVal._depth++;
             }
-        }
+        }*/
 
         let finalProcessList = []; // Sequencial List of Processes to run
         let Iteration = 0; // Incremental Value that defines when the Process was run
@@ -247,17 +270,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             this.splice(index, 0, item);
         };
 
-        let RunProcess = async function(elm) {
-            elm.res = '';
-            elm.date = new Date().toISOString();
-            elm.iter = Iteration;
-            // #WIP: Process each type of operantor
-            if ($app.debug) console.log('RunProcess[' + Iteration + ']:', elm.o.type, elm);
-            Iteration++;
-        };
-
-
-        {
+        /*{
             let CurrPos = {};
             let _fn0 = (hasParents, elm) => {
                 if (typeof(elm.parents) !== 'undefined') hasParents = true;
@@ -267,8 +280,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 }
             };
 
-            // # Iterate rootProcessTree backwards
-            for (let Idx = rootProcessTree.length - 1; Idx >= 0; Idx--) {
+            // # Iterate rootProcessTree
+            for (let Idx = 0; Idx < rootProcessTree.length; Idx++) {
                 CurrPos = [rootProcessTree[Idx]];
                 let hasParents = false;
                 do {
@@ -291,8 +304,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 CurrPos = elm;
             };
 
-            // # Iterate all Children in rootProcessTree backwards
-            for (let Idx = rootProcessTree.length - 1; Idx >= 0; Idx--) {
+            // # Iterate all Children in rootProcessTree
+            for (let Idx = 0; Idx < rootProcessTree.length; Idx++) {
                 CurrPos = rootProcessTree[Idx];
                 do {
                     CurrPos = CurrPos.children;
@@ -313,51 +326,111 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 elm.level = elm.level + (ElCnt - finalProcessList.length - 1) - pos + 1;
                 pos++;
             }
-        }
+        }*/
 
         // # Tests with depth : not in use for now...
-        finalProcessList.forEach(async function(elm) {
+        /*finalProcessList.forEach(async function(elm) {
             if (typeof(elm.parents) !== 'undefined') elm._depth = elm.parents[0]._depth + 1;
-        }.bind(this));
+        }.bind(this));*/
 
+        let max_depth = 0;
+        for (let i = 0; i < max_depth + 1; i++) {
+            for (let [lKey, elm] of Object.entries(_linkTree)) {
+                if (typeof(elm.parents) !== 'undefined') elm._depth = elm.parents[0]._depth + 1;
+                if (elm._depth > max_depth) max_depth = elm._depth;
+            }
+        }
+
+        for (let CurrDepth = 0; CurrDepth <= max_depth; CurrDepth++) {
+            for (let [lKey, elm] of Object.entries(_linkTree)) {
+                if (CurrDepth == elm._depth) finalProcessList.push(elm);
+            }
+        }
+
+        let finalProcessListJSON = [];
+        var JSONSize = 0;
         // # Iterate All Children and Call: RunProcess 
-        finalProcessList.forEach(async function(elm) {
-            await RunProcess(elm);
+        var promises = [];
+
+        let RunProcess = async function(elm) {
+            elm.res = '';
+            elm.date = new Date().toISOString();
+            elm.iter = Iteration;
+            // #WIP: Process each type of operantor
+            if ($app.debug) console.log('RunProcess[' + Iteration + ']:', elm.o.type, elm);
+            Iteration++;
+        };
+
+        Object.entries(finalProcessList).forEach(async function([idx, elm]) {
+            promises.push((async() => {
+                let _J = await $app.JSONSafeStringify(elm);
+                //await RunProcess(elm); // **1 - Migrate to Python! for Cron offline workflow execution to be possible...
+                if ($app.debug) console.log('CompileCode Process[' + idx + '] Size:' + String(JSONSize + _J.length));
+                JSONSize += _J.length;
+                finalProcessListJSON.push(_J);
+                return await _J;
+            })());
         }.bind(this));
 
-        if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, rootProcessTree: rootProcessTree, finalProcessList: finalProcessList });
+        Promise.all(promises).then(async() => {
+            let _J = $app.JSONSafeStringify(finalProcessListJSON);
+            _Jlz = $app.lzString.compressToBase64(_J);
+            if ($app.debug) console.log('CompileCode finalProcessListJSON Sizes: JSONstr:' + _J.length + ' Lz:' + _Jlz.length + ' CompressRate:' + parseInt(((_J.length - _Jlz.length) / _J.length) * 100) + '%');
+
+            // **1 - Migrate to Python! for Cron offline workflow execution to be possible...
+            // START: HERE!
+            app.sendRequest('execWorkflowProcess', { 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
+                if ($app.debug) console.log('execWorkflowProcess: ', response);
+                app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+            });
+        });
+
+        //if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, rootProcessTree: rootProcessTree, finalProcessList: finalProcessList });
+        if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, finalProcessList: finalProcessList });
+
         return _Code;
     };
 
     ultiflow.PerlCodeRun = function() {
         var _self = this;
         var _data = null;
-        try { _data = window.$flowchart.data; /*ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process;*/ } catch (er) {}
+        try { _data = ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process; /*$app.ultiflow.flowchart.data; # TooMuch Data to jsonStringify*/ } catch (er) {}
         if ($app.debug) console.log('jsonPerlCodeRun: processData:', _data);
         if (_data !== null) {
-            var jsonPerlCodeRun = '';
-            Object.entries(_data.operators).forEach(elm => {
-                const [oKey, oVal] = elm;
+            ultiflow.CompileCode(_data, '');
+            // var jsonPerlCodeRun = '';
+            // Object.entries(_data.operators).forEach(elm => {
+            //     const [oKey, oVal] = elm;
+            // 
+            //     if ($app.debug) console.log('jsonPerlCodeRun:', { operatorId: oKey, code: jsonPerlCodeRun, oper: oVal || {}, param: _data.parameters[oKey] || {} });
+            //     if (oVal) {
+            //         if (oVal.type && (oVal.type === 'perl_procs::perl_init')) {
+            //             // Run through Hierarchy:
+            //             // window.infos = contains info from last dropped object
+            //             ultiflow.CompileCode(_data, oKey);
+            //             jsonPerlCodeRun = JSON.stringify(_data.parameters[oKey]);
+            //         }
+            //     }
+            // });
+            // 
+            // if (jsonPerlCodeRun !== '' && jsonPerlCodeRun !== '{}') {
+            //     app.sendRequest('perl_CodeRun', { 'cmd': jsonPerlCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
+            //         if ($app.debug) console.log('PerlCodeRun: ', response);
+            //         //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+            //     });
+            // } else {
+            //     alert('Perl Init not Found!');
+            // }
+        }
+    };
 
-                if ($app.debug) console.log('jsonPerlCodeRun:', { operatorId: oKey, code: jsonPerlCodeRun, oper: oVal || {}, param: _data.parameters[oKey] || {} });
-                if (oVal) {
-                    if (oVal.type && (oVal.type === 'perl_procs::perl_init')) {
-                        // Run through Hierarchy:
-                        // window.infos = contains info from last dropped object
-                        ultiflow.CompileCode(_data, oKey);
-                        jsonPerlCodeRun = JSON.stringify(_data.parameters[oKey]);
-                    }
-                }
-            });
-
-            if (jsonPerlCodeRun !== '' && jsonPerlCodeRun !== '{}') {
-                app.sendRequest('perl_CodeRun', { 'cmd': jsonPerlCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
-                    if ($app.debug) console.log('PerlCodeRun: ', response);
-                    //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
-                });
-            } else {
-                alert('Perl Init not Found!');
-            }
+    ultiflow.anyCodeRun = function() {
+        var _self = this;
+        var _data = null;
+        try { _data = ultiflow.processData.process; } catch (er) {}
+        if ($app.debug) console.log('jsonCodeRun: processData:', _data);
+        if (_data !== null) {
+            ultiflow.CompileCode(_data, '');
         }
     };
 
@@ -367,28 +440,29 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         try { _data = ultiflow.processData.process; } catch (er) {}
         if ($app.debug) console.log('jsonPythonCodeRun: processData:', _data);
         if (_data !== null) {
-            var jsonPythonCodeRun = '';
-            Object.entries(_data.operators).forEach(elm => {
-                const [oKey, oVal] = elm;
-
-                if ($app.debug) console.log('jsonPythonCodeRun:', { operatorId: oKey, code: jsonPythonCodeRun, oper: oVal || {}, param: _data.parameters[oKey] || {} });
-                if (oVal) {
-                    if (oVal.type && (oVal.type === 'python_procs::python_init')) {
-                        // Run through Hierarchy:
-                        // window.infos = contains info from last dropped object
-                        jsonPythonCodeRun = JSON.stringify(_data.parameters[oKey]);
-                    }
-                }
-            });
-
-            if (jsonPythonCodeRun !== '' && jsonPythonCodeRun !== '{}') {
-                app.sendRequest('python_CodeRun', { 'cmd': jsonPythonCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
-                    if ($app.debug) console.log('PythonCodeRun: ', response);
-                    //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
-                });
-            } else {
-                alert('Python Init not Found!');
-            }
+            ultiflow.CompileCode(_data, '');
+            //var jsonPythonCodeRun = '';
+            //Object.entries(_data.operators).forEach(elm => {
+            //    const [oKey, oVal] = elm;
+            //
+            //    if ($app.debug) console.log('jsonPythonCodeRun:', { operatorId: oKey, code: jsonPythonCodeRun, oper: oVal || {}, param: _data.parameters[oKey] || {} });
+            //    if (oVal) {
+            //        if (oVal.type && (oVal.type === 'python_procs::python_init')) {
+            //            // Run through Hierarchy:
+            //            // window.infos = contains info from last dropped object
+            //            jsonPythonCodeRun = JSON.stringify(_data.parameters[oKey]);
+            //        }
+            //    }
+            //});
+            //
+            //if (jsonPythonCodeRun !== '' && jsonPythonCodeRun !== '{}') {
+            //    app.sendRequest('python_CodeRun', { 'cmd': jsonPythonCodeRun /*, 'opts': { del_script: 0 } */ }, function(response) {
+            //        if ($app.debug) console.log('PythonCodeRun: ', response);
+            //        //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+            //    });
+            //} else {
+            //    alert('Python Init not Found!');
+            //}
         }
     };
 
@@ -819,7 +893,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         });
     };
 
-    window.$ultiflow = Object.assign(window.$ultiflow || {}, ultiflow);
+    //window.$ultiflow = Object.assign(window.$ultiflow || {}, ultiflow);
     window.$app = Object.assign(window.$app || {}, app);
 
     return ultiflow;

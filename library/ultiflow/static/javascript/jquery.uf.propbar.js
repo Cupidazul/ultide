@@ -19,7 +19,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             var self = this;
             if ($app.debug) console.log('@ultiflow.uf_propbar: create! readyState:', document.readyState);
 
-            window.$ultiflow.uf_propbar = self;
+            $app.ultiflow.uf_propbar = self;
 
             this.els.content = $('<div class="uf-propbar-content"></div>');
             this.els.content.appendTo(this.element);
@@ -87,7 +87,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             $mainPanel.appendTo(this.els.content);
 
             var $colorInput = $('<input type="color" class="form-control"/>');
-            $colorInput.val(window.$flowchart.flowchartMethod('getLinkMainColor', linkId));
+            $colorInput.val($app.ultiflow.flowchart.flowchartMethod('getLinkMainColor', linkId));
             var $colorParameter = this.generateParameterField('Color:', $colorInput);
             $colorParameter.appendTo($parametersList);
 
@@ -101,7 +101,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             });
 
             $colorInput.change(function() {
-                window.$flowchart.els.flowchart.flowchart('setLinkMainColor', linkId, $colorInput.val());
+                $app.ultiflow.flowchart.els.flowchart.flowchart('setLinkMainColor', linkId, $colorInput.val());
             });
 
 
@@ -115,7 +115,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             var processData = ultiflow.getOpenedProcessData();
             var operatorData = processData.process.operators[operatorId];
             var operatorType = operatorData.type;
-            var operatorProperties = window.$flowchart.flowchartMethod('getOperatorFullProperties', operatorData);
+            var operatorProperties = $app.ultiflow.flowchart.flowchartMethod('getOperatorFullProperties', operatorData);
             var operatorTypeData = ultiflow.getOperatorInfos(operatorType);
 
             this.els.content.empty();
@@ -124,7 +124,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             $mainPanel.appendTo(this.els.content);
 
             var $titleInput = $('<input type="text" class="form-control"/>');
-            $titleInput.val(window.$flowchart.flowchartMethod('getOperatorTitle', operatorId));
+            $titleInput.val($app.ultiflow.flowchart.flowchartMethod('getOperatorTitle', operatorId));
             var $titleParameter = this.generateParameterField('Title:', $titleInput);
             $titleParameter.appendTo($parametersList);
 
@@ -141,7 +141,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             });
 
             $titleInput.keyup(function() {
-                window.$flowchart.els.flowchart.flowchart('setOperatorTitle', operatorId, $titleInput.val());
+                $app.ultiflow.flowchart.els.flowchart.flowchart('setOperatorTitle', operatorId, $titleInput.val());
             });
 
             if (typeof operatorTypeData.parameters != 'undefined') {

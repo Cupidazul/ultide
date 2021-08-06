@@ -22,7 +22,7 @@ define([
                 var self = this;
                 if ($app.debug) console.log('@ultiflow.uf_design_view: create! readyState:', document.readyState);
 
-                window.$ultiflow.uf_design_view = self;
+                app.ultiflow.uf_design_view = self;
 
                 this.els.toolBar = $('<div class="uf-side-bar left uf-toolbar"></div>');
                 this.els.toolBar.appendTo(this.element);
@@ -48,31 +48,31 @@ define([
 
                 app.onEvent('ultiflow::process_open', function(e, processData) {
                     self.changeState('opened');
-                    //$('.ui-draggable-handle').on('mousemove',  function(evt) { evt.stopPropagation(); $ufPanzoom.disable(); })
-                    //                        .on('mouseleave', function(evt) { evt.stopPropagation(); $ufPanzoom.enable();  });
+                    //$('.ui-draggable-handle').on('mousemove',  function(evt) { evt.stopPropagation(); $app.ultiflow.ufPanzoom.disable(); })
+                    //                        .on('mouseleave', function(evt) { evt.stopPropagation(); $app.ultiflow.ufPanzoom.enable();  });
 
                     /* _DRAG_ Loaded Objects */
                     $('.ui-draggable-handle')
                         .on('mousemove', function(evt) {
                             $(this).isDragging = true;
                             if ($(this).isDragging === true && $(this).ismouseDown === true) {
-                                $ufPanzoom.disable();
-                            } else { $ufPanzoom.enable(); }
+                                $app.ultiflow.ufPanzoom.disable();
+                            } else { $app.ultiflow.ufPanzoom.enable(); }
                         })
                         .on('pointerdown', function(evt) {
                             $(this).isDragging = false;
                             $(this).ismouseDown = true;
-                            $ufPanzoom.disable();
+                            $app.ultiflow.ufPanzoom.disable();
                         })
                         .on('pointerup', function(evt) {
                             $(this).isDragging = false;
                             $(this).ismouseDown = false;
-                            $ufPanzoom.enable();
+                            $app.ultiflow.ufPanzoom.enable();
                         })
                         .on('mouseup mouseleave touchend', function(evt) {
                             $(this).isDragging = false;
                             $(this).ismouseDown = false;
-                            $ufPanzoom.enable();
+                            $app.ultiflow.ufPanzoom.enable();
                         });
 
                 });
@@ -81,27 +81,28 @@ define([
                     // console.log('btn_add_library.click:', evt);
                     Object.keys(app.ultiflow.$uf_tree).forEach(function(el) { try { app.ultiflow.$uf_tree[el].editTitleStop(); } catch (err) {} });
                     app.triggerEvent('ultiflow::operator_unselect');
-                    $ultiflow.addLibraryOp();
+                    $app.ultiflow.addLibraryOp();
                 });
 
                 $('#btn_add_workspace').on('click', function(evt) {
                     // console.log('btn_add_workspace.click:', evt);
                     Object.keys(app.ultiflow.$uf_tree).forEach(function(el) { try { app.ultiflow.$uf_tree[el].editTitleStop(); } catch (err) {} });
                     app.triggerEvent('ultiflow::operator_unselect');
-                    $ultiflow.addWorkspaceOp();
+                    $app.ultiflow.addWorkspaceOp();
                 });
 
                 //console.log('uf_design_view:', self);
                 $('#btn_play').on('click', function(evt) {
                     //console.log('btn_play:', evt);
                     var whatCode = $('#btn_code_lang').val();
-                    if (whatCode == 'Perl') $ultiflow.PerlCodeRun();
-                    if (whatCode == 'Python') $ultiflow.PythonCodeRun();
+                    //if (whatCode == 'Perl') $app.ultiflow.PerlCodeRun();
+                    //if (whatCode == 'Python') $app.ultiflow.PythonCodeRun();
+                    $app.ultiflow.anyCodeRun();
                 });
 
                 $('#btn_save').on('click', function(evt) {
                     //console.log('btn_save:', evt);
-                    $ultiflow.saveCurrentProcess(function(success) {
+                    $app.ultiflow.saveCurrentProcess(function(success) {
                         app.triggerEvent('ultiflow::process_saved', success);
                     });
                 });

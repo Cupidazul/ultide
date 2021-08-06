@@ -15,7 +15,7 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
             var self = this;
             if ($app.debug) console.log('@ultiflow.uf_toolbar: create! readyState:', document.readyState);
 
-            window.$ultiflow.uf_toolbar = self;
+            $app.ultiflow.uf_toolbar = self;
 
             //console.log('ultiflow.uf_toolbar._create:', self);
 

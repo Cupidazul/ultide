@@ -23,7 +23,7 @@ define([
         _create: function() {
             var self = this;
 
-            window.$ultiflow.file_chooser = self;
+            $app.ultiflow.file_chooser = self;
 
             var $inputGroup = $('<div class="input-group"></div>');
             var $inputGroupBtn = $('<span class="input-group-btn"></span>');
@@ -86,6 +86,10 @@ define([
 
         loadFolder: function(folderPath, cbFinished) {
             var self = this;
+
+            if (folderPath === '/') folderPath = '';
+            // # ADD '.' when path = '' or we don't see drive info '(drive):'
+            if (!/^\./.test(folderPath) && !/^.\:/.test(folderPath)) { folderPath = '.' + folderPath; }
 
             var fileTypeToClass = {
                 dirs: {

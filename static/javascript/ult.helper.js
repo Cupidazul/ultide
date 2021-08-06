@@ -131,7 +131,7 @@ define(['file_chooser'], function(file_chooser) {
         });
     };
 
-    window.$ultiflow.helper = {...window.$ultiflow.helper || {}, ...helper };
+    $app.ultiflow.helper = {...$app.ultiflow.helper || {}, ...helper };
 
     return helper;
 });

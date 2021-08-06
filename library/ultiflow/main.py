@@ -2,15 +2,8 @@ import os
 import json
 import sys
 import platform
-import subprocess
-import ultide.config as config
-from ultide.core import sessions_data
-import ultide.core as core
 from ultide.models import db, DevLang, Library
-from flask import session
-from datetime import datetime
 from pprint import pprint
-import pystache
 
 def get_workspace(session_data):
     #pprint (('@get_workspace: user:', core.mod_2_dict(session_data['user']) ))
@@ -172,139 +165,6 @@ def on_get_os_config(data, response, session_data): # Still Unused .
     #all_vars = core.mod_2_dict(config) #Security: Avoid exposing ServerConfig for Security Reasons !
     #pprint(('@lib/ultiflow/main: get_os_config.allvars:',all_vars))
     response['config'] = all_vars
-
-def exception_as_dict(ex):
-    errno = ''
-    message = ''
-    strerror = ''
-    output = ''
-    if hasattr(ex, 'errno'):
-        errno = ex.errno
-    if hasattr(ex, 'message'):
-        message = ex.message
-    if hasattr(ex, 'strerror'):
-        exception_as_dict(ex.strerror) if isinstance(ex.strerror,Exception) else ex.strerror
-    if hasattr(ex, 'output'):
-        output = ex.output
-    return dict(type=ex.__class__.__name__, errno=errno , message=message, strerror=strerror, output=output)
-            
-def on_perl_CodeRun(data, response, session_data):
-    workspace = session_data['user'].get_property('workspace')
-    print( ('@on_perl_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
-
-    # Check if Exists: scripts <DIR> and create it if not...
-    scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
-    if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
-
-    perlopts = dict(del_script = 1); # DEFAULT DELETE SCRIPTS
-    perlobj = json.loads(data['cmd']);  # "perl_incdirs":[], "perl_add_use":[], "perl_init":'<perl init code>'
-    if hasattr(data, "opts"): perlopts = data['opts']
-
-    # First ADD Perl Init Code:
-    perl_code = perlobj['perl_init']
-    perl_code = pystache.render(perl_code, vars(config)); ## Apply Mustache {{}} from config variables
-
-    # Then ADD @INC DIRs:
-    if ( hasattr(perlobj['perl_incdirs'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
-        perl_code += "\n"
-    for add_incdir in perlobj['perl_incdirs']:
-        perl_code += 'BEGIN { push(@INC, "' + add_incdir + '"); };' + "\n"
-
-    # Then ADD modules:
-    if ( hasattr(perlobj['perl_add_use'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
-        perl_code += "\n"
-    for add_module in perlobj['perl_add_use']:
-        perl_code += 'use ' + add_module + ';' + "\n"
-
-    # Then ADD require's:
-    if ( hasattr(perlobj['perl_add_require'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
-        perl_code += "\n"
-    for add_require in perlobj['perl_add_require']:
-        if ( "/" not in add_require ):
-            perl_code += 'require "./' + add_require + '";' + "\n"
-        else:
-            perl_code += 'require "' + add_require + '";' + "\n"
-
-    from tempfile import mkstemp
-    fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.today().strftime('%Y%m%d%H%M%S') + "-perl_script", suffix = '.pl')
-    # use a context manager to open the file at that path and close it again
-    with open(temp_script_path, 'w') as f:
-        f.write( perl_code )
-    # close the file descriptor
-    os.close(fd)
-
-    print('@on_perl_CodeRun: script', temp_script_path)
-
-    #cmd = [ 'perl', '-e ' + perlobj['perl_init'].replace("\n","") ]
-    cmd = [ 'perl', temp_script_path ]
-
-    if ( hasattr(config, "PERL_EXEC") and config.PERL_EXEC !='' ):
-        cmd = [ config.PERL_EXEC, temp_script_path ]
-
-    print ('@on_perl_CodeRun: cmd:',cmd)
-    ret = ''
-    try:
-        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, encoding='UTF-8')
-        print ('@on_perl_CodeRun: RetVal:', ret)
-    except Exception as err:
-        import traceback
-        exc_info = sys.exc_info()
-        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
-        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
-        print('@on_perl_CodeRun: Exception:', err ) # To print out the exception message , print out the stdout messages up to the exception
-    
-    if ( perlopts['del_script'] == 1 ):
-        os.remove(temp_script_path) # delete temp file
-
-    response['RetVal'] = ret
-
-def on_python_CodeRun(data, response, session_data):
-    workspace = session_data['user'].get_property('workspace')
-    print( ('@on_python_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
-
-    # Check if Exists: scripts <DIR> and create it if not...
-    scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
-    if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
-
-    pythonopts = dict(del_script = 1); # DEFAULT DELETE SCRIPTS
-    pythonobj = json.loads(data['cmd']);  # "python_incdirs":[], "python_add_use":[], "python_init":'<python init code>'
-    if hasattr(data, "opts"): pythonopts = data['opts']
-
-    # First ADD python Init Code:
-    python_code = pythonobj['python_init']
-    python_code = pystache.render(python_code, vars(config)); ## Apply Mustache {{}} from config variables
-
-    from tempfile import mkstemp
-    fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.today().strftime('%Y%m%d%H%M%S') + "-python_script", suffix = '.py')
-    # use a context manager to open the file at that path and close it again
-    with open(temp_script_path, 'w') as f:
-        f.write( python_code )
-    # close the file descriptor
-    os.close(fd)
-
-    print('@on_python_CodeRun: script', temp_script_path)
-
-    cmd = [ 'python', temp_script_path ]
-
-    if ( hasattr(config, "PYTHON_EXEC") and config.PYTHON_EXEC != '' ):
-        cmd = [ config.PYTHON_EXEC, temp_script_path ]
-
-    print ('@on_python_CodeRun: cmd:',cmd)
-    ret = ''
-    try:
-        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, encoding='UTF-8')
-        print ('@on_python_CodeRun: RetVal:', ret)
-    except Exception as err:
-        import traceback
-        exc_info = sys.exc_info()
-        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
-        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
-        print('@on_python_CodeRun: Exception:', err ) # To print out the exception message , print out the stdout messages up to the exception
-    
-    if ( pythonopts['del_script'] == 1 ):
-        os.remove(temp_script_path) # delete temp file
-
-    response['RetVal'] = ret
 
 def on_getDefaultConfig(data, response, session_data):
     response['raw']=open('templates/new_config.json').read()

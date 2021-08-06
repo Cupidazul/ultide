@@ -1,0 +1,26 @@
+{
+    "id": "perl_procs::perl_script",
+    "title": "Perl Script",
+    "type": "operator",
+    "inputs": {
+        "input": {
+            "label": "Input"
+        }
+    },
+    "outputs": {
+        "output": {
+            "label": "Output"
+        }
+    },
+    "parameters": [{
+        "id": "perl_script_file",
+        "label": "File:",
+        "type": "ultiflow::file",
+        "config": {
+            "fileChooser": {
+                "type": "file",
+                "action": "load"
+            }
+        }
+    }]
+}

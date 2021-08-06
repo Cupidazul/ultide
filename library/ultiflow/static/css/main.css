@@ -129,6 +129,7 @@
 
 .flowchart-operator-connector:hover {
     font-weight: bold;
+    min-width: 80px;
 }
 
 .flowchart-operator-connector-arrow {

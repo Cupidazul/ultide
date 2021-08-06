@@ -23,9 +23,9 @@ define([
     $mainView.main_view('showView', 'flowchart');
     $mainNavBar.main_nav_bar('activateButton', 'flowchart');
 
-    window.$ultiflow.$designView = $designView;
-    window.$ultiflow.$mainView = $mainView;
-    window.$ultiflow.$mainNavBar = $mainNavBar;
+    $app.ultiflow.$designView = $designView;
+    $app.ultiflow.$mainView = $mainView;
+    $app.ultiflow.$mainNavBar = $mainNavBar;
 });
 
 var helper = {};
@@ -56,10 +56,10 @@ helper.createPanel = function(title, content) {
     $content.append(content);
     $content.appendTo($panel);
 
-    window.$ultiflow.panel = [...window.$ultiflow.panel || []];
-    window.$ultiflow.panel.push(this);
-    window.$ultiflow.$panel = [...window.$ultiflow.$panel || []];
-    window.$ultiflow.$panel.push($panel);
+    $app.ultiflow.panel = [...$app.ultiflow.panel || []];
+    $app.ultiflow.panel.push(this);
+    $app.ultiflow.$panel = [...$app.ultiflow.$panel || []];
+    $app.ultiflow.$panel.push($panel);
     return $panel;
 };
 
@@ -82,6 +82,6 @@ helper.treeDataFromOperatorData = function(tree, operators, path) {
             });
         }
     }
-    window.$ultiflow.$treeData = [...[], ...window.$ultiflow.$treeData || [], ...res];
+    $app.ultiflow.$treeData = [...[], ...$app.ultiflow.$treeData || [], ...res];
     return res;
 };
