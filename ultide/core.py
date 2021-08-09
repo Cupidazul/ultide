@@ -98,6 +98,20 @@ def on_login(data, response, session_data):
     #pprint(('@core.on_login: OUT:session_data:', mod_2_dict(session_data['user'])))
     response['connected'] = connected
 
+def on_change_user_password(data, response, session_data):
+    user = current_user
+    pprint(('@on_change_user_password:', {'data':data,'response':response, 'session_data': session_data } ))
+    CurrPwdOK = response['CurrPwdOK'] = user.verify_password(data['CurrPWD'])
+    response['res'] = False
+    if(CurrPwdOK):
+        try:
+            user.set_password(data['NewPWD'])
+            user.save()
+            response['res'] = True
+        except:
+            response['error'] = sys.exc_info()[0]
+            pprint(('Error:',response['error']))
+
 def on_set_user_property(data, response, session_data):
     user = session_data['user']
     user.set_property(data['key'], data['value'])

@@ -142,6 +142,7 @@
 
 .uf-flowchart-no-file {
     position: absolute;
+    top: 45%;
     left: 0px;
     right: 0px;
     height: 100%;
@@ -165,7 +166,7 @@
 }
 
 .uf-flowchart-no-file span {
-    display: table-cell;
+    /*display: table-cell;*/
     vertical-align: middle;
 }
 
@@ -177,6 +178,8 @@
     /* position: absolute; */
     /* left: 250px; */
     /* right: 250px; */
+    left: 0px;
+    right: 0px;
     top: 0px;
     height: 40px;
     background: #F9F9F9;
@@ -195,6 +198,26 @@
 .uf-process-main-infos .uf-process-path {
     margin-top: 5px;
     float: right;
+}
+
+
+/* fix */
+
+.uf-process-main-infos button {
+    margin-bottom: auto;
+    z-index: 10;
+}
+
+
+/* fix */
+
+#rowTopBarRow button {
+    margin-bottom: auto;
+    z-index: 10;
+}
+
+.uf-process-main-infos .zoom-range {
+    width: auto;
 }
 
 .uf-process-state {
@@ -266,14 +289,14 @@
     margin-right: 24px;
 }
 
-.loader,
-.loader:after {
+.myloader,
+.myloader:after {
     border-radius: 50%;
     width: 10em;
     height: 10em;
 }
 
-.loader {
+.myloader {
     margin: 60px auto;
     font-size: 5px;
     position: relative;

@@ -54,7 +54,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                         }
                     }, 700);
 
-                    self.jstreeInit = function() {
+                    self.jstreeInit = function(_evt) {
                         el.jstree('open_all'); // expand/open all jstree's
                         if ($app.debug) console.log('ready.jstree: [' + String(elDescendant.length) + ']:', options, el, this);
 
@@ -66,7 +66,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                 //console.dir(ElVal);
                                 //console.log('ready.jstree.elm:', { id: ElVal.id, idx: ElIdx });
                                 //if (!$app.ultiflow.flowchart._isStarted() && (new RegExp('^workspace\-.*', 'g').test(LastId))) { // Click Open Project on 1st Element after 'Workspace'
-                                if (!$app.ultiflow.flowchart._isStarted()) $app.ultiflow.endLoading(ElVal);
+                                if (!$app.ultiflow.flowchart._isStarted()) $app.ultiflow.endLoading(ElVal, _evt);
                                 //}
                                 //LastId = ElVal;
                             });

@@ -15,12 +15,12 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         if (typeof($app.ultiflow.data.modulesInfos.operators.list[LastProject]) === 'undefined') LastProject = 'custom::custom_process';
 
         if (String(ElVal_id) === String(LastProject)) {
-            $('body').show();
             _.debounce(function(oElVal) {
                 //$('#userMenuBtn1').parent().show();
                 if (typeof(oElVal) !== 'undefined') oElVal.click(); // Click on Last Opened Project (LastProject)
                 $app.ultiflow.flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
                 $app.ultiflow.flowchart._isStarted(true);
+                $app.flowchart.menuHide();
                 $("#loadingDiv").fadeOut(500, function() {
                     // fadeOut complete. Remove the loading div
                     //$("#loadingDiv").remove(); //makes page more lightweight 

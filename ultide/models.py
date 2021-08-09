@@ -46,6 +46,9 @@ class User(db.Model, UserMixin):
     # │└───────── (64)  - Role 7
     # └────────── (128) - Admin
 
+    def save(self):
+        db.session.commit()
+                   
     def set_password(self, password):
         if ( password.startswith('sha256$') ):
             # password is allready a hash

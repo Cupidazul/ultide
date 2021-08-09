@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./static/css/bulma.min.css"><style>/*bulma fixes*/html {overflow-y: hidden;} .modal-card,.modal-content {overflow: inherit;}</style>
     <link rel="stylesheet" href="./static/plugins/jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="./static/plugins/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="./static/css/fontawesome.5.15.3.all.min.css">
@@ -18,14 +19,14 @@
 <body style="background-color: #0005;pointer-events: none;">
     <div id="ultide">
         <div class="navbar navbar-inverse navbar-fixed-left">
-            <a class="navbar-brand" href="#">{{ pkg.productName }}</a>
             <div class="main-nav-bar">
+                <a class="navbar-brand" href="#">{{ pkg.productName }}</a>
             </div>
         </div>
         <div class="main-view"></div>
     </div>
     <div id="loadingDiv">
-        <div class="loader">Loading...</div>
+        <div class="myloader"></div>
     </div>
     <base alt="require scripts here!">{{ AppInitScript|safe }}
     <script src="static/plugins/require.js/require.js"></script>

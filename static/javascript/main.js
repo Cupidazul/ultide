@@ -52,10 +52,15 @@ document.onreadystatechange = function($) {
                     $mainView.main_view();
                     app.ui.mainView = $mainView;
 
+                    $mainTopBar = $('<div id="rowTopBarRow" class="row"></div>');
+                    $mainTopBar.appendTo($mainView);
+                    $mainAdminView = $('<div id="rowAdminViewRow" class="row"></div>');
+                    $mainAdminView.appendTo($mainView);
+
                     var HelloUserMSg = '';
                     HelloUserMSg = 'Hello ' + user.username + '! ';
                     var WelcomeMessage = '<h1 style="align:center;">' + HelloUserMSg + 'Welcome to ' + app.pkg.ProductName + '!</h1>This is a WIP...';
-                    $mainView.main_view('createView', 'welcome', $(`<div class="uf-process-main-infos"></div><div id="view_welcome" style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
+                    $mainView.main_view('createViewWelcome', 'welcome', $(`<div id="view_welcome" style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div>`));
                     $mainView.main_view('showView', 'welcome');
 
                     $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
@@ -65,6 +70,13 @@ document.onreadystatechange = function($) {
                     $mainNavBar.main_nav_bar('activateButton', 'welcome');
 
                     $mainView.main_view('createUserBtn', user); // username & avatar info goes in here
+
+                    $mainView.main_view('createViewTopBar', 'TopBar', $(`<div class="uf-process-main-infos" style="position: absolute;z-index:-1;"></div>`));
+
+                    if (user.is_admin) {
+                        let addChgPwdView = $mainView.main_view('addChgPwdView', 'welcome');
+                        setTimeout(function() { addChgPwdView.show(); }, 1000);
+                    }
 
                     app.data.AppInited = true;
                 }
