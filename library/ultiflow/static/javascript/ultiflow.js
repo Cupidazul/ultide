@@ -12,6 +12,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
         let LastProject = app.user.last_op;
         if (!LastProject || LastProject == '') LastProject = 'custom::custom_process';
+        if (typeof($app.ultiflow.data.modulesInfos.operators.list[LastProject]) === 'undefined') LastProject = 'custom::custom_process';
 
         if (String(ElVal_id) === String(LastProject)) {
             $('body').show();

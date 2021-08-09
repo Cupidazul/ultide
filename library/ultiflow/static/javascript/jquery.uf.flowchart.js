@@ -285,7 +285,7 @@ define([
                     for (var operatorId in data.operators) {
                         //console.log('numOp:', numOp);
                         var operator = data.operators[operatorId];
-                        var operatorElement = $app.ultiflow.flowchart.data.operators[operatorId].internal.els.operator; // this.getOperatorElement(operator);
+                        var operatorElement = this.getOperatorElement(operator); // $app.ultiflow.flowchart.data.operators[operatorId].internal.els.operator;
                         //if (operator.top > miniViewHeight) { return; } // BugFix: miniview wrong postition
                         var rLeft = (operator.left + this.cx + operatorElement.width() / 2) / flowchartHeight;
                         var rTop = (operator.top + this.cy + operatorElement.height() / 2) / flowchartWidth;
