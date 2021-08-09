@@ -226,8 +226,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 p: _data.parameters[lVal.fromOperator],
                 _depth: 0,
             }, _linkTree[lVal.fromOperator] || {});
-            if (typeof(_linkTree[lVal.fromOperator].fl) === 'undefined') _linkTree[lVal.fromOperator].fl = [];
-            _linkTree[lVal.fromOperator].fl.push(lVal);
+            if (typeof(_linkTree[lVal.fromOperator].tl) === 'undefined') _linkTree[lVal.fromOperator].tl = [];
+            _linkTree[lVal.fromOperator].tl.push(lVal);
 
             _linkTree[lVal.toOperator] = Object.assign({
                 id: lVal.toOperator,
@@ -236,8 +236,8 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 p: _data.parameters[lVal.toOperator],
                 _depth: 0,
             }, _linkTree[lVal.toOperator] || {});
-            if (typeof(_linkTree[lVal.toOperator].tl) === 'undefined') _linkTree[lVal.toOperator].tl = [];
-            _linkTree[lVal.toOperator].tl.push(lVal);
+            if (typeof(_linkTree[lVal.toOperator].fl) === 'undefined') _linkTree[lVal.toOperator].fl = [];
+            _linkTree[lVal.toOperator].fl.push(lVal);
         }
 
         // # Generate add children and parents to basic LinkTree 
