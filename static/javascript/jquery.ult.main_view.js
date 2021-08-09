@@ -61,7 +61,7 @@ define([
             $userMenuBtn.appendTo(this.element);
 
             $('#userSubMenuBtn1').on('click', function(evt) {
-                if (!$flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
+                if (!$app.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
                 $('#main_navBar_welcome').click();
             });
         }
