@@ -278,15 +278,15 @@ define([
             var miniViewHeight = this.els.flowchartMiniView.height();
 
             var operatorsPositions = {};
-            var numOp = 0;
+            //var numOp = 0;
 
             if (typeof data != 'undefined') {
                 if (typeof data.operators != 'undefined') {
                     for (var operatorId in data.operators) {
                         //console.log('numOp:', numOp);
                         var operator = data.operators[operatorId];
-                        var operatorElement = this.getOperatorElement(operator);
-                        if (operator.top > miniViewHeight) { return; } // BugFix: miniview wrong postition
+                        var operatorElement = $app.ultiflow.flowchart.data.operators[operatorId].internal.els.operator; // this.getOperatorElement(operator);
+                        //if (operator.top > miniViewHeight) { return; } // BugFix: miniview wrong postition
                         var rLeft = (operator.left + this.cx + operatorElement.width() / 2) / flowchartHeight;
                         var rTop = (operator.top + this.cy + operatorElement.height() / 2) / flowchartWidth;
 
@@ -300,7 +300,7 @@ define([
                         shapeR.setAttribute("width", 3);
                         shapeR.setAttribute("height", 3);
                         this.els.flowchartMiniViewContent[0].appendChild(shapeR);
-                        numOp++;
+                        //numOp++;
                     }
                 }
 

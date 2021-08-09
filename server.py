@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
 import sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
-import ultide.config as config
-import os;
-from shutil import copyfile;
-
-DEBUG = config.DEBUG
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
 # the best option based on available packages.
 async_mode = None
-
-# DEFAULT CONFIG Setting: ./ultide/config.py.default -> ./ultide/config.py
-if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.default', './ultide/config.py');
 
 if async_mode is None:
     try:
@@ -34,13 +26,23 @@ if async_mode is None:
     print(('@server: async_mode is ' + async_mode));sys.stdout.flush();
 
 # monkey patching is necessary because this application uses a background
-# thread
+# thread.
 if async_mode == 'eventlet':
     import eventlet                     #type: ignore vscode.lint: warning
     eventlet.monkey_patch()
 elif async_mode == 'gevent':
     from gevent import monkey           #type: ignore vscode.lint: warning
     monkey.patch_all()
+# In both cases it's recommended that you apply the monkey patching at the 
+# top of your main script, even above your imports.
+
+import ultide.config as config
+import os;
+from shutil import copyfile;
+
+DEBUG = config.DEBUG
+# DEFAULT CONFIG Setting: ./ultide/config.py.default -> ./ultide/config.py
+if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.default', './ultide/config.py');
 
 import time
 from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, flash
