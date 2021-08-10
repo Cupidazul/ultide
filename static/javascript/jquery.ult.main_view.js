@@ -86,7 +86,7 @@ define([
         addAdminView: function(name) {
             //console.log('addAdminView');
             var adminForm = $(`<hr />
-<div class="row">
+<div class="row mx-auto">
     <div class="col-md-3" style="margin-right: 100px;margin-left: 100px;padding: 10px;">
         <button type="button" class="btn btn-default btn active" title="Change Password">
             <li class="fa fa-key"></li>
@@ -99,7 +99,7 @@ define([
         </button>
     </div>
 </div>
-<div class="row">
+<div class="row mx-auto">
     <div id="adminChgPwd" class="col-md-3 card card" style="margin-left: 100px; margin-right: 100px; display: block;">
         <div class="card-content">
             <form id="adminChgPwd-form">
@@ -163,7 +163,7 @@ define([
                                 let _msg = '';
                                 if ($app.debug) console.log('@app.start: change_user_password:', { data: data });
                                 if (data.res === true) {
-                                    _msg += "Current password was changed sucessfully...<br>Logoff in <b id='countdown'>3</b> secs...";
+                                    _msg += "Password change sucessfull...<br>Logoff in <b id='countdown'>3</b> secs...";
 
                                     _fn_countdown(3, "countdown");
                                     setTimeout(function() { document.location = '/logout'; }, 4000);
@@ -177,8 +177,8 @@ define([
                         }, 1);
                     } else {
                         if ($app.debug) console.log('@app.start: change_user_password: error:', { data: data });
-                        if (NewPWD != CnfPWD) $('#msgChgPwd').html('New Password and Confirm dont match!');
-                        if (CurrPWD == NewPWD) $('#msgChgPwd').html('Old and New Password are the same!');
+                        if (NewPWD != CnfPWD) $('#msgChgPwd').html("New Password and Confirm don't match!");
+                        if (CurrPWD == NewPWD) $('#msgChgPwd').html("Old and New Password are the same!");
                     }
                 }
                 return false;
