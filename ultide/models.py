@@ -9,6 +9,7 @@ import ultide.common as common
 import ultide.config as config
 from werkzeug.security import generate_password_hash, check_password_hash
 from pprint import pprint
+from datetime import datetime
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
@@ -25,8 +26,8 @@ class User(db.Model, UserMixin):
     reset_password_token = db.Column(db.String(100), nullable=False, server_default='')
 
     # User email information
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    avatar = db.Column(db.String(255), nullable=False, unique=True)
+    email = db.Column(db.String(255), nullable=False, unique=False)
+    avatar = db.Column(db.String(255), nullable=False, unique=False)
     confirmed_at = db.Column(db.DateTime())
 
     # User information
@@ -45,6 +46,21 @@ class User(db.Model, UserMixin):
     # ││└──────── (32)  - Role 6
     # │└───────── (64)  - Role 7
     # └────────── (128) - Admin
+
+    def add_user(self, user):
+        new_user = User(
+            first_name   = str(user['first_name']),
+            last_name    = str(user['last_name']),
+            username     = str(user['username']),
+            email        = str(user['email']),
+            group        = int(user['group']),
+            avatar       = str(user['avatar']),
+            confirmed_at = datetime.now(),
+            active       = True
+        )
+        new_user.set_password(str(user['password']))
+        db.session.add(new_user)
+        db.session.commit()
 
     def save(self):
         db.session.commit()

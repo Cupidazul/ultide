@@ -8,9 +8,11 @@ define(['app', '_', 'bootstrap'], function(app, _) {
 
     ultiflow.endLoading = async function(ElVal) {
         let ElVal_id = $(ElVal).parent().prop('id');
-        //if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', ElVal_id, app.user.last_op);
-
         let LastProject = app.user.last_op;
+        if (LastProject == null) LastProject = '';
+
+        if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', { 'ElVal_id': ElVal_id, 'LastProject': LastProject });
+
         if (!LastProject || LastProject == '') LastProject = 'custom::custom_process';
         if (typeof($app.ultiflow.data.modulesInfos.operators.list[LastProject]) === 'undefined') LastProject = 'custom::custom_process';
 

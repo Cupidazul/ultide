@@ -112,6 +112,59 @@ def on_change_user_password(data, response, session_data):
             response['error'] = sys.exc_info()[0]
             pprint(('Error:',response['error']))
 
+def on_change_user_settings(data, response, session_data):
+    user = current_user
+    userData = json.loads(data['user'])
+    response['res'] = False
+    HasDiff = False
+    if ( not str(user.username) == str(userData['username'])): HasDiff = True
+    if ( not str(user.first_name) == str(userData['first_name'])): HasDiff = True
+    if ( not str(user.last_name) == str(userData['last_name'])): HasDiff = True
+    if ( not str(user.email) == str(userData['email'])): HasDiff = True
+    if ( not str(user.group) == str(userData['group'])): HasDiff = True
+    if ( not str(user.avatar) == str(userData['avatar'])): HasDiff = True
+
+    pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
+
+    if (HasDiff == True):
+        try:
+            user.username = userData['username']
+            user.first_name = userData['first_name']
+            user.last_name = userData['last_name']
+            user.email = userData['email']
+            user.group = userData['group']
+            user.avatar = userData['avatar']
+            user.save()
+            response['res'] = True
+        except Exception as err:
+            import traceback
+            exc_info = sys.exc_info()
+            #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+            ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+            response['error'] = sys.exc_info()[0]
+            pprint(('Error:',response['error'], ret))
+    else:
+        None
+    response['dif'] = HasDiff
+
+def on_add_new_user(data, response, session_data):
+    user = current_user
+    userData = json.loads(data['user'])
+    response['res'] = False
+
+    pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))
+
+    try:
+        user.add_user(userData)
+        response['res'] = True
+    except Exception as err:
+        import traceback
+        exc_info = sys.exc_info()
+        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+        response['error'] = sys.exc_info()[0]
+        pprint(('Error:',response['error'], ret))
+
 def on_set_user_property(data, response, session_data):
     user = session_data['user']
     user.set_property(data['key'], data['value'])
@@ -278,6 +331,7 @@ def get_session_info( sdata, session_uuid ):
         username     = current_user.username,
         first_name   = current_user.first_name,
         last_name    = current_user.last_name,
+        email        = current_user.email,
         create_dt    = current_user.confirmed_at.isoformat(),
         group        = current_user.group,
         avatar       = current_user.avatar,

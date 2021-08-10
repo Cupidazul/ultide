@@ -50,7 +50,5 @@ PRJ = {
     'OPERATORS_DIR' : 'operators',
     'OPERATOR_DIR'  : 'custom_operator',
     'CONFIG_FILE'   : 'config.json',
-    'DEFAULT_ID'    : 'custom::'
+    'DEFAULT_PRJID' : 'custom::custom_process'
 }
-
-PRJ['DEFAULT_ID'] = 'custom::' + PRJ['OPERATOR_DIR']

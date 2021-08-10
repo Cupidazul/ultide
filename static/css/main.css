@@ -121,3 +121,20 @@
     position: absolute;
     border-block-end: 40px solid transparent;
 }
+
+#adminMenuBtns button {
+    min-width: 40px;
+    min-height: 30px;
+}
+
+#settings_avatar_selected .avatar {
+    margin-top: -5px;
+    height: 30px;
+    width: 30px;
+}
+
+#new_avatar_selected .avatar {
+    margin-top: -5px;
+    height: 30px;
+    width: 30px;
+}

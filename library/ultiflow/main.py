@@ -123,7 +123,7 @@ def on_modules_infos(data, response, session_data):
         with open('./templates/new_config.json', 'r') as f:
             config = json.load(f)
             oper_name       = db.app.config['PRJ']['OPERATOR_DIR']
-            config['id']    = db.app.config['PRJ']['DEFAULT_ID']
+            config['id']    = db.app.config['PRJ']['DEFAULT_PRJID']
             config['title'] = db.app.config['PRJ']['DEFAULT_TITLE']
             prep_config(session_data, config, config_path, oper_path, oper_name, proj_name)
             on_saveNewProject(dict(cfg=config), None, None)

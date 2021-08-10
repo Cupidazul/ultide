@@ -14,7 +14,7 @@ document.onreadystatechange = function($) {
                 'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
                 'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
                 'socket-io': 'static/javascript/socket.io.min',
-                'bootstrap': 'static/plugins/bootstrap/js/bootstrap.min',
+                'bootstrap': 'static/plugins/bootstrap/js/bootstrap',
                 'JSONSafeStringify': 'static/plugins/fast-safe-stringify/index.min',
                 'lzString': 'static/plugins/lz-string/libs/lz-string.min',
 
@@ -74,7 +74,7 @@ document.onreadystatechange = function($) {
                     $mainView.main_view('createViewTopBar', 'TopBar', $(`<div class="uf-process-main-infos" style="position: absolute;z-index:-1;"></div>`));
 
                     if (user.is_admin) {
-                        let addAdminView = $mainView.main_view('addAdminView', 'welcome');
+                        let addAdminView = $mainView.main_view('addAdminView', user);
                         setTimeout(function() { addAdminView.show(); }, 1000);
                     }
 
