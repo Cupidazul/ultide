@@ -49,11 +49,11 @@
 }
 
 .navbar-brand {
-    float: none;
+    /*float: none;
     display: block;
-    text-align: center;
-    padding-left: 0px;
-    padding-right: 0px;
+    text-align: center;*/
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .main-view {
