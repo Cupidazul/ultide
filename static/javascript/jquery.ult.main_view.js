@@ -79,6 +79,7 @@ define([
             $('#userSubMenuBtn1').on('click', function(evt) {
                 if (!$app.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
                 $('#main_navBar_welcome').click();
+                return false;
             });
         },
 
@@ -120,14 +121,14 @@ define([
             <div class="form-group"></div>
             <div class="form-group">
                 <label for="NewUserView">Create New User <b class="bg-warning">-WIP-</b></label>
-                <input id="username" type="text" class="form-control" placeholder="Username" style="width: 100px;">
-                <input id="new_pwd" type="password" class="form-control" placeholder="Password" style="width: 200px;">
-                <input id="confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">
+                <input id="new_username" type="text" class="form-control" placeholder="Username" style="width: 100px;">
+                <input id="new_new_pwd" type="password" class="form-control" placeholder="Password" style="width: 200px;">
+                <input id="new_confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">
                 <br>
-                <input id="first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;">
-                <input id="last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;">
-                <input id="group" type="text" class="form-control" placeholder="Group" style="width: 150px;">
-                <input id="avatar" type="text" class="form-control" placeholder="Avatar" style="width: 150px;">
+                <input id="new_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;">
+                <input id="new_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;">
+                <input id="new_group" type="text" class="form-control" placeholder="Group" style="width: 150px;">
+                <input id="new_avatar" type="text" class="form-control" placeholder="Avatar" style="width: 150px;">
             </div>
             <button type="submit" class="btn btn-primary" disabled="disabled">Submit</button>
         </form>
