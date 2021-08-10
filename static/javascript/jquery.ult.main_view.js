@@ -82,23 +82,26 @@ define([
             });
         },
 
-        addChgPwdView: function(name) {
-            //console.log('addChgPwdView');
+        addAdminView: function(name) {
+            //console.log('addAdminView');
             var adminForm = $(`<hr />
 <div class="row">
     <div class="col-md-3" style="margin-right: 100px;margin-left: 100px;padding: 10px;">
         <button type="button" class="btn btn-default btn active" title="Change Password">
             <li class="fa fa-key"></li>
         </button>
-        <button type="button" class="btn btn-default btn active" title="New User">
+        <button type="button" class="btn btn-default btn active" title="Settings">
             <li class="fa fa-user"></li>
+        </button>
+        <button type="button" class="btn btn-default btn active" title="New User">
+            <li class="fa fa-user-friends"></li>
         </button>
     </div>
 </div>
 <div class="row">
-    <div class="col-md-3 card card" style="margin-left: 100px; margin-right: 100px; display: block;">
+    <div id="adminChgPwd" class="col-md-3 card card" style="margin-left: 100px; margin-right: 100px; display: block;">
         <div class="card-content">
-            <form id="adminChgPwd">
+            <form id="adminChgPwd-form">
                 <div class="form-group"></div>
                 <div class="form-group">
                     <label for="ChgPwdView">Change Your Password</label>
@@ -111,12 +114,12 @@ define([
             <label id="msgChgPwd"></label>
         </div>
     </div>
-    <div class="col-md-3 card card" style="margin-left: 100px; margin-right: 100px; display: block;">
+    <div id="adminNewUser" class="col-md-3 card card" style="margin-left: 100px; margin-right: 100px; display: block;">
     <div class="card-content">
-        <form id="adminChgPwd">
+        <form id="adminNewUser-form">
             <div class="form-group"></div>
             <div class="form-group">
-                <label for="ChgPwdView">Create New User <b class="bg-warning">-WIP-</b></label>
+                <label for="NewUserView">Create New User <b class="bg-warning">-WIP-</b></label>
                 <input id="username" type="text" class="form-control" placeholder="Username" style="width: 100px;">
                 <input id="new_pwd" type="password" class="form-control" placeholder="Password" style="width: 200px;">
                 <input id="confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">
@@ -128,7 +131,7 @@ define([
             </div>
             <button type="submit" class="btn btn-primary" disabled="disabled">Submit</button>
         </form>
-        <label id="msgChgPwd"></label>
+        <label id="msgNewUser"></label>
     </div>
 </div>
 </div>
@@ -147,7 +150,7 @@ define([
                 }, 1000);
             }
 
-            $('#adminChgPwd').on('submit', function(evt) {
+            $('#adminChgPwd-form').on('submit', function(evt) {
                 //console.log('submit!', { this: this, evt: evt });
                 let CurrPWD = String($('#curr_pwd').val());
                 let NewPWD = String($('#new_pwd').val());

@@ -74,8 +74,8 @@ document.onreadystatechange = function($) {
                     $mainView.main_view('createViewTopBar', 'TopBar', $(`<div class="uf-process-main-infos" style="position: absolute;z-index:-1;"></div>`));
 
                     if (user.is_admin) {
-                        let addChgPwdView = $mainView.main_view('addChgPwdView', 'welcome');
-                        setTimeout(function() { addChgPwdView.show(); }, 1000);
+                        let addAdminView = $mainView.main_view('addAdminView', 'welcome');
+                        setTimeout(function() { addAdminView.show(); }, 1000);
                     }
 
                     app.data.AppInited = true;
