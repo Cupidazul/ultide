@@ -1,5 +1,5 @@
 {
-    "id": "perl_procs::multiple_inputs_outputs3",
+    "id": "demo::multiple_inputs_outputs3",
     "title": "Multiple 3 Ins/Outs",
     "type": "operator",
     "inputs": {
