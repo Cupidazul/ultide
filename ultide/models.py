@@ -10,6 +10,7 @@ import ultide.config as config
 from werkzeug.security import generate_password_hash, check_password_hash
 from pprint import pprint
 from datetime import datetime
+import re
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
@@ -67,17 +68,27 @@ class User(db.Model, UserMixin):
 
     def save(self):
         db.session.commit()
-                   
+    
+    def IsPwdEncrypted(password):
+        tf = not not re.match(config.PASSWORD_ENCRYPTION_METHOD+':.*', password)
+        return tf
+
+    def encrypt_password(password, method=config.PASSWORD_ENCRYPTION_METHOD, salt_length=config.PASSWORD_SALT_LENGTH):
+        if ( User.IsPwdEncrypted(password) ):
+            return password
+        else:
+            return generate_password_hash(password, method, salt_length)
+
     def set_password(self, password):
-        if ( password.startswith('sha256$') ):
+        if ( User.IsPwdEncrypted(password) ):
             # password is allready a hash
             self.password = password
         else:
             # generate a hash from text password
-            self.password = generate_password_hash(password, method='sha256')
+            self.password = generate_password_hash(password, method=config.PASSWORD_ENCRYPTION_METHOD, salt_length=config.PASSWORD_SALT_LENGTH)
 
     def verify_password(self, password):
-        if ( password.startswith('sha256$') ):
+        if ( User.IsPwdEncrypted(password) ):
             return (self.password == password)
         else:
             return check_password_hash(self.password, password)

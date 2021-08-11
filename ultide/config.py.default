@@ -31,13 +31,15 @@ PERL_BIN                        = "/usr/bin/perl"
 PERL_EXEC                       = ""
 PYTHON_BIN                      = "/usr/bin/python3"
 PYTHON_EXEC                     = ""
+PASSWORD_ENCRYPTION_METHOD      = "pbkdf2:sha256"
+PASSWORD_SALT_LENGTH            = 16
 
 # DB Connection User
 DB_USER = {
     'first_name' : '',
     'last_name'  : '',
     'username'   : 'root',
-    'password'   : 'sha256$1081Jf9K$43cb884b37b599e00d7d5bfb65f192dd1dba6174f4f136532ecbff507479f3c6', # avoid unencrypted passwords in cleartext,
+    'password'   : 'pbkdf2:sha256:150000$BBdgFoibwAkjsIND$715e9e70e985d78d3ec4e10baacd36e2c2ecdc498820db0b9cb3f798c18e57df', # avoid unencrypted passwords in cleartext,
     'email'      : 'root@example.com',
     'avatar'     : './static/modules/ultiflow/images/img_avatar0.png',
     'group'      : 255

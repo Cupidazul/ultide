@@ -51,7 +51,7 @@ from flask_socketio import SocketIO, emit, disconnect
 from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from ultide.models import db, User, DevLang, Library
-from ultide.core import PKG, sessions_data
+from ultide.core import PKG, mod_2_dict, sessions_data
 import ultide.core as core
 import uuid
 import ultide.common as common
@@ -92,7 +92,7 @@ if not User.query.filter(User.username==app.config['DB_USER']['username']).first
         first_name   = app.config['DB_USER']['first_name'],
         last_name    = app.config['DB_USER']['last_name'],
         username     = app.config['DB_USER']['username'],
-        password     = app.config['DB_USER']['password'],
+        password     = User.encrypt_password( app.config['DB_USER']['password'] ),
         email        = app.config['DB_USER']['email'],
         group        = app.config['DB_USER']['group'],
         avatar       = app.config['DB_USER']['avatar'],
@@ -164,7 +164,7 @@ def login():
             user = User.query.filter(User.email == loginUSR).first()
         else:
             user = User.query.filter(User.username == loginUSR).first()
-        if not user or password.startswith('sha256$') or not user.verify_password(password): #SECURITY: FIX: disallow login with hash !
+        if not user or User.IsPwdEncrypted(password) or not user.verify_password(password): #SECURITY: FIX: disallow login with hash !
             error = 'Invalid Credentials. Please try again.'
             flash(error)
         else:
