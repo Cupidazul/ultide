@@ -14,7 +14,7 @@ document.onreadystatechange = function($) {
                 'jquery': 'static/plugins/jquery/jquery-2.2.4.min',
                 'jquery-ui': 'static/plugins/jquery-ui/jquery-ui.min',
                 'socket-io': 'static/javascript/socket.io.min',
-                'bootstrap': 'static/plugins/bootstrap/js/bootstrap',
+                'bootstrap': 'static/plugins/bootstrap/js/bootstrap.min',
                 'JSONSafeStringify': 'static/plugins/fast-safe-stringify/index.min',
                 'lzString': 'static/plugins/lz-string/libs/lz-string.min',
 
