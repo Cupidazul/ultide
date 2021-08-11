@@ -100,7 +100,7 @@ def on_login(data, response, session_data):
 
 def on_change_user_password(data, response, session_data):
     user = current_user
-    pprint(('@on_change_user_password:', {'data':data,'response':response, 'session_data': session_data } ))
+    # pprint(('@on_change_user_password:', {'data':data,'response':response, 'session_data': session_data } ))  # SECURITY: Hide ClearText-Password from logs!
     CurrPwdOK = response['CurrPwdOK'] = user.verify_password(data['CurrPWD'])
     response['res'] = False
     if(CurrPwdOK):
@@ -163,9 +163,10 @@ def on_add_new_user(data, response, session_data):
     if ( user.user_exists(userData['username']) ):
         # New Username, but allready exists
         response['usr_exists'] = True
-        pprint(('@on_change_user_settings: Error: User Allready Exists!', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))
+        print('@on_change_user_settings: Error: User Allready Exists!')
+        # pprint(('@on_change_user_settings: Error: User Allready Exists!', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))  # SECURITY: Hide ClearText-Password from logs!
     else:
-        pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))
+        # pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))                               # SECURITY: Hide ClearText-Password from logs!
 
         try:
             user.add_user(userData)
