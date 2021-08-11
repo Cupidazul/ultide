@@ -112,59 +112,116 @@ define([
                     `</div>`;
             };
             let $adminSettings_Card =
-                `<div id="adminSettings" class="col-md-3 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+                `<div id="adminSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
                 `    <div class="card-content">` +
                 `        <form id="adminSettings-form">` +
-                `            <div class="form-group"></div>` +
                 `            <div class="form-group">` +
-                `                <label for="SettingsView">User Settings</label>` +
-                `                <input id="settings_username" type="text" class="form-control" placeholder="Username" style="width: 100px;" value="${user.username}">` +
-                `                ` + _fn_printAvatar('settings', user) +
-                `                <input id="settings_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;" value="${user.first_name}">` +
-                `                <input id="settings_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;" value="${user.last_name}">` +
-                `                <input id="settings_email" type="text" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
-                `                <input id="settings_group" type="text" class="form-control" placeholder="Group" style="width: 150px;" value="${user.group}">` +
+                `                <label for="SettingsView" style="margin-bottom: 15px;">User Settings</label>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Username: </div>` +
+                `                   <input id="settings_username" type="text" class="form-control" placeholder="Username" style="width: 100px;" value="${user.username}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Avatar: </div>` +
+                `                   ` + _fn_printAvatar('settings', user) +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">FirstName: </div>` +
+                `                   <input id="settings_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;" value="${user.first_name}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">LastName: </div>` +
+                `                   <input id="settings_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;" value="${user.last_name}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">E-mail: </div>` +
+                `                   <input id="settings_email" type="text" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Group: </div>` +
+                `                   <input id="settings_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;" value="${user.group}">` +
+                `                </div>` +
                 `            </div>` +
-                `            <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            <div class="col">` +
+                `               <div class="tblLabel col-md-3"></div>` +
+                `               <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            </div>` +
                 `        </form>` +
                 `        <label id="msgSettings"></label>` +
                 `    </div>` +
                 `</div>`;
             let $adminChgPwd_Card =
-                `<div id="adminChgPwd" class="col-md-3 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+                `<div id="adminChgPwd" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
                 `    <div class="card-content">` +
                 `        <form id="adminChgPwd-form">` +
-                `            <div class="form-group"></div>` +
                 `            <div class="form-group">` +
-                `                <label for="ChgPwdView">Change Your Password</label>` +
-                `                <input id="curr_pwd" type="password" class="form-control" placeholder="Current Password" style="width: 200px;">` +
-                `                <input id="new_pwd" type="password" class="form-control" placeholder="New Password" style="width: 200px;">` +
-                `                <input id="confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">` +
+                `                <label for="ChgPwdView" style="margin-bottom: 15px;">Change Your Password</label>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Current: </div>` +
+                `                   <input id="curr_pwd" type="password" class="form-control" placeholder="Current Password" style="width: 200px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">New: </div>` +
+                `                   <input id="new_pwd" type="password" class="form-control" placeholder="New Password" style="width: 200px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Confirm: </div>` +
+                `                   <input id="confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">` +
+                `                </div>` +
                 `            </div>` +
-                `            <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            <div class="col">` +
+                `               <div class="tblLabel col-md-3"></div>` +
+                `               <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            </div>` +
                 `        </form>` +
                 `        <label id="msgChgPwd"></label>` +
                 `    </div>` +
                 `</div>`;
             let $adminNewUser_Card =
-                `<div id="adminNewUser" class="col-md-3 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+                `<div id="adminNewUser" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
                 `    <div class="card-content">` +
                 `        <form id="adminNewUser-form">` +
-                `            <div class="form-group"></div>` +
                 `            <div class="form-group">` +
-                `                <label for="NewUserView">Create New User</label>` +
-                `                <input id="new_username" type="text" class="form-control" placeholder="Username" style="width: 100px;">` +
-                `                ` + _fn_printAvatar('new', { 'avatar': '' }) +
+                `                   <label for="NewUserView" style="margin-bottom: 15px;">Create New User</label>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Username: </div>` +
+                `                   <input id="new_username" type="text" class="form-control" placeholder="Username" style="width: 100px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Avatar: </div>` +
+                `                   ` + _fn_printAvatar('new', { 'avatar': '' }) +
+                `                </div>` +
                 `                <p></p>` +
-                `                <input id="new_new_pwd" type="password" class="form-control" placeholder="Password" style="width: 200px;">` +
-                `                <input id="new_confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Password: </div>` +
+                `                   <input id="new_new_pwd" type="password" class="form-control" placeholder="Password" style="width: 200px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Confirm: </div>` +
+                `                   <input id="new_confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">` +
+                `                </div>` +
                 `                <p></p>` +
-                `                <input id="new_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;">` +
-                `                <input id="new_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;">` +
-                `                <input id="new_email" type="text" class="form-control" placeholder="Email" style="width: 200px;">` +
-                `                <input id="new_group" type="text" class="form-control" placeholder="Group" style="width: 150px;">` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">FirstName: </div>` +
+                `                   <input id="new_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">LastName: </div>` +
+                `                   <input id="new_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">E-mail: </div>` +
+                `                   <input id="new_email" type="text" class="form-control" placeholder="Email" style="width: 200px;">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Group: </div>` +
+                `                   <input id="new_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;">` +
+                `                </div>` +
                 `            </div>` +
-                `            <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            <div class="col">` +
+                `               <div class="tblLabel col-md-3"></div>` +
+                `               <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            </div>` +
                 `        </form>` +
                 `        <label id="msgNewUser"></label>` +
                 `    </div>` +

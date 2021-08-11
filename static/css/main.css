@@ -155,3 +155,9 @@
     border-right: 1px solid #ccc !important;
     border-radius: 4px !important;
 }
+
+.tblLabel {
+    float: left;
+    text-align: right;
+    transform: translateY(31%);
+}
