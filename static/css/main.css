@@ -161,3 +161,7 @@
     text-align: right;
     transform: translateY(31%);
 }
+
+.mainBtnFix {
+    border-left: 1px solid #ccc !important;
+}

@@ -68,7 +68,7 @@ define([
         <li><a id="userSubMenuBtn2" href="#">Your Library` + (WIP || '') + `</a></li>
         <li><a id="userSubMenuBtn3" href="#">Your Projects` + (WIP || '') + `</a></li>
         <li class="divider"></li>
-        <li><a id="userSubMenuBtn4" href="#">Settings` + (WIP || '') + `</a></li>
+        <li><a id="userSubMenuBtn4" href="#">Settings</a></li>
         <li><a id="userSubMenuBtn5" href="#">Help` + (WIP || '') + `</a></li>
         <li class="divider"></li>
         <li><a id="userSubMenuBtn6" href="/logout">Logout</a></li>
@@ -81,10 +81,19 @@ define([
                 $('#main_navBar_welcome').click();
                 return false;
             });
+
+            $('#userSubMenuBtn4').on('click', function(evt) {
+                if (!$app.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
+                $('#main_navBar_welcome').click();
+                $('#btnSH_userSettings').click();
+                return false;
+            });
+
         },
 
-        addAdminView: function(user) {
-            //console.log('ult.main_view: addAdminView');
+        addSettingsView: function(user) {
+            let settingsForm = '';
+            //console.log('ult.main_view: addSettingsView');
             let _fn_printAvatar = function(name, _user) {
                 _avatar_name = (imgSrc) => {
                     try {
@@ -111,10 +120,10 @@ define([
                     `   </ul>` +
                     `</div>`;
             };
-            let $adminSettings_Card =
-                `<div id="adminSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+            let $userSettings_Card =
+                `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
                 `    <div class="card-content">` +
-                `        <form id="adminSettings-form">` +
+                `        <form id="userSettings-form">` +
                 `            <div class="form-group">` +
                 `                <label for="SettingsView" style="margin-bottom: 15px;">User Settings</label>` +
                 `                <div class="col">` +
@@ -150,10 +159,10 @@ define([
                 `        <label id="msgSettings"></label>` +
                 `    </div>` +
                 `</div>`;
-            let $adminChgPwd_Card =
-                `<div id="adminChgPwd" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+            let $userChgPwd_Card =
+                `<div id="userChgPwd" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
                 `    <div class="card-content">` +
-                `        <form id="adminChgPwd-form">` +
+                `        <form id="userChgPwd-form">` +
                 `            <div class="form-group">` +
                 `                <label for="ChgPwdView" style="margin-bottom: 15px;">Change Your Password</label>` +
                 `                <div class="col">` +
@@ -226,14 +235,56 @@ define([
                 `        <label id="msgNewUser"></label>` +
                 `    </div>` +
                 `</div>`;
+
+            if (!user.is_admin)
+                $userSettings_Card =
+                `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+                `    <div class="card-content">` +
+                `        <form id="userSettings-form">` +
+                `            <div class="form-group">` +
+                `                <label for="SettingsView" style="margin-bottom: 15px;">User Settings</label>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Username: </div>` +
+                `                   <input id="settings_username" type="text" class="form-control" placeholder="Username" style="width: 100px;" value="${user.username}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">Avatar: </div>` +
+                `                   ` + _fn_printAvatar('settings', user) +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">FirstName: </div>` +
+                `                   <input id="settings_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;" value="${user.first_name}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">LastName: </div>` +
+                `                   <input id="settings_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;" value="${user.last_name}">` +
+                `                </div>` +
+                `                <div class="col">` +
+                `                   <div class="tblLabel col-md-3">E-mail: </div>` +
+                `                   <input id="settings_email" type="text" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
+                `                </div>` +
+                //`                <div class="col">` +
+                //`                   <div class="tblLabel col-md-3">Group: </div>` +
+                //`                   <input id="settings_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;" value="${user.group}">` +
+                //`                </div>` +
+                `            </div>` +
+                `            <div class="col">` +
+                `               <div class="tblLabel col-md-3"></div>` +
+                `               <button type="submit" class="btn btn-primary">Submit</button>` +
+                `            </div>` +
+                `        </form>` +
+                `        <label id="msgSettings"></label>` +
+                `    </div>` +
+                `</div>`;
+
             let adminForm = $('<hr>' +
                 `<div class="row mx-auto">` +
                 `    <div id="adminMenuBtns" class="col-md-3">` +
                 `       <div class="input-group" style="float: left;">` +
-                `           <button id="btnSH_adminSettings" type="button" class="btn btn-default btn input-group-addon" title="Settings">` +
+                `           <button id="btnSH_userSettings" type="button" class="btn btn-default btn input-group-addon" title="Settings">` +
                 `               <li class="fa fa-cog"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_adminChgPwd"   type="button" class="btn btn-default btn input-group-addon" title="Change Password">` +
+                `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default btn input-group-addon" title="Change Password">` +
                 `               <li class="fa fa-key"></li>` +
                 `           </button>` +
                 `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon" title="New User">` +
@@ -248,13 +299,43 @@ define([
                 `   </div>` +
                 `</div>` +
                 `<div id="adminCardsView" class="row mx-auto">` +
-                `    ${$adminSettings_Card}` +
-                `    ${$adminChgPwd_Card}` +
+                `    ${$userSettings_Card}` +
+                `    ${$userChgPwd_Card}` +
                 `    ${$adminNewUser_Card}` +
                 `</div>`);
 
-            adminForm.hide();
-            adminForm.appendTo(this.element.children()[1]);
+            let userForm = $('<hr>' +
+                `<div class="row mx-auto">` +
+                `    <div id="adminMenuBtns" class="col-md-3">` +
+                `       <div class="input-group" style="float: left;">` +
+                `           <button id="btnSH_userSettings" type="button" class="btn btn-default btn input-group-addon" title="Settings">` +
+                `               <li class="fa fa-cog"></li>` +
+                `           </button>` +
+                `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default btn input-group-addon mainBtnFix" title="Change Password">` +
+                `               <li class="fa fa-key"></li>` +
+                `           </button>` +
+                `       </div>` +
+                `       <div class="input-group">` +
+                `           <button id="btnSH_flowchart" type="button" class="btn btn-default btn input-group-addon menuicnBtnfix" title="Flowchart">` +
+                `              <li class="glyphicon glyphicon-blackboard"></li>` +
+                `           </button>` +
+                `       </div>` +
+                `   </div>` +
+                `</div>` +
+                `<div id="adminCardsView" class="row mx-auto">` +
+                `    ${$userSettings_Card}` +
+                `    ${$userChgPwd_Card}` +
+                `</div>`);
+
+            if (user.is_admin) {
+                settingsForm = adminForm;
+                adminForm.hide();
+                adminForm.appendTo(this.element.children()[1]);
+            } else {
+                settingsForm = userForm;
+                userForm.hide();
+                userForm.appendTo(this.element.children()[1]);
+            }
 
             var CountDown;
 
@@ -266,24 +347,26 @@ define([
                 }, 1000);
             }
 
-            $('#adminSettings-form').on('submit', function(evt) {
+            $('#userSettings-form').on('submit', function(evt) {
                 let CnfGrp = String($('#settings_group').val());
+                if (typeof(CnfGrp) == 'undefined') CnfGrp = 0;
                 // TODO: Check for duplicates in DB
                 if (String($('#settings_username').val()) != '' &&
                     String($('#settings_avatar').val()) != '' &&
                     String($('#settings_email').val()) != '' &&
                     Number.isInteger(parseInt(CnfGrp)) &&
-                    (parseInt(CnfGrp) > 0 && parseInt(CnfGrp) <= 255)) {
+                    (parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) {
                     setTimeout(function() {
+                        let _obj = {};
+                        _obj.username = String($('#settings_username').val());
+                        _obj.avatar = String($('#settings_avatar').val());
+                        _obj.first_name = String($('#settings_first_name').val());
+                        _obj.last_name = String($('#settings_last_name').val());
+                        _obj.email = String($('#settings_email').val());
+                        if ($('#settings_group').length > 0) _obj.group = String($('#settings_group').val()); // fix: user is not admin
+
                         app.sendRequest('change_user_settings', {
-                            'user': JSON.stringify({
-                                username: String($('#settings_username').val()),
-                                avatar: String($('#settings_avatar').val()),
-                                first_name: String($('#settings_first_name').val()),
-                                last_name: String($('#settings_last_name').val()),
-                                email: String($('#settings_email').val()),
-                                group: String($('#settings_group').val()),
-                            })
+                            'user': JSON.stringify(_obj)
                         }, function(data) {
                             let _msg = '';
                             if ($app.debug) console.log('@ult.main_view: change_user_settings:', { data: data });
@@ -303,7 +386,7 @@ define([
                     if (String($('#settings_username').val()) == '') $('#msgSettings').html("You must insert a username");
                     if (String($('#settings_email').val()) == '') $('#msgSettings').html("You must insert a email");
                     if (String($('#settings_avatar').val()) == '') $('#msgSettings').html("You must select a avatar");
-                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) > 0 && parseInt(CnfGrp) <= 255)) $('#msgSettings').html("Group should be a number from 0...255");
+                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) $('#msgSettings').html("Group should be a number from 0...255");
                 }
                 return false;
             });
@@ -320,7 +403,7 @@ define([
                     NewPWD != '' &&
                     CnfPWD != '' &&
                     Number.isInteger(parseInt(CnfGrp)) &&
-                    (parseInt(CnfGrp) > 0 && parseInt(CnfGrp) <= 255)) {
+                    (parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) {
                     if (NewPWD === CnfPWD) {
                         setTimeout(function() {
                             app.sendRequest('add_new_user', {
@@ -357,12 +440,12 @@ define([
                     if (String($('#new_username').val()) == '') $('#msgNewUser').html("You must insert a username");
                     if (String($('#new_email').val()) == '') $('#msgNewUser').html("You must insert a email");
                     if (String($('#new_avatar').val()) == '') $('#msgNewUser').html("You must select a avatar");
-                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) > 0 && parseInt(CnfGrp) <= 255)) $('#msgNewUser').html("Group should be a number from 0...255");
+                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) $('#msgNewUser').html("Group should be a number from 0...255");
                 }
                 return false;
             });
 
-            $('#adminChgPwd-form').on('submit', function(evt) {
+            $('#userChgPwd-form').on('submit', function(evt) {
                 //console.log('submit!', { 'this': this, 'evt': evt });
                 let CurrPWD = String($('#curr_pwd').val());
                 let NewPWD = String($('#new_pwd').val());
@@ -427,14 +510,14 @@ define([
                 });
             });
 
-            _fn_ShowCard('adminSettings');
+            _fn_ShowCard('userSettings');
             if (user.avatar.length > 0) $(`#settings_avatar`).val(user.avatar);
 
             $('#btnSH_flowchart').on('click', function(evt) {
                 $('#main_navBar_flowchart').click();
             });
 
-            return adminForm;
+            return settingsForm;
         }
     });
 });

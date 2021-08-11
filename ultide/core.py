@@ -121,9 +121,10 @@ def on_change_user_settings(data, response, session_data):
     if ( not str(user.first_name) == str(userData['first_name'])): HasDiff = True
     if ( not str(user.last_name) == str(userData['last_name'])): HasDiff = True
     if ( not str(user.email) == str(userData['email'])): HasDiff = True
-    if ( not str(user.group) == str(userData['group'])): HasDiff = True
+    if userData.__contains__('group'): 
+        if ( not str(user.group) == str(userData['group'])): HasDiff = True
     if ( not str(user.avatar) == str(userData['avatar'])): HasDiff = True
-
+    
     pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
 
     if (HasDiff == True):
@@ -132,7 +133,7 @@ def on_change_user_settings(data, response, session_data):
             user.first_name = userData['first_name']
             user.last_name = userData['last_name']
             user.email = userData['email']
-            user.group = userData['group']
+            if userData.__contains__('group'): user.group = userData['group']
             user.avatar = userData['avatar']
             user.save()
             response['res'] = True

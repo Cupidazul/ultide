@@ -11,7 +11,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
         let LastProject = app.user.last_op;
         if (LastProject == null) LastProject = '';
 
-        if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', { 'ElVal_id': ElVal_id, 'LastProject': LastProject });
+        //if ($app.debug) console.log('@library/ultiflow: ultiflow.endLoading:', { 'ElVal_id': ElVal_id, 'LastProject': LastProject });
 
         if (!LastProject || LastProject == '') LastProject = 'custom::custom_process';
         if (typeof($app.ultiflow.data.modulesInfos.operators.list[LastProject]) === 'undefined') LastProject = 'custom::custom_process';

@@ -63,7 +63,7 @@ document.onreadystatechange = function($) {
                     $mainView.main_view('createViewWelcome', 'welcome', $(`<div class="row mx-auto"><div id="view_welcome" style="margin-left: 100px; margin-right:100px">${WelcomeMessage}</div></div>`));
                     $mainView.main_view('showView', 'welcome');
 
-                    $mainNavBar.main_nav_bar('addButton', 'welcome', 'Welcome', '', 0, function() {
+                    $mainNavBar.main_nav_bar('addButton', 'welcome', 'Settings', '', 0, function() {
                         $mainView.main_view('showView', 'welcome');
                         $mainNavBar.main_nav_bar('activateButton', 'welcome');
                     });
@@ -73,10 +73,8 @@ document.onreadystatechange = function($) {
 
                     $mainView.main_view('createViewTopBar', 'TopBar', $(`<div class="uf-process-main-infos" style="position: absolute;z-index:-1;"></div>`));
 
-                    if (user.is_admin) {
-                        let addAdminView = $mainView.main_view('addAdminView', user);
-                        setTimeout(function() { addAdminView.show(); }, 1000);
-                    }
+                    let addSettingsView = $mainView.main_view('addSettingsView', user);
+                    setTimeout(function() { addSettingsView.show(); }, 1000);
 
                     app.data.AppInited = true;
                 }
