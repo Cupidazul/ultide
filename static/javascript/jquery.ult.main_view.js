@@ -148,7 +148,18 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Group: </div>` +
-                `                   <input id="settings_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;" value="${user.group}">` +
+                `                   <select id="settings_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;" value="${user.group}">
+                <option value="255" ` + ((parseInt(user.group) == 255) ? 'selected="selected"' : '') + `>Superuser</option>
+                <option value="128" ` + ((parseInt(user.group) == 128) ? 'selected="selected"' : '') + `>Admin</option>
+                <option value="64" ` + ((parseInt(user.group) == 64) ? 'selected="selected"' : '') + `>Profile 1</option>
+                <option value="32" ` + ((parseInt(user.group) == 32) ? 'selected="selected"' : '') + `>Profile 2</option>
+                <option value="16" ` + ((parseInt(user.group) == 16) ? 'selected="selected"' : '') + `>Profile 3</option>
+                <option value="8" ` + ((parseInt(user.group) == 8) ? 'selected="selected"' : '') + `>Profile 4</option>
+                <option value="4" ` + ((parseInt(user.group) == 4) ? 'selected="selected"' : '') + `>Profile 5</option>
+                <option value="2" ` + ((parseInt(user.group) == 2) ? 'selected="selected"' : '') + `>Profile 6</option>
+                <option value="1" ` + ((parseInt(user.group) == 1) ? 'selected="selected"' : '') + `>Profile 7</option>
+                <option value="0" ` + ((parseInt(user.group) == 0) ? 'selected="selected"' : '') + `>No Group</option>
+                </select>` +
                 `                </div>` +
                 `            </div>` +
                 `            <div class="col">` +
@@ -224,7 +235,18 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Group: </div>` +
-                `                   <input id="new_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;">` +
+                `                   <select id="new_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;" value="255">
+                <option value="255">Superuser</option>
+                <option value="128">Admin</option>
+                <option value="64">Profile 1</option>
+                <option value="32">Profile 2</option>
+                <option value="16">Profile 3</option>
+                <option value="8">Profile 4</option>
+                <option value="4">Profile 5</option>
+                <option value="2">Profile 6</option>
+                <option value="1">Profile 7</option>
+                <option value="0" selected="selected">No Group</option>
+                </select>` +
                 `                </div>` +
                 `            </div>` +
                 `            <div class="col">` +
