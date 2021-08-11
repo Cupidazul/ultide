@@ -150,7 +150,7 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">E-mail: </div>` +
-                `                   <input id="settings_email" type="text" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
+                `                   <input id="settings_email" type="email" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Group: </div>` +
@@ -237,7 +237,7 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">E-mail: </div>` +
-                `                   <input id="new_email" type="text" class="form-control" placeholder="Email" style="width: 200px;">` +
+                `                   <input id="new_email" type="email" class="form-control" placeholder="Email" style="width: 200px;">` +
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Group: </div>` +
@@ -289,7 +289,7 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">E-mail: </div>` +
-                `                   <input id="settings_email" type="text" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
+                `                   <input id="settings_email" type="email" class="form-control" placeholder="Email" style="width: 200px;" value="${user.email}">` +
                 `                </div>` +
                 //`                <div class="col">` +
                 //`                   <div class="tblLabel col-md-3">Group: </div>` +
