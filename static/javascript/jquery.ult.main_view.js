@@ -87,11 +87,13 @@ define([
             //console.log('ult.main_view: addAdminView');
             let _fn_printAvatar = function(name, _user) {
                 _avatar_name = (imgSrc) => {
-                    let imgNm = imgSrc.split('/');
-                    let imgID0 = imgNm[imgNm.length - 1].split('.')[0].replace('img_avatar', '');
-                    let imgID = String(parseInt(imgID0) + 1);
-                    if (imgID0.length > 0) return ' Avatar ' + imgID;
-                    return '';
+                    try {
+                        let imgNm = imgSrc.split('/');
+                        let imgID0 = imgNm[imgNm.length - 1].split('.')[0].replace('img_avatar', '');
+                        let imgID = String(parseInt(imgID0) + 1);
+                        if (imgID0.length > 0) return ' Avatar ' + imgID;
+                    } catch (err) {}
+                    return '-Avatar-';
                 };
                 return `` +
                     `<div class="dropdown">` +
@@ -167,19 +169,26 @@ define([
                 `        <label id="msgNewUser"></label>` +
                 `    </div>` +
                 `</div>`;
-            let adminForm = $(`<hr style="margin-bottom: 0px;">` +
+            let adminForm = $('<hr>' +
                 `<div class="row mx-auto">` +
-                `    <div id="adminMenuBtns" class="col-md-3 input-group" style="margin-right: 100px;margin-left: 100px;padding: 10px;">` +
-                `        <button id="btnSH_adminSettings" type="button" class="btn btn-default btn input-group-addon input-group-addon" title="Settings">` +
-                `            <li class="fa fa-cog"></li>` +
-                `        </button>` +
-                `        <button id="btnSH_adminChgPwd"   type="button" class="btn btn-default btn input-group-addon input-group-addon" title="Change Password">` +
-                `            <li class="fa fa-key"></li>` +
-                `        </button>` +
-                `        <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon input-group-addon" title="New User">` +
-                `            <li class="fa fa-user-plus"></li>` +
-                `        </button>` +
-                `    </div>` +
+                `    <div id="adminMenuBtns" class="col-md-3">` +
+                `       <div class="input-group" style="float: left;">` +
+                `           <button id="btnSH_adminSettings" type="button" class="btn btn-default btn input-group-addon" title="Settings">` +
+                `               <li class="fa fa-cog"></li>` +
+                `           </button>` +
+                `           <button id="btnSH_adminChgPwd"   type="button" class="btn btn-default btn input-group-addon" title="Change Password">` +
+                `               <li class="fa fa-key"></li>` +
+                `           </button>` +
+                `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon" title="New User">` +
+                `               <li class="fa fa-user-plus"></li>` +
+                `           </button>` +
+                `       </div>` +
+                `       <div class="input-group">` +
+                `           <button id="btnSH_flowchart" type="button" class="btn btn-default btn input-group-addon menuicnBtnfix" title="Flowchart">` +
+                `              <li class="glyphicon glyphicon-blackboard"></li>` +
+                `           </button>` +
+                `       </div>` +
+                `   </div>` +
                 `</div>` +
                 `<div id="adminCardsView" class="row mx-auto">` +
                 `    ${$adminSettings_Card}` +
@@ -203,8 +212,7 @@ define([
             $('#adminSettings-form').on('submit', function(evt) {
                 let CnfGrp = String($('#settings_group').val());
                 // TODO: Check for duplicates in DB
-                if (
-                    String($('#settings_username').val()) != '' &&
+                if (String($('#settings_username').val()) != '' &&
                     String($('#settings_avatar').val()) != '' &&
                     String($('#settings_email').val()) != '' &&
                     Number.isInteger(parseInt(CnfGrp)) &&
@@ -249,8 +257,7 @@ define([
                 let CnfGrp = String($('#new_group').val());
                 console.log('submit!', { 'this': this, 'evt': evt, 'NewPWD': NewPWD, 'CnfPWD': CnfPWD });
                 // TODO: Check for duplicates in DB
-                if (
-                    String($('#new_username').val()) != '' &&
+                if (String($('#new_username').val()) != '' &&
                     String($('#new_email').val()) != '' &&
                     String($('#new_avatar').val()) != '' &&
                     NewPWD != '' &&
@@ -331,18 +338,20 @@ define([
                 return false;
             });
 
-            let _fn_ShowCard = function(_cardName) {
-                $('#adminCardsView .card').hide();
-                $('#adminMenuBtns > button').removeClass('active');
-                $('#' + _cardName).show();
+            let _fn_ShowCard = function(_cardName, showCard = true) {
+                if (showCard) {
+                    $('#adminCardsView .card').hide();
+                    $('#' + _cardName).show();
+                }
+                $('#adminMenuBtns > div > button').removeClass('active');
                 $('#btnSH_' + _cardName).addClass('active');
             };
-            $('#adminMenuBtns > button').each((Idx, element) => {
+            $('#adminMenuBtns > div > button').each((Idx, element) => {
                 //console.log('@ult.main_view: adminMenuBtns.each', { 'Idx': Idx, 'element': element });
                 $(element).on('click', function(evt) {
                     //console.log('@ult.main_view: adminMenuBtns.click', { 'evt': evt, 'element': element });
                     let CurrCardName = (evt.currentTarget.id || evt.currentTarget.nodeName).split('_')[1];
-                    _fn_ShowCard(CurrCardName);
+                    _fn_ShowCard(CurrCardName, (CurrCardName !== 'flowchart'));
                 });
             });
             /* Add Avatar OnClick for each dropdown selected (li.a) option */
@@ -363,6 +372,10 @@ define([
 
             _fn_ShowCard('adminSettings');
             if (user.avatar.length > 0) $(`#settings_avatar`).val(user.avatar);
+
+            $('#btnSH_flowchart').on('click', function(evt) {
+                $('#main_navBar_flowchart').click();
+            });
 
             return adminForm;
         }

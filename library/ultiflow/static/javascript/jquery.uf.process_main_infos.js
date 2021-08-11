@@ -19,12 +19,13 @@ define(['app'], function(app) {
             this.els.title.appendTo(this.element);
 
             var BtnStatus = '<button id="btn_ioStatus" class="btn">PyServer</button>';
-            var BtnSave = '<button id="btn_save" class="fa fa-save" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
-            var BtnPlay = '<button id="btn_play" class="fa fa-play" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
+            var BtnSettings = '<button id="btn_settings" title="Settings" class="fa fa-cog" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
+            var BtnSave = '<button id="btn_save" title="Save" class="fa fa-save" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
+            var BtnPlay = '<button id="btn_play" title="Run" class="fa fa-play" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnSelect = ''; //'<select id="btn_code_lang" class="selectpicker" style="font-size: 14px;"><option>Perl</option><option>Python</option></select>';
             this.els.buttons = $(`
 <nobr><div class="buttons" style="float: right;font-size: 10px;display: flex;padding-top: 5px;"><button class="zoom-in">Zoom In</button><button class="zoom-out">Zoom Out</button><input type="range" class="zoom-range" step="0.5" min="0.5" max="3"><button class="zoom-reset">Reset</button></div></nobr>
-<nobr><div class="buttons" style="font-size: 10px;display: inline-flex;padding-left: 5%;height: -webkit-fill-available;position: relative;text-align: center;">${BtnSave}${BtnPlay}&nbsp;${BtnSelect}${BtnStatus}</div></nobr>
+<nobr><div class="buttons" style="font-size: 10px;display: inline-flex;padding-left: 5%;height: -webkit-fill-available;position: relative;text-align: center;">${BtnSettings}&nbsp;${BtnSave}${BtnPlay}&nbsp;${BtnSelect}${BtnStatus}</div></nobr>
 `);
             this.els.buttons.appendTo(this.element);
 

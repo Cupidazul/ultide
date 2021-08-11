@@ -122,9 +122,18 @@
     border-block-end: 40px solid transparent;
 }
 
+#adminMenuBtns {
+    margin-right: 100px;
+    margin-left: 29px;
+    padding: 10px;
+    position: fixed;
+    top: -6px;
+    z-index: -1;
+}
+
 #adminMenuBtns button {
     min-width: 40px;
-    min-height: 30px;
+    min-height: 29px;
 }
 
 #settings_avatar_selected .avatar {
@@ -137,4 +146,12 @@
     margin-top: -5px;
     height: 30px;
     width: 30px;
+}
+
+.menuicnBtnfix {
+    margin-left: -1px;
+    max-height: 29px;
+    border-left: 1px solid #ccc !important;
+    border-right: 1px solid #ccc !important;
+    border-radius: 4px !important;
 }

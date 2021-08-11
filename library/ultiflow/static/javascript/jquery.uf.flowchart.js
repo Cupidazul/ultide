@@ -171,7 +171,8 @@ define([
                 $('.main-view').css('left', '100px');
                 $('.navbar-fixed-left').css('z-index', '1');
                 setTimeout(function() { $('.navbar-fixed-left').css('left', ''); }, 400);
-                if (!$('#view_welcome').is(':hidden')) $('.navbar-fixed-left').animate({ left: "+=100" }, 300);
+                $('.navbar-fixed-left').css('left', '-100px');
+                $('.navbar-fixed-left').animate({ left: "+=100" }, 300);
             };
             self.menuHide = function(evt) {
                 // Hide
@@ -179,7 +180,8 @@ define([
                 $('.navbar-fixed-left').css('z-index', '');
                 $('.main-view').css('left', '0px');
                 setTimeout(function() { $('.navbar-fixed-left').css('left', '-245px'); }, 400);
-                if (!$('#view_welcome').is(':hidden')) $('.navbar-fixed-left').animate({ left: "-=100" }, 300);
+                $('.navbar-fixed-left').css('left', '');
+                $('.navbar-fixed-left').animate({ left: "-=100" }, 300);
             };
             $("#menu_btn").on('click', function(evt) {
                 //console.log('menuState:', self.menuState, evt);

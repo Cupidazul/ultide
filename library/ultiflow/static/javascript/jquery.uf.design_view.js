@@ -107,6 +107,10 @@ define([
                     });
                 });
 
+                $('#btn_settings').on('click', function(evt) {
+                    $('#main_navBar_welcome').click();
+                });
+
             },
 
             changeState: function(newState) {

@@ -44,11 +44,11 @@ DB_USER = {
 }
 
 PRJ = {
+    'DEFAULT_PRJID' : 'custom::custom_process',
     'DEFAULT_TITLE' : 'Workflow Process',
     'PROJECT_DIR'   : 'My Project',
     'WORKSPACE_DIR' : 'workspaces',
     'OPERATORS_DIR' : 'operators',
     'OPERATOR_DIR'  : 'custom_operator',
     'CONFIG_FILE'   : 'config.json',
-    'DEFAULT_PRJID' : 'custom::custom_process'
 }
