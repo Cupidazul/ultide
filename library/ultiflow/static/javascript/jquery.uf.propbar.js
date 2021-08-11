@@ -44,11 +44,11 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                     .resizable("option", { disabled: false });
             };
 
-            app.onEvent('ultiflow::operator_select', function(e, operatorId) {
+            app.onEvent('ultiflow::operator_select', function(evt, operatorId) {
                 self.displayOperatorParameters(operatorId);
             });
 
-            app.onEvent('ultiflow::operator_unselect', function(e) {
+            app.onEvent('ultiflow::operator_unselect', function(evt) {
                 if (self.operatorId != null) {
                     self.regenerateParameters();
                     self.els.content.empty();
@@ -57,11 +57,11 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                 }
             });
 
-            app.onEvent('ultiflow::link_select', function(e, linkId) {
+            app.onEvent('ultiflow::link_select', function(evt, linkId) {
                 self.displayLinkParameters(linkId);
             });
 
-            app.onEvent('ultiflow::link_unselect', function(e) {
+            app.onEvent('ultiflow::link_unselect', function(evt) {
                 if (self.linkId != null) {
                     self.els.content.empty();
                     self.els.nothing.Show(self.els);
@@ -144,25 +144,26 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                 $app.ultiflow.flowchart.els.flowchart.flowchart('setOperatorTitle', operatorId, $titleInput.val());
             });
 
-            if (typeof operatorTypeData.parameters != 'undefined') {
-                var operatorTypeParameters = this.processParameters(operatorTypeData.parameters);
-                for (var i = 0; i < operatorTypeParameters.length; i++) {
-                    var panelInfos = operatorTypeParameters[i];
-                    var $parametersList1 = $('<div class="uf-parameters-list"></div>');
-                    var $panel = helper.createPanel(panelInfos.title, $parametersList1);
+            if ($app.user.is_admin) // #SecurityRoles: Avoid non Admins from viewing/editing parameters
+                if (typeof operatorTypeData.parameters != 'undefined') {
+                    var operatorTypeParameters = this.processParameters(operatorTypeData.parameters);
+                    for (var i = 0; i < operatorTypeParameters.length; i++) {
+                        var panelInfos = operatorTypeParameters[i];
+                        var $parametersList1 = $('<div class="uf-parameters-list"></div>');
+                        var $panel = helper.createPanel(panelInfos.title, $parametersList1);
 
-                    for (var j = 0; j < panelInfos.fields.length; j++) {
-                        var propInfos = panelInfos.fields[j];
-                        var propKey = propInfos.id;
+                        for (var j = 0; j < panelInfos.fields.length; j++) {
+                            var propInfos = panelInfos.fields[j];
+                            var propKey = propInfos.id;
 
-                        var $divs = this.generateEmptyParameterField(propInfos.label);
-                        $parametersList1.append($divs.parameter);
-                        this.fillPropertyContent(operatorId, propKey, propInfos, $divs);
+                            var $divs = this.generateEmptyParameterField(propInfos.label);
+                            $parametersList1.append($divs.parameter);
+                            this.fillPropertyContent(operatorId, propKey, propInfos, $divs);
+                        }
+
+                        $panel.appendTo(this.els.content);
                     }
-
-                    $panel.appendTo(this.els.content);
                 }
-            }
 
 
         },

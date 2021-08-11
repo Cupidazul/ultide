@@ -3,6 +3,7 @@ import json
 import sys
 import platform
 from ultide.models import db, DevLang, Library
+import ultide.core as core
 from pprint import pprint
 
 def get_workspace(session_data):
@@ -31,7 +32,7 @@ def prep_config(session_data, config, config_path, oper_path, oper_name, proj_na
 
 def get_operators_infos(path, proj_name, session_data):
     items = os.listdir(path)
-    #pprint(('@lib/ultiflow/main: get_operators_infos:',path, items))
+    pprint(('@lib/ultiflow/main: get_operators_infos:',path, items))
     operators_tree = {}
     operators_list = {}
     for item in items:
@@ -118,7 +119,7 @@ def on_modules_infos(data, response, session_data):
         oper_path = workspace + os.path.sep + db.app.config['PRJ']['PROJECT_DIR'] + os.path.sep + db.app.config['PRJ']['OPERATORS_DIR']
         NewPRJ_DIR = oper_path + os.path.sep + db.app.config['PRJ']['OPERATOR_DIR']
         config_path = NewPRJ_DIR + os.path.sep + db.app.config['PRJ']['CONFIG_FILE']
-        print('@lib/ultiflow/main: on_modules_infos: path not found:' + workspace + ' Creating new Workspace!!! :' + config_path)
+        print('@lib/ultiflow/main: on_modules_infos: error: path not found: \'' + workspace + '\' Creating new Workspace!!! : ' + config_path)
         #copyfile('./templates/new_config.json', NewPRJ_DIR + os.path.sep + CONFIG_FILE)
         with open('./templates/new_config.json', 'r') as f:
             config = json.load(f)
@@ -126,7 +127,7 @@ def on_modules_infos(data, response, session_data):
             config['id']    = db.app.config['PRJ']['DEFAULT_PRJID']
             config['title'] = db.app.config['PRJ']['DEFAULT_TITLE']
             prep_config(session_data, config, config_path, oper_path, oper_name, proj_name)
-            on_saveNewProject(dict(cfg=config), None, None)
+            core.on_saveNewProject(dict(cfg=config), None, None)
 
     for dir_name in os.listdir(workspace):
         #print('@lib/ultiflow/main: on_modules_infos:proj_name:'+dir_name);
@@ -166,20 +167,3 @@ def on_get_os_config(data, response, session_data): # Still Unused .
     #pprint(('@lib/ultiflow/main: get_os_config.allvars:',all_vars))
     response['config'] = all_vars
 
-def on_getDefaultConfig(data, response, session_data):
-    response['raw']=open('templates/new_config.json').read()
-    response['json']=json.loads(response['raw'])
-
-def on_deleteProject(data, response, session_data):
-    print('@main: deleteProject: rmdir+file:', data['path'])
-    os.remove(data['path'])
-    os.rmdir(os.path.dirname(data['path']))
-
-def on_saveNewProject(data, response, session_data):
-    cfgPATH = os.path.dirname(data['cfg']['path'])
-    print('@main: saveNewProject: data.cfg.path:',os.getcwd(), cfgPATH)
-    #os.makedirs(os.getcwd() + "\\" + cfgPATH)
-    if (not os.path.isdir(cfgPATH)):
-        os.makedirs(cfgPATH)
-    with open(data['cfg']['path'], 'w') as f:
-        f.write( json.dumps( data['cfg'] ))

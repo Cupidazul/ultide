@@ -757,3 +757,21 @@ def on_execWorkflowProcess(data, response, session_data):
 
         else:
             print('@on_execWorkflowProcess['+procID+']: Error: Undefined Workflow Process')
+
+def on_getDefaultConfig(data, response, session_data):
+    response['raw']=open('templates/new_config.json').read()
+    response['json']=json.loads(response['raw'])
+
+def on_deleteProject(data, response, session_data):
+    print('@main: deleteProject: rmdir+file:', data['path'])
+    os.remove(data['path'])
+    os.rmdir(os.path.dirname(data['path']))
+
+def on_saveNewProject(data, response, session_data):
+    cfgPATH = os.path.dirname(data['cfg']['path'])
+    print('@main: saveNewProject: data.cfg.path:',os.getcwd(), cfgPATH)
+    #os.makedirs(os.getcwd() + "\\" + cfgPATH)
+    if (not os.path.isdir(cfgPATH)):
+        os.makedirs(cfgPATH)
+    with open(data['cfg']['path'], 'w') as f:
+        f.write( json.dumps( data['cfg'] ))
