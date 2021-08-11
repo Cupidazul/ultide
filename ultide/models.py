@@ -47,6 +47,9 @@ class User(db.Model, UserMixin):
     # │└───────── (64)  - Role 7
     # └────────── (128) - Admin
 
+    def user_exists(self, usrname):
+        return not (not User.query.filter(User.username==usrname).first())
+
     def add_user(self, user):
         new_user = User(
             first_name   = str(user['first_name']),

@@ -68,10 +68,11 @@ define([
         <li><a id="userSubMenuBtn2" href="#">Your Library` + (WIP || '') + `</a></li>
         <li><a id="userSubMenuBtn3" href="#">Your Projects` + (WIP || '') + `</a></li>
         <li class="divider"></li>
-        <li><a id="userSubMenuBtn4" href="#">Settings</a></li>
-        <li><a id="userSubMenuBtn5" href="#">Help` + (WIP || '') + `</a></li>
+        <li><a id="userSubMenuBtn4" href="#">Flowchart</a></li>
+        <li><a id="userSubMenuBtn5" href="#">Settings</a></li>
+        <li><a id="userSubMenuBtn6" href="#">Help` + (WIP || '') + `</a></li>
         <li class="divider"></li>
-        <li><a id="userSubMenuBtn6" href="/logout">Logout</a></li>
+        <li><a id="userSubMenuBtn7" href="/logout">Logout</a></li>
     </ul>
 </div>`);
             $userMenuBtn.appendTo(this.element.children()[0]);
@@ -83,6 +84,11 @@ define([
             });
 
             $('#userSubMenuBtn4').on('click', function(evt) {
+                $('#main_navBar_flowchart').click();
+                return false;
+            });
+
+            $('#userSubMenuBtn5').on('click', function(evt) {
                 if (!$app.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
                 $('#main_navBar_welcome').click();
                 $('#btnSH_userSettings').click();
@@ -370,9 +376,9 @@ define([
             }
 
             $('#userSettings-form').on('submit', function(evt) {
+                let _msg = '';
                 let CnfGrp = String($('#settings_group').val());
                 if (typeof(CnfGrp) == 'undefined') CnfGrp = 0;
-                // TODO: Check for duplicates in DB
                 if (String($('#settings_username').val()) != '' &&
                     String($('#settings_avatar').val()) != '' &&
                     String($('#settings_email').val()) != '' &&
@@ -400,25 +406,29 @@ define([
                                 _msg += "Update failed...<br>";
                             }
                             if (data.dif === false) _msg += "No changes detected to your settings...<br>";
+                            if (data.usr_exists === true) _msg += "Username allready exists...<br>";
                             $('#msgSettings').html(_msg);
                         });
                     }, 1);
                 } else {
                     if ($app.debug) console.log('@ult.main_view: add_new_user: error:', { 'evt': evt });
-                    if (String($('#settings_username').val()) == '') $('#msgSettings').html("You must insert a username");
-                    if (String($('#settings_email').val()) == '') $('#msgSettings').html("You must insert a email");
-                    if (String($('#settings_avatar').val()) == '') $('#msgSettings').html("You must select a avatar");
-                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) $('#msgSettings').html("Group should be a number from 0...255");
+                    if (String($('#settings_username').val()) == '') _msg += "You must insert a username<br>";
+                    if (String($('#settings_email').val()) == '') _msg += "You must insert a email<br>";
+                    if (String($('#settings_avatar').val()) == '') _msg += "You must select a avatar<br>";
+                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) _msg += "Group should be a number from 0...255<br>";
                 }
+
+                $('#msgSettings').html(_msg);
+
                 return false;
             });
 
             $('#adminNewUser-form').on('submit', function(evt) {
+                let _msg = '';
                 let NewPWD = String($('#new_new_pwd').val());
                 let CnfPWD = String($('#new_confirm_pwd').val());
                 let CnfGrp = String($('#new_group').val());
                 console.log('submit!', { 'this': this, 'evt': evt, 'NewPWD': NewPWD, 'CnfPWD': CnfPWD });
-                // TODO: Check for duplicates in DB
                 if (String($('#new_username').val()) != '' &&
                     String($('#new_email').val()) != '' &&
                     String($('#new_avatar').val()) != '' &&
@@ -447,23 +457,29 @@ define([
                                 } else {
                                     _msg += "User Creation failed...<br>";
                                 }
+
+                                if (data.usr_exists === true) _msg += "Username allready exists...<br>";
+
                                 $('#msgNewUser').html(_msg);
 
                             });
                         }, 1);
                     } else {
                         if ($app.debug) console.log('@ult.main_view: add_new_user: error:', { 'evt': evt });
-                        if (NewPWD != CnfPWD) $('#msgNewUser').html("New Password and Confirm don't match!");
+                        if (NewPWD != CnfPWD) _msg += "New Password and Confirm don't match!<br>";
                     }
                 } else {
                     if ($app.debug) console.log('@ult.main_view: add_new_user: error:', { 'evt': evt });
-                    if (NewPWD == '') $('#msgNewUser').html("you must insert a password");
-                    if (CnfPWD == '') $('#msgNewUser').html("you must insert a password");
-                    if (String($('#new_username').val()) == '') $('#msgNewUser').html("You must insert a username");
-                    if (String($('#new_email').val()) == '') $('#msgNewUser').html("You must insert a email");
-                    if (String($('#new_avatar').val()) == '') $('#msgNewUser').html("You must select a avatar");
-                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) $('#msgNewUser').html("Group should be a number from 0...255");
+                    if (NewPWD == '') _msg += "you must insert a password<br>";
+                    if (CnfPWD == '') _msg += "you must insert a confirm password<br>";
+                    if (String($('#new_username').val()) == '') _msg += "You must insert a username<br>";
+                    if (String($('#new_email').val()) == '') _msg += "You must insert a email<br>";
+                    if (String($('#new_avatar').val()) == '') _msg += "You must select a avatar<br>";
+                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) _msg += "Group should be a number from 0...255<br>";
                 }
+
+                $('#msgNewUser').html(_msg);
+
                 return false;
             });
 

@@ -116,26 +116,59 @@ def on_change_user_settings(data, response, session_data):
     user = current_user
     userData = json.loads(data['user'])
     response['res'] = False
+    response['usr_exists'] = False
     HasDiff = False
-    if ( not str(user.username) == str(userData['username'])): HasDiff = True
-    if ( not str(user.first_name) == str(userData['first_name'])): HasDiff = True
-    if ( not str(user.last_name) == str(userData['last_name'])): HasDiff = True
-    if ( not str(user.email) == str(userData['email'])): HasDiff = True
-    if userData.__contains__('group'): 
-        if ( not str(user.group) == str(userData['group'])): HasDiff = True
-    if ( not str(user.avatar) == str(userData['avatar'])): HasDiff = True
-    
-    pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
+    if ( not str(user.username) == str(userData['username']) and user.user_exists(userData['username']) ):
+        # New Username, but allready exists
+        response['usr_exists'] = True
+        pprint(('@on_change_user_settings: Error: User Allready Exists!', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
+    else:
+        if ( not str(user.username) == str(userData['username'])): HasDiff = True
+        if ( not str(user.first_name) == str(userData['first_name'])): HasDiff = True
+        if ( not str(user.last_name) == str(userData['last_name'])): HasDiff = True
+        if ( not str(user.email) == str(userData['email'])): HasDiff = True
+        if userData.__contains__('group'): 
+            if ( not str(user.group) == str(userData['group'])): HasDiff = True
+        if ( not str(user.avatar) == str(userData['avatar'])): HasDiff = True
 
-    if (HasDiff == True):
+        pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
+
+        if (HasDiff == True):
+            try:
+                user.username = userData['username']
+                user.first_name = userData['first_name']
+                user.last_name = userData['last_name']
+                user.email = userData['email']
+                if userData.__contains__('group'): user.group = userData['group']
+                user.avatar = userData['avatar']
+                user.save()
+                response['res'] = True
+            except Exception as err:
+                import traceback
+                exc_info = sys.exc_info()
+                #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+                ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+                response['error'] = sys.exc_info()[0]
+                pprint(('Error:',response['error'], ret))
+        else:
+            None
+    response['dif'] = HasDiff
+
+def on_add_new_user(data, response, session_data):
+    user = current_user
+    userData = json.loads(data['user'])
+    response['res'] = False
+    response['usr_exists'] = False
+
+    if ( user.user_exists(userData['username']) ):
+        # New Username, but allready exists
+        response['usr_exists'] = True
+        pprint(('@on_change_user_settings: Error: User Allready Exists!', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))
+    else:
+        pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))
+
         try:
-            user.username = userData['username']
-            user.first_name = userData['first_name']
-            user.last_name = userData['last_name']
-            user.email = userData['email']
-            if userData.__contains__('group'): user.group = userData['group']
-            user.avatar = userData['avatar']
-            user.save()
+            user.add_user(userData)
             response['res'] = True
         except Exception as err:
             import traceback
@@ -144,27 +177,6 @@ def on_change_user_settings(data, response, session_data):
             ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
             response['error'] = sys.exc_info()[0]
             pprint(('Error:',response['error'], ret))
-    else:
-        None
-    response['dif'] = HasDiff
-
-def on_add_new_user(data, response, session_data):
-    user = current_user
-    userData = json.loads(data['user'])
-    response['res'] = False
-
-    pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData }))
-
-    try:
-        user.add_user(userData)
-        response['res'] = True
-    except Exception as err:
-        import traceback
-        exc_info = sys.exc_info()
-        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
-        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
-        response['error'] = sys.exc_info()[0]
-        pprint(('Error:',response['error'], ret))
 
 def on_set_user_property(data, response, session_data):
     user = session_data['user']
