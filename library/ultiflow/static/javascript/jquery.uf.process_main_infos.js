@@ -28,7 +28,7 @@ define(['app'], function(app) {
 <nobr><div class="buttons" style="float: right;font-size: 10px;display: flex;padding-top: 5px;"><button class="zoom-in">Zoom In</button><button class="zoom-out">Zoom Out</button><input type="range" class="zoom-range" step="0.5" min="0.5" max="3"><button class="zoom-reset">Reset</button></div></nobr>
 `);
             this.els.buttons.appendTo(this.element);
-            this.els.title.prependTo(this.element.children('nobr')[0]);
+            this.els.title.prependTo(this.element.children('nobr')[0]); // 'Process Title': should go inside first nobr, topmost position.
 
             this.els.state = $('<span class="uf-process-state"><span class="uf-process-state-saving">Saving changes...</span><span class="uf-process-state-saved">Changes saved.</span><span class="uf-process-state-error">Error!</span></span>');
             this.els.state.appendTo(this.element);
