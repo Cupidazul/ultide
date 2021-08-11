@@ -157,11 +157,13 @@ def nocache(view):
 def login():
     error = None
     if request.method == 'POST':
-        email = request.form.get('email')
+        loginUSR = request.form.get('loginUSR')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
-        user = User.query.filter(User.email == email).first()
-        #if email != 'root@example.com' or password != 'root':
+        if loginUSR.find("@")>0 :
+            user = User.query.filter(User.email == loginUSR).first()
+        else:
+            user = User.query.filter(User.username == loginUSR).first()
         if not user or password.startswith('sha256$') or not user.verify_password(password): #SECURITY: FIX: disallow login with hash !
             error = 'Invalid Credentials. Please try again.'
             flash(error)
