@@ -15,6 +15,7 @@ import lzstring
 import zlib
 import base64
 import re
+import pytz
 
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..\\package.json'))).read())
 DEBUG = config.DEBUG
@@ -232,6 +233,12 @@ def on_get_js(data, response, session_data):
 
 def var_name(var):
     return (str([k for k, v in inspect.currentframe().f_back.f_locals.items() if v is var][0]))
+
+def datestr( _dtstr = '{:02}{:02}{:02}{:02}{:02}{:02}', _timezone = config.TIMEZONE ):
+    if ( _dtstr == None or _dtstr=='' ) : _dtstr = '{:02}{:02}{:02}{:02}{:02}{:02}'
+    _tz = pytz.timezone(_timezone)
+    now = datetime.datetime.now(_tz)
+    return _dtstr.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
 
 def mod_2_dict2(Modobj,options={}):
     all_vars = {}
