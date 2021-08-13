@@ -32,6 +32,10 @@ PERL_BIN                        = "/usr/bin/perl"
 PERL_EXEC                       = ""
 PYTHON_BIN                      = "/usr/bin/python3"
 PYTHON_EXEC                     = ""
+NODE_EXEC                       = ""
+TCL_EXEC                        = ""
+EXPECT_EXEC                     = ""
+
 PASSWORD_ENCRYPTION_METHOD      = "pbkdf2:sha256"
 PASSWORD_SALT_LENGTH            = 16
 

@@ -9,12 +9,15 @@ we will try to include most used programming languages...
 
 For now we are focusing on:
 
-* Perl   (WIP)
-* Python (WIP)
+* Perl
+* Python
+* NodeJS (WIP)
+* Expect (WIP)
+* TCL (WIP)
 * others (WIP)
 
 We will try to use json with input/output options that permits us to modularize each programming language, so as to input and output values
-as our needs.
+as our needs. This will be a basis for an Network Automation System.
 
 ## Phylosophy
 
