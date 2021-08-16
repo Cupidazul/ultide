@@ -150,7 +150,11 @@ def on_get_os_versions(data, response, session_data):
     response['python-Modules'] = ''
     response['perl'] = ''
     response['perl-Modules'] = ''
-    
+    response['tcl'] = ''
+    response['tcl-Modules'] = ''
+    response['expect'] = ''
+    response['expect-Modules'] = ''
+
     if DevLang.query.filter(DevLang.lang_name=='python').first():
         devlang_python = DevLang.query.filter_by(lang_name='python').first()
         response['python'] = devlang_python.lang_version
@@ -160,6 +164,21 @@ def on_get_os_versions(data, response, session_data):
         devlang_perl = DevLang.query.filter_by(lang_name='perl').first()
         response['perl'] = devlang_perl.lang_version
         response['perl-Modules'] = devlang_perl.lang_modules
+
+    if DevLang.query.filter(DevLang.lang_name=='tcl').first():
+        devlang_tcl = DevLang.query.filter_by(lang_name='tcl').first()
+        response['tcl'] = devlang_tcl.lang_version
+        response['tcl-Modules'] = devlang_tcl.lang_modules
+
+    if DevLang.query.filter(DevLang.lang_name=='expect').first():
+        devlang_expect = DevLang.query.filter_by(lang_name='expect').first()
+        response['expect'] = devlang_expect.lang_version
+        response['expect-Modules'] = devlang_expect.lang_modules
+
+    if DevLang.query.filter(DevLang.lang_name=='node').first():
+        devlang_node = DevLang.query.filter_by(lang_name='node').first()
+        response['node'] = devlang_node.lang_version
+        response['node-Modules'] = devlang_node.lang_modules
 
 def on_get_os_config(data, response, session_data): # Still Unused .
     all_vars = dict()

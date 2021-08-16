@@ -71,6 +71,15 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                 if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
                     app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
                 }
+                if (app.versions.os['tcl-Modules'].charAt(0) === '{') { // if is json
+                    app.versions.os['tcl-Modules'] = JSON.parse(app.versions.os['tcl-Modules']);
+                }
+                if (app.versions.os['expect-Modules'].charAt(0) === '{') { // if is json
+                    app.versions.os['expect-Modules'] = JSON.parse(app.versions.os['expect-Modules']);
+                }
+                if (app.versions.os['node-Modules'].charAt(0) === '{') { // if is json
+                    app.versions.os['node-Modules'] = JSON.parse(app.versions.os['node-Modules']);
+                }
                 if ($app.debug) console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
                 ultiflow.versions = app.versions;
                 ultiflow.app = app;

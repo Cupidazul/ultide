@@ -1,3 +1,4 @@
+import os
 import sys
 import json
 import subprocess
@@ -129,7 +130,12 @@ class DevLang(db.Model):
     lang_modules = db.Column(db.Text(),      nullable=False, server_default='')
 
     def get_version_perl ():  # returns perl version
-        cmd = [ 'perl', '-e print $^V;' ]
+        perlExe = 'perl'
+        if (os.name == 'nt'):
+            perlExe = config.PERL_EXEC.replace('/','\\')
+        else:
+            perlExe = config.PERL_BIN
+        cmd = [ perlExe, '-e print $^V;' ]
         ret = ''
         try:
             ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
@@ -138,7 +144,12 @@ class DevLang(db.Model):
         return ret.replace("v","").replace("\r\n","")
 
     def get_version_perl_modules ():  # returns perl modules
-        cmd = [ 'perl', '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
+        perlExe = 'perl'
+        if (os.name == 'nt'):
+            perlExe = config.PERL_EXEC.replace('/','\\')
+        else:
+            perlExe = config.PERL_BIN
+        cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
         ret = ''
         try:
             ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
@@ -147,7 +158,12 @@ class DevLang(db.Model):
         return ret.replace("\r\n","").replace("'","\"")
 
     def get_version_python ():  # returns python version
-        cmd = [ sys.executable, '--version' ]
+        pythonExe = sys.executable
+        if (os.name == 'nt'):
+            pythonExe = config.PYTHON_EXEC.replace('/','\\')
+        else:
+            pythonExe = config.PYTHON_BIN
+        cmd = [ pythonExe, '--version' ]
         ret = ''
         try:
             ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
@@ -163,6 +179,116 @@ class DevLang(db.Model):
             obj[i.key] = i.version
             all_packages.update( obj )
         return json.dumps(all_packages)
+
+    def get_version_tcl ():  # returns tcl version
+        cmd = []
+        tclExe = 'tclsh'
+        if (os.name == 'nt'):
+            tclExe = config.TCL_EXEC.replace('/','\\')
+            cmd = [ 'cmd', '/c', 'echo puts -nonewline [info patchlevel]|' + tclExe ]
+        else:
+            tclExe = config.TCL_BIN
+            cmd = [ 'echo puts -nonewline [info patchlevel]|' + tclExe ]
+
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret
+
+    def get_version_tcl_modules ():  # returns tcl modules
+        cmd = []
+        tclExe = 'tclsh'
+        if (os.name == 'nt'):
+            tclExe = config.TCL_EXEC.replace('/','\\')
+            cmd = [ 'cmd', '/c', "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s'$x':'$v';set s {,};};puts -nonewline \{$t\};|" + tclExe]
+        else:
+            tclExe = config.TCL_BIN
+            cmd = [ "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s{'$x':'$v'};set s {,};};puts -nonewline $t;|" + tclExe]
+
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("'","\"")
+
+    def get_version_expect ():  # returns expect version
+        cmd = []
+        expectExe = 'expect'
+        if (os.name == 'nt'):
+            expectExe = config.EXPECT_EXEC.replace('/','\\')
+            cmd = [ 'cmd', '/c', 'echo send_user [info patchlevel]|' + expectExe ]
+        else:
+            expectExe = config.EXPECT_BIN
+            cmd = [ 'echo send_user [info patchlevel]|' + expectExe ]
+
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret
+
+    def get_version_expect_modules ():  # returns expect modules
+        cmd = []
+        expectExe = 'expect'
+        if (os.name == 'nt'):
+            expectExe = config.EXPECT_EXEC.replace('/','\\')
+            cmd = [ 'cmd', '/c', "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s'$x':'$v';set s {,};};send_user \{$t\};|" + expectExe]
+        else:
+            expectExe = config.EXPECT_BIN
+            cmd = [ "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s{'$x':'$v'};set s {,};};send_user $t;|" + expectExe]
+
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("'","\"")
+
+    def get_version_node ():  # returns node version
+        nodeExe = 'node'
+        if (os.name == 'nt'):
+            nodeExe = config.NODE_EXEC.replace('/','\\')
+        else:
+            nodeExe = config.NODE_BIN
+        cmd = [ nodeExe, '--version' ]
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("v","").replace("\r\n","") + ( ' (npm: '+ DevLang.get_version_npm()+')' )
+
+    def get_version_npm ():  # returns npm version
+        npmExe = 'npm'
+        if (os.name == 'nt'):
+            npmExe = config.NPM_EXEC.replace('/','\\')
+        else:
+            npmExe = config.NPM_BIN
+        cmd = [ npmExe, '--version' ]
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return ret.replace("\n","")
+
+    def get_version_node_modules ():  # returns node GLOBAL modules from npm
+        npmExe = 'npm'
+        if (os.name == 'nt'):
+            npmExe = config.NPM_EXEC.replace('/','\\')
+        else:
+            npmExe = config.NPM_BIN
+        cmd = [ npmExe, '-g', 'list', '--json' ]
+        ret = ''
+        try:
+            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+        except Exception as e:
+            print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
+        return json.dumps(json.loads(ret.replace("\r\n","").replace("'","\"")))
 
 class Library(db.Model):
     id = db.Column(db.Integer, primary_key=True)

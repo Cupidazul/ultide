@@ -138,6 +138,40 @@ else:
     devlang_perl.lang_version = DevLang.get_version_perl()
     devlang_perl.lang_modules = DevLang.get_version_perl_modules()
     db.session.commit()
+
+if (DEBUG): print('@server: Loading: tcl info...');sys.stdout.flush();
+if not DevLang.query.filter(DevLang.lang_name=='tcl').first():
+    devlang_tcl = DevLang(lang_name='tcl', lang_version=DevLang.get_version_tcl(), lang_modules=DevLang.get_version_tcl_modules())
+    db.session.add(devlang_tcl)
+    db.session.commit()
+else:
+    devlang_tcl = DevLang.query.filter_by(lang_name='tcl').first()
+    devlang_tcl.lang_version = DevLang.get_version_tcl()
+    devlang_tcl.lang_modules = DevLang.get_version_tcl_modules()
+    db.session.commit()
+
+if (DEBUG): print('@server: Loading: expect info...');sys.stdout.flush();
+if not DevLang.query.filter(DevLang.lang_name=='expect').first():
+    devlang_expect = DevLang(lang_name='expect', lang_version=DevLang.get_version_expect(), lang_modules=DevLang.get_version_expect_modules())
+    db.session.add(devlang_expect)
+    db.session.commit()
+else:
+    devlang_expect = DevLang.query.filter_by(lang_name='expect').first()
+    devlang_expect.lang_version = DevLang.get_version_expect()
+    devlang_expect.lang_modules = DevLang.get_version_expect_modules()
+    db.session.commit()
+
+if (DEBUG): print('@server: Loading: node info...');sys.stdout.flush();
+if not DevLang.query.filter(DevLang.lang_name=='node').first():
+    devlang_node = DevLang(lang_name='node', lang_version=DevLang.get_version_node(), lang_modules=DevLang.get_version_node_modules())
+    db.session.add(devlang_node)
+    db.session.commit()
+else:
+    devlang_node = DevLang.query.filter_by(lang_name='node').first()
+    devlang_node.lang_version = DevLang.get_version_node()
+    devlang_node.lang_modules = DevLang.get_version_node_modules()
+    db.session.commit()
+
 ## DevLang init db .FINISH.
 
 def nocache(view):

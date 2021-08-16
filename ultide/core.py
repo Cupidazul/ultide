@@ -395,7 +395,13 @@ def on_perl_CodeRun(data, response, session_data):
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
     if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
 
-    cmd = [ 'perl' ]
+    perlExe = 'perl'
+    if (os.name == 'nt'):
+        perlExe = config.PERL_EXEC
+    else:
+        perlExe = config.PERL_BIN
+
+    cmd = [ perlExe ]
     perlopts = {}
     if data.__contains__('opts'): perlopts = data['opts']
 
@@ -439,14 +445,14 @@ def on_perl_CodeRun(data, response, session_data):
 
         print('@on_perl_CodeRun: script', temp_script_path)
 
-        #cmd = [ 'perl', '-e ' + perlobj['perl_init'].replace("\n","") ]
-        cmd = [ 'perl', temp_script_path ]
+        #cmd = [ perlExe, '-e ' + perlobj['perl_init'].replace("\n","") ]
+        cmd = [ perlExe, temp_script_path ]
 
         if ( hasattr(config, "PERL_EXEC") and config.PERL_EXEC !='' ):
             cmd = [ config.PERL_EXEC, temp_script_path ]
     else:
         pprint(('@on_perl_CodeRun: RunScript:',data))
-        cmd = [ 'perl' , data['script']['perl_script_file'], data['parm']]
+        cmd = [ perlExe , data['script']['perl_script_file'], data['parm']]
 
     print('@on_perl_CodeRun: cmd:',cmd)
     ret = ''
@@ -473,7 +479,13 @@ def on_python_CodeRun(data, response, session_data):
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
     if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
 
-    cmd = [ 'python' ]
+    pythonExe = sys.executable
+    if (os.name == 'nt'):
+        pythonExe = config.PYTHON_EXEC
+    else:
+        pythonExe = config.PYTHON_BIN
+
+    cmd = [ pythonExe ]
     pythonopts = {}
     if data.__contains__('opts'): pythonopts = data['opts']
 
@@ -496,7 +508,7 @@ def on_python_CodeRun(data, response, session_data):
 
         print('@on_python_CodeRun: script', temp_script_path)
 
-        cmd = [ 'python', temp_script_path ]
+        cmd = [ pythonExe, temp_script_path ]
 
         if ( hasattr(config, "PYTHON_EXEC") and config.PYTHON_EXEC != '' ):
             cmd = [ config.PYTHON_EXEC, temp_script_path ]
@@ -504,7 +516,7 @@ def on_python_CodeRun(data, response, session_data):
         print ('@on_python_CodeRun: cmd:',cmd)
     else:
         pprint(('@on_python_CodeRun: RunScript:',data))
-        cmd = [ 'python' , data['script']['python_script_file'], data['parm']]
+        cmd = [ pythonExe , data['script']['python_script_file'], data['parm']]
         
     ret = ''
     try:
