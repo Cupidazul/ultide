@@ -74,7 +74,7 @@ define(['app'], function(app) {
                 self.setProcess(operatorData);
             });
 
-            app.onEvent('ultiflow::process_change_detected', function(e) {
+            app.onEvent('ultiflow::process_change_detected', function(evt) {
                 self.setState('saving');
             });
 
