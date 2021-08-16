@@ -19,14 +19,35 @@ define(['app'], function(app) {
             //this.els.title.appendTo(this.element);
 
             var BtnStatus = '<button id="btn_ioStatus" class="btn">PyServer</button>';
+            var Btns = $(`` +
+                `
+<div class="col-md-4">
+    <div class="input-group" style="float: left;left: -6px;top: -1px;">
+        <button type="button" class="btn btn-default btn input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');">
+            <li class="fa fa-cog"></li>
+        </button>
+        <button id="btn_save" type="button" class="btn btn-default btn input-group-addon" title="Save">
+            <li class="fa fa-save"></li>
+        </button>
+        <button id="btn_play" type="button" class="btn btn-default btn input-group-addon" title="Run">
+            <li class="fa fa-play"></li>
+        </button>
+    </div>
+    <div class="input-group">
+        <button id="" type="button" class="btn btn-default btn input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -3px;" onclick="$app.main_view.showView('welcome');">
+            <li class="glyphicon glyphicon-blackboard"></li>
+        </button>
+    </div>
+</div>
+`);
             var BtnSettings = '<button id="btn_settings" title="Settings" class="fa fa-cog" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnSave = '<button id="btn_save" title="Save" class="fa fa-save" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnPlay = '<button id="btn_play" title="Run" class="fa fa-play" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnSelect = ''; //'<select id="btn_code_lang" class="selectpicker" style="font-size: 14px;"><option>Perl</option><option>Python</option></select>';
             self.els.buttons = $(`` +
                 `<nobr>` +
-                `   <div class="buttons" style="font-size: 10px;display: inline-flex;padding-left: 5%;height: -webkit-fill-available;position: relative;text-align: center;">` +
-                `       ${BtnSettings}&nbsp;${BtnSave}${BtnPlay}&nbsp;${BtnSelect}${BtnStatus}` +
+                `   <div class="buttons" style="font-size: 10px;display: inline-flex;position: relative;text-align: center;">` +
+                `       ${BtnStatus}` +
                 `   </div>` +
                 `</nobr>` +
                 `<nobr>` +
@@ -39,9 +60,11 @@ define(['app'], function(app) {
                 `</nobr>` +
                 ``);
             self.els.buttons.appendTo(self.element);
-            self.els.title.prependTo(self.element.children('nobr')[0]); // 'Process Title': should go inside first nobr, topmost position.
+            Btns.prependTo(self.element.children('nobr')[0]);
+            self.els.title.appendTo(self.element.children('nobr')[0]); // 'Process Title': should go inside first nobr, topmost position.
+            self.els.title.appendTo(self.element.children('nobr').children('div').children('div')[1]);
 
-            self.els.state = $('<span class="uf-process-state"><span class="uf-process-state-saving">Saving changes...</span><span class="uf-process-state-saved">Changes saved.</span><span class="uf-process-state-error">Error!</span></span>');
+            self.els.state = $('<span class="uf-process-state" style="position: relative;top: 5px;"><span class="uf-process-state-saving">Saving changes...</span><span class="uf-process-state-saved">Changes saved.</span><span class="uf-process-state-error">Error!</span></span>');
             self.els.state.appendTo(self.element);
 
             self.els.path = $('<span class="uf-process-path"></span>');

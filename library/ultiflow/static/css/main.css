@@ -402,3 +402,8 @@
     right: 8px;
     top: 14px;
 }
+
+.input-group-addon {
+    min-width: 40px;
+    min-height: 29px;
+}

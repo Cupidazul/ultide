@@ -795,3 +795,22 @@ def on_saveNewProject(data, response, session_data):
         os.makedirs(cfgPATH)
     with open(data['cfg']['path'], 'w') as f:
         f.write( json.dumps( data['cfg'] ))
+
+def ex_perl ():
+    if (os.name == 'nt'): return config.PERL_EXEC;
+    else: return config.PERL_BIN;
+def ex_python ():
+    if (os.name == 'nt'): return config.PYTHON_EXEC;
+    else: return config.PYTHON_BIN;
+def ex_tcl ():
+    if (os.name == 'nt'): return config.TCL_EXEC;
+    else: return config.TCL_BIN;
+def ex_expect ():
+    if (os.name == 'nt'): return config.EXPECT_EXEC;
+    else: return config.EXPECT_BIN;
+def ex_node ():
+    if (os.name == 'nt'): return config.NODE_EXEC;
+    else: return config.NODE_BIN;
+def ex_npm ():
+    if (os.name == 'nt'): return config.NPM_EXEC;
+    else: return config.NPM_BIN;
