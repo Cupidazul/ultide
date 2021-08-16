@@ -147,9 +147,11 @@ class DevLang(db.Model):
         perlExe = 'perl'
         if (os.name == 'nt'):
             perlExe = config.PERL_EXEC.replace('/','\\')
+            cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
         else:
             perlExe = config.PERL_BIN
-        cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
+            cmd = [ perlExe, '-MExtUtils::Installed', '-e', "use Data::Dumper; $i=ExtUtils::Installed->new(); $sep='';print '{';for $d ($i->modules()){ print $sep.\"'\".$d.\"':'\".$i->version($d).\"'\"; $sep=',';};print '}';" ]
+
         ret = ''
         try:
             ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
