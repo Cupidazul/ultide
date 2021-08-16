@@ -138,7 +138,7 @@ class DevLang(db.Model):
         cmd = [ perlExe, '-e print $^V;' ]
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("v","").replace("\r\n","")
@@ -152,7 +152,7 @@ class DevLang(db.Model):
         cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("\r\n","").replace("'","\"")
@@ -166,7 +166,7 @@ class DevLang(db.Model):
         cmd = [ pythonExe, '--version' ]
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("Python ","").replace("\r\n","")
@@ -192,7 +192,7 @@ class DevLang(db.Model):
 
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret
@@ -209,7 +209,7 @@ class DevLang(db.Model):
 
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("'","\"")
@@ -226,7 +226,7 @@ class DevLang(db.Model):
 
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret
@@ -243,7 +243,7 @@ class DevLang(db.Model):
 
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("'","\"")
@@ -257,7 +257,7 @@ class DevLang(db.Model):
         cmd = [ nodeExe, '--version' ]
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("v","").replace("\r\n","") + ( ' (npm: '+ DevLang.get_version_npm()+')' )
@@ -271,7 +271,7 @@ class DevLang(db.Model):
         cmd = [ npmExe, '--version' ]
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("\n","")
@@ -285,7 +285,7 @@ class DevLang(db.Model):
         cmd = [ npmExe, '-g', 'list', '--json' ]
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout, shell=True).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return json.dumps(json.loads(ret.replace("\r\n","").replace("'","\"")))

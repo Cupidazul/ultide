@@ -17,7 +17,8 @@ import base64
 import re
 import pytz
 
-PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..\\package.json'))).read())
+osSEP = '/' if ( not os.name == 'nt') else '\\';
+PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
 DEBUG = config.DEBUG
 sessions_data = {}
 
@@ -457,7 +458,7 @@ def on_perl_CodeRun(data, response, session_data):
     print('@on_perl_CodeRun: cmd:',cmd)
     ret = ''
     try:
-        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, encoding='UTF-8')
+        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
         print ('@on_perl_CodeRun: RetVal:', ret)
     except Exception as err:
         import traceback
@@ -520,7 +521,7 @@ def on_python_CodeRun(data, response, session_data):
         
     ret = ''
     try:
-        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, encoding='UTF-8')
+        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
         print ('@on_python_CodeRun: RetVal:', ret)
     except Exception as err:
         import traceback

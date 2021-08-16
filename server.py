@@ -36,13 +36,12 @@ elif async_mode == 'gevent':
 # In both cases it's recommended that you apply the monkey patching at the 
 # top of your main script, even above your imports.
 
-import ultide.config as config
 import os;
 from shutil import copyfile;
-
-DEBUG = config.DEBUG
 # DEFAULT CONFIG Setting: ./ultide/config.py.default -> ./ultide/config.py
 if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.default', './ultide/config.py');
+import ultide.config as config
+DEBUG = config.DEBUG
 
 import time
 from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, flash
