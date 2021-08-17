@@ -370,8 +370,8 @@ def AppInitScript():
     Script  =   '<script>'
     Script  +=      'window.$app=' + json.dumps(ExposeVars) + ';'
     Script  +=      "const uaData=(typeof(navigator.userAgentData)!=='undefined')?(navigator.userAgentData):{userAgent:navigator.userAgent};uaData.highEntropyValues={};(async ()=>{if (uaData.getHighEntropyValues) uaData.highEntropyValues=await uaData.getHighEntropyValues(['brands','mobile','platform','architecture','bitness','platform bitness','user agent','model','platformVersion','uaFullVersion']);})();"
-    Script  +=      'document.getElementsByTagName("base")[0].nextElementSibling.remove();'  #SECURITY: Magic!
-    Script  +=      'var require={waitSeconds: 15, urlArgs:"nocache="+new Date().getTime() };' # Setup require for CORS
+    Script  +=      'var require={waitSeconds: 15, urlArgs:"nocache="+new Date().getTime() };' #Setup require.js to avoid caching js
+    Script  +=      'document.getElementsByTagName("base")[0].nextElementSibling.remove();'    #SECURITY: Magic!
     Script  +=  '</script>'
     return Script
 
