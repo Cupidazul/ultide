@@ -121,7 +121,7 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                         $(ElVal).attr('id', NewID + '_o' + String(EditID));
 
                                         var ElStyle = 'position: relative; right: 54px; font-size: 10px; vertical-align: top; background: white; border-radius: 5px; border: 2px solid lightblue; width: 15px; height: 15px; padding-left: 2px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '');
-                                        $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times"' + ((String(EditID) === '0') ? ' disabled="disabled"' : '') + ' style="' + ElStyle + '"></li>');
+                                        $(ElVal).parent().after('<li id="' + delObjID + '" class="fa fa-times"' + ((String(CurrID) === 'custom::custom_process') ? ' disabled="disabled"' : '') + ' style="' + ElStyle + '"></li>');
 
                                         ElStyle = 'position: relative; right: 53px; vertical-align: top; background: white; border-radius: 5px; border: 2px solid lightblue; width: 15px; height: 15px; font-size: 8px; padding-left: 2px; padding-top: 1px;' + String(Boolean(CurrIsActive(CurrID) || !isMouseOver()) ? 'display:none;' : '');
                                         $(ElVal).parent().after('<li id="' + thisObjID + '" class="fa fa-pen" style="' + ElStyle + '"></li>');
