@@ -11,8 +11,8 @@ import os
 import zlib
 import base64
 
-osSEP = '/' if ( not os.name == 'nt') else '\\';
-sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..'+osSEP+'..'+osSEP+'..')));import ultide.core as UltideCore;
+osLF = '/' if ( not os.name == 'nt') else '\\';
+sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..'+osLF+'..'+osLF+'..')));import ultide.core as UltideCore;
 OUTPUT = UltideCore.decodeZlibString(sys.argv[1])
 
 print('PythonFinal: + ' + OUTPUT, end = '')

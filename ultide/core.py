@@ -17,8 +17,8 @@ import base64
 import re
 import pytz
 
-osSEP = '/' if ( not os.name == 'nt') else '\\';
-PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
+osLF = '/' if ( not os.name == 'nt') else '\\';
+PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osLF+'package.json'))).read())
 DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
@@ -134,7 +134,7 @@ def on_change_user_settings(data, response, session_data):
             if ( not str(user.group) == str(userData['group'])): HasDiff = True
         if ( not str(user.avatar) == str(userData['avatar'])): HasDiff = True
 
-        pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
+        if (DEBUG): pprint(('@on_change_user_settings:', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
 
         if (HasDiff == True):
             try:
@@ -366,7 +366,7 @@ def get_session_info( sdata, session_uuid ):
     return session_info
 
 def AppInitScript():
-    ExposeVars = {'debug':(bool(DEBUG)),'wwwroot':(str(WWWROOT)), 'pkg':{'ProductName':PKG['ProductName']} }     #SECURITY: carefull injecting vars into index.html template here!
+    ExposeVars = {'debug':(bool(DEBUG)),'wwwroot':(str(WWWROOT)),'osLF':(str(osLF)), 'pkg':{'ProductName':PKG['ProductName']} }     #SECURITY: carefull injecting vars into index.html template here!
     Script  =   '<script>'
     Script  +=      'window.$app=' + json.dumps(ExposeVars) + ';'
     Script  +=      "const uaData=(typeof(navigator.userAgentData)!=='undefined')?(navigator.userAgentData):{userAgent:navigator.userAgent};uaData.highEntropyValues={};(async ()=>{if (uaData.getHighEntropyValues) uaData.highEntropyValues=await uaData.getHighEntropyValues(['brands','mobile','platform','architecture','bitness','platform bitness','user agent','model','platformVersion','uaFullVersion']);})();"
@@ -392,7 +392,7 @@ def exception_as_dict(ex):
             
 def on_perl_CodeRun(data, response, session_data):
     workspace = session_data['user'].get_property('workspace')
-    print( ('@on_perl_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
+    if (DEBUG): print( ('@on_perl_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
 
     # Check if Exists: scripts <DIR> and create it if not...
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
@@ -446,7 +446,7 @@ def on_perl_CodeRun(data, response, session_data):
         # close the file descriptor
         os.close(fd)
 
-        print('@on_perl_CodeRun: script', temp_script_path)
+        if (DEBUG): print('@on_perl_CodeRun: script', temp_script_path)
 
         #cmd = [ perlExe, '-e ' + perlobj['perl_init'].replace("\n","") ]
         cmd = [ perlExe, temp_script_path ]
@@ -454,14 +454,14 @@ def on_perl_CodeRun(data, response, session_data):
         if ( hasattr(config, "PERL_EXEC") and config.PERL_EXEC !='' ):
             cmd = [ config.PERL_EXEC, temp_script_path ]
     else:
-        pprint(('@on_perl_CodeRun: RunScript:',data))
+        if (DEBUG): pprint(('@on_perl_CodeRun: RunScript:',data))
         cmd = [ perlExe , data['script']['perl_script_file'], data['parm']]
 
-    print('@on_perl_CodeRun: cmd:',cmd)
+    if (DEBUG): print('@on_perl_CodeRun: cmd:',cmd)
     ret = ''
     try:
         ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
-        print ('@on_perl_CodeRun: RetVal:', ret)
+        if (DEBUG): print('@on_perl_CodeRun: RetVal:', ret)
     except Exception as err:
         import traceback
         exc_info = sys.exc_info()
@@ -476,7 +476,7 @@ def on_perl_CodeRun(data, response, session_data):
 
 def on_python_CodeRun(data, response, session_data):
     workspace = session_data['user'].get_property('workspace')
-    print( ('@on_python_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
+    if (DEBUG): print( ('@on_python_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', ) )
 
     # Check if Exists: scripts <DIR> and create it if not...
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
@@ -509,22 +509,22 @@ def on_python_CodeRun(data, response, session_data):
         # close the file descriptor
         os.close(fd)
 
-        print('@on_python_CodeRun: script', temp_script_path)
+        if (DEBUG): print('@on_python_CodeRun: script', temp_script_path)
 
         cmd = [ pythonExe, temp_script_path ]
 
         if ( hasattr(config, "PYTHON_EXEC") and config.PYTHON_EXEC != '' ):
             cmd = [ config.PYTHON_EXEC, temp_script_path ]
 
-        print ('@on_python_CodeRun: cmd:',cmd)
+        if (DEBUG): print('@on_python_CodeRun: cmd:',cmd)
     else:
-        pprint(('@on_python_CodeRun: RunScript:',data))
+        if (DEBUG): pprint(('@on_python_CodeRun: RunScript:',data))
         cmd = [ pythonExe , data['script']['python_script_file'], data['parm']]
         
     ret = ''
     try:
         ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
-        print ('@on_python_CodeRun: RetVal:', ret)
+        if (DEBUG): print('@on_python_CodeRun: RetVal:', ret)
     except Exception as err:
         import traceback
         exc_info = sys.exc_info()
@@ -566,11 +566,11 @@ def on_execWorkflowProcess(data, response, session_data):
                         except Exception as err:
                             print('@on_execWorkflowProcess.load_file['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
                     
-                    print('load_file: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' +WfProcessList[procID][OutputVar])
+                    if (DEBUG): print('load_file: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' +WfProcessList[procID][OutputVar])
 
                 f.close()
             else:
-                print('load_file['+procID+']: File Not Found: \'' + WfProcess['p']['filepath']+'\'')
+                if (DEBUG): print('load_file['+procID+']: File Not Found: \'' + WfProcess['p']['filepath']+'\'')
 
         elif re.match(r".*::save_file", oType):
 
@@ -590,10 +590,10 @@ def on_execWorkflowProcess(data, response, session_data):
                         except Exception as err:
                             print('@on_execWorkflowProcess.save_file['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
                         
-                        print('save_file: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' +WfProcessList[procID][InputVar])
+                        if (DEBUG): print('save_file: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' +WfProcessList[procID][InputVar])
                 f.close()
             else:
-                print('save_file['+procID+']: File Not Found: \'' + WfProcess['p']['filepath']+'\'')
+                if (DEBUG): print('save_file['+procID+']: File Not Found: \'' + WfProcess['p']['filepath']+'\'')
 
         elif re.match(r".*::multiple_inputs_outputs", oType):
             #pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Init:',dict(fromLinks = WfProcess['tl'])))
@@ -628,18 +628,18 @@ def on_execWorkflowProcess(data, response, session_data):
                             parentOperID = WfProcess['fl'][_pIdx]['fromOperator']
 
                             WfProcess[OutputVar] = json.dumps(OutputVals) # json (join all data)
-                        pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Out:',dict(OutputVar=OutputVar, OutputVals=OutputVals, parentOperID=parentOperID, var=WfProcess[OutputVar])))
+                        if (DEBUG): pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Out:',dict(OutputVar=OutputVar, OutputVals=OutputVals, parentOperID=parentOperID, var=WfProcess[OutputVar])))
 
                     except Exception as err:
                         pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Error.Out:', err, dict(_pflink= _pflink, toLink= WfProcess['fl'], OutputVar=OutputVar, parentOutputVar=parentOutputVar ))) # To print out the exception message , print out the stdout messages up to the exception
 
                 try:
                     if (len(WfProcess['fl'])==2):
-                        print('multiple_inputs_outputs: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' val:'+ json.dumps(OutputVals) + ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +str(WfProcess['parents'][0]['id'])+','+str(WfProcess['parents'][1]['id']))
+                        if (DEBUG): print('multiple_inputs_outputs: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' val:'+ json.dumps(OutputVals) + ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +str(WfProcess['parents'][0]['id'])+','+str(WfProcess['parents'][1]['id']))
                     else:
-                        print('multiple_inputs_outputs: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' val:'+ json.dumps(OutputVals) + ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +str(WfProcess['parents'][0]['id']))
+                        if (DEBUG): print('multiple_inputs_outputs: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' val:'+ json.dumps(OutputVals) + ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +str(WfProcess['parents'][0]['id']))
 
-                    print('multiple_inputs_outputs: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' +WfProcessList[procID][OutputVar])
+                    if (DEBUG): print('multiple_inputs_outputs: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' +WfProcessList[procID][OutputVar])
                 except Exception as err:
                     pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Error:', err, dict(toLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
                                     
@@ -663,7 +663,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 except Exception as err:
                     print('@on_execWorkflowProcess.all_fields['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-                pprint(('all_fields['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals , ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
+                if (DEBUG): pprint(('all_fields['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals , ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
 
         elif re.match(r".*::perl_init", oType):
             for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
@@ -683,7 +683,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-                pprint(('perl_init['+procID+']: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' , WfProcessList[procID][InputVar]))
+                if (DEBUG): pprint(('perl_init['+procID+']: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' , WfProcessList[procID][InputVar]))
 
         elif re.match(r".*::python_init", oType):
             for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
@@ -704,7 +704,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-                pprint(('python_init['+procID+']: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' , WfProcessList[procID][InputVar]))
+                if (DEBUG): pprint(('python_init['+procID+']: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' , WfProcessList[procID][InputVar]))
 
         elif re.match(r".*::perl_script", oType):
 
@@ -726,7 +726,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-            pprint(('perl_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
+            if (DEBUG): pprint(('perl_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
@@ -740,7 +740,7 @@ def on_execWorkflowProcess(data, response, session_data):
             except Exception as err:
                     print('@on_execWorkflowProcess.perl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-            pprint(('perl_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' ', OutputVar , ' := '+ InputVar + ' val:'+ OutputVal+ ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
+            if (DEBUG): pprint(('perl_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' ', OutputVar , ' := '+ InputVar + ' val:'+ OutputVal+ ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
 
         elif re.match(r".*::python_script", oType):
 
@@ -762,7 +762,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-            pprint(('python_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
+            if (DEBUG): pprint(('python_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
@@ -776,7 +776,7 @@ def on_execWorkflowProcess(data, response, session_data):
             except Exception as err:
                     print('@on_execWorkflowProcess.python_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-            pprint(('python_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVal, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
+            if (DEBUG): pprint(('python_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVal, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
 
         else:
             print('@on_execWorkflowProcess['+procID+']: Error: Undefined Workflow Process')
@@ -786,13 +786,13 @@ def on_getDefaultConfig(data, response, session_data):
     response['json']=json.loads(response['raw'])
 
 def on_deleteProject(data, response, session_data):
-    print('@main: deleteProject: rmdir+file:', data['path'])
+    if (DEBUG): print('@main: deleteProject: rmdir+file:', data['path'])
     os.remove(data['path'])
     os.rmdir(os.path.dirname(data['path']))
 
 def on_saveNewProject(data, response, session_data):
     cfgPATH = os.path.dirname(data['cfg']['path'])
-    print('@main: saveNewProject: data.cfg.path:',os.getcwd(), cfgPATH)
+    if (DEBUG): print('@main: saveNewProject: data.cfg.path:',os.getcwd(), cfgPATH)
     #os.makedirs(os.getcwd() + "\\" + cfgPATH)
     if (not os.path.isdir(cfgPATH)):
         os.makedirs(cfgPATH)

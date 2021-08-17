@@ -882,7 +882,7 @@ define(['app', '_', 'bootstrap'], function(app, _) {
                             cfg.id = 'prj' + NewProjID + '::custom_process';
                             cfg.fs.oper_name = 'prj' + NewProjID + '::custom_process';
 
-                            cfg.path = cfg.fs.oper_path + "\\" + 'prj' + NewProjID + '_operator' + "\\config.json"; // "workspaces\\1\\My Project\\operators\\prj0_operator\\config.json";
+                            cfg.path = cfg.fs.oper_path + "/" + 'prj' + NewProjID + '_operator' + "/config.json"; // "workspaces\\1\\My Project\\operators\\prj0_operator\\config.json";
 
                             if ($app.debug) console.log('Save: cfg:', { cfg: cfg, EDIT_OBJ: $modal.edit_objDATA });
                             app.sendRequest('saveNewProject', { cfg: cfg, EDIT_OBJ: $modal.edit_objDATA }, function(response) {
