@@ -21,7 +21,7 @@
             <div class="container has-text-centered">
                 <div class="column is-4 is-offset-4">
                     <h3 class="title" style="color: #fff;border: 2px solid darkblue;padding: 5px;border-radius: 20px;background-color: #3082c5;box-shadow: 3px 3px #666;">
-                        <img src="/favicon.ico"> {{ pkg.ProductName }} Login
+                        <img src="./favicon.ico"> {{ pkg.ProductName }} Login
                     </h3>
                     <div class="box" style="background-color: lavender;">
                         {% with messages = get_flashed_messages() %} {% if messages %}
@@ -29,7 +29,7 @@
                             {{ messages[0] }}
                         </div>
                         {% endif %} {% endwith %}
-                        <form method="POST" action="/login">
+                        <form method="POST" action="./login">
                             <div class="field">
                                 <div class="control">
                                     <input class="input is-large" type="loginUSR" name="loginUSR" placeholder="Your User or Email" autofocus="">

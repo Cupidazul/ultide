@@ -72,7 +72,7 @@ define([
         <li><a id="userSubMenuBtn5" href="#">Settings</a></li>
         <li><a id="userSubMenuBtn6" href="#">Help` + (WIP || '') + `</a></li>
         <li class="divider"></li>
-        <li><a id="userSubMenuBtn7" href="/logout">Logout</a></li>
+        <li><a id="userSubMenuBtn7" href="./logout">Logout</a></li>
     </ul>
 </div>`);
             $userMenuBtn.appendTo(this.element.children()[0]);
@@ -498,7 +498,7 @@ define([
                                     _msg += "Password change sucessfull...<br>Logoff in <b id='countdown'>3</b> secs...";
 
                                     _fn_countdown(3, "countdown");
-                                    setTimeout(function() { document.location = '/logout'; }, 4000);
+                                    setTimeout(function() { document.location = './logout'; }, 4000);
 
                                 } else {
                                     _msg += "Change password failed...<br>";

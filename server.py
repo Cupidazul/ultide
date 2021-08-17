@@ -41,7 +41,8 @@ from shutil import copyfile;
 # DEFAULT CONFIG Setting: ./ultide/config.py.default -> ./ultide/config.py
 if (not os.path.isfile('./ultide/config.py')): copyfile('./ultide/config.py.default', './ultide/config.py');
 import ultide.config as config
-DEBUG = config.DEBUG
+DEBUG   = config.DEBUG
+WWWROOT = config.IO_SERVER['wwwroot']
 
 import time
 from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, flash
@@ -79,7 +80,7 @@ common.user_manager = UserManager(db_adapter, app)  # Initialize Flask-User
 
 # from: https://github.com/Faouzizi/Create_LoginPage
 login_manager = LoginManager() # Create a Login Manager instance
-login_manager.login_view = '/login' # define the redirection path when login required and we attempt to access without being logged in
+login_manager.login_view = WWWROOT + 'login' # define the redirection path when login required and we attempt to access without being logged in
 login_manager.init_app(app) # configure it for login
 @login_manager.user_loader
 def load_user(user_id): #reload user object from the user ID stored in the session
@@ -190,7 +191,7 @@ def nocache(view):
     return update_wrapper(no_cache, view)
 
 # Route for handling the login page logic
-@app.route('/login', methods=['GET', 'POST'])
+@app.route(WWWROOT+'login', methods=['GET', 'POST'])
 def login():
     error = None
     if request.method == 'POST':
@@ -206,30 +207,30 @@ def login():
             flash(error)
         else:
             login_user(user, remember=remember)
-            return redirect('/')
+            return redirect(WWWROOT)
     return render_template('login.html', pkg=PKG)#, error=error)
 
-@app.route('/logout') # define logout path
+@app.route(WWWROOT+'logout') # define logout path
 @login_required
 def logout(): #define the logout function
     logout_user()
     sessions_data.pop(session['uuid'], None)
-    return redirect('/login')
+    return redirect(WWWROOT+'login')
 
-@app.route('/')
+@app.route(WWWROOT)
 def index():
     session['uuid'] = str(uuid.uuid4())
     #pprint(('@server: current_user:', vars(current_user), 'login_manager:', vars(login_manager)));sys.stdout.flush();
     if ( current_user.is_active and current_user.is_authenticated):
         return render_template('index.html', AppInitScript=core.AppInitScript(), pkg=PKG)
     else:
-        return redirect('/login')
+        return redirect(WWWROOT+'login')
 
-@app.route('/favicon.ico') 
+@app.route(WWWROOT+'favicon.ico') 
 def favicon(): 
     return send_from_directory(os.path.join(app.root_path, 'templates'), 'favicon.ico', mimetype='image/x-icon')
 
-#@app.route('/package.json', methods=['GET'])
+#@app.route(WWWROOT+'package.json', methods=['GET'])
 #@nocache
 #def module_static():
 #    if (DEBUG): print('@server: load_static: ./package.json');sys.stdout.flush();
@@ -262,7 +263,7 @@ def msg_received(message):
     
     emit('msg', response)
     
-@app.route('/static/modules/<path:path>', methods=['GET'])
+@app.route(WWWROOT+'static/modules/<path:path>', methods=['GET'])
 @nocache
 def modules_static(path):
     session_data = core.get_session_data( sessions_data, session['uuid'] )

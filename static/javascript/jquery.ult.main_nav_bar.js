@@ -23,7 +23,7 @@ define([
             self.els.topNavBar.appendTo(self.element);
 
             // Migrated to User Menu Button
-            //self.els.logoutNavBar = $('<ul class="nav navbar-nav navbar-top"><li><a href="/logout">Logout</a></li></ul>');
+            //self.els.logoutNavBar = $('<ul class="nav navbar-nav navbar-top"><li><a href="./logout">Logout</a></li></ul>');
             //self.els.logoutNavBar.appendTo(self.element);
         },
 
