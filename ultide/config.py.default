@@ -6,7 +6,8 @@ import os
 IO_SERVER = {
     'host' : '0.0.0.0',
     'port' : '8000',
-    'wwwroot' : '/'             # for nginx-proxy purposes default must be: '/'
+    'wwwroot' : '/',            # for nginx-proxy purposes default must be: '/'
+    'cors' : ''                 # for CORS :nginx-https-proxy: set 'https://<servername>'
 }
 TIMEZONE = 'GMT+0'
 

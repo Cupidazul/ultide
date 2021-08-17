@@ -66,7 +66,7 @@ if not os.path.exists(data_dir): os.makedirs(data_dir)
 
 app = Flask(__name__)
 app.config.from_object(config)
-socketio = SocketIO(app, async_mode=async_mode)
+socketio = SocketIO(app, async_mode=async_mode, cors_allowed_origins=config.IO_SERVER['cors'])
 thread = None
 
 db.app = app

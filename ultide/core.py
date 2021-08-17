@@ -20,6 +20,7 @@ import pytz
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
 DEBUG = config.DEBUG
+WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
 
 def decodeZlibString(_str):
@@ -365,11 +366,12 @@ def get_session_info( sdata, session_uuid ):
     return session_info
 
 def AppInitScript():
-    ExposeVars = {'debug':(bool(DEBUG)), 'pkg':{'ProductName':PKG['ProductName']} }     #SECURITY: carefull injecting vars into index.html template here!
+    ExposeVars = {'debug':(bool(DEBUG)),'wwwroot':(str(WWWROOT)), 'pkg':{'ProductName':PKG['ProductName']} }     #SECURITY: carefull injecting vars into index.html template here!
     Script  =   '<script>'
     Script  +=      'window.$app=' + json.dumps(ExposeVars) + ';'
     Script  +=      "const uaData=(typeof(navigator.userAgentData)!=='undefined')?(navigator.userAgentData):{userAgent:navigator.userAgent};uaData.highEntropyValues={};(async ()=>{if (uaData.getHighEntropyValues) uaData.highEntropyValues=await uaData.getHighEntropyValues(['brands','mobile','platform','architecture','bitness','platform bitness','user agent','model','platformVersion','uaFullVersion']);})();"
     Script  +=      'document.getElementsByTagName("base")[0].nextElementSibling.remove();'  #SECURITY: Magic!
+    Script  +=      'var require={waitSeconds: 15, urlArgs:"nocache="+new Date().getTime() };' # Setup require for CORS
     Script  +=  '</script>'
     return Script
 

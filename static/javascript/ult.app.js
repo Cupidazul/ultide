@@ -31,7 +31,7 @@ define(['socket-io'], function(io) {
         var self = this;
         if ($app.debug) console.log('@ult.app: app.start: ', 'ws://' + self.config.server.host + ':' + self.config.server.port + '/uide doc.readyState:' + document.readyState);
 
-        self.socket = io.connect('ws://' + self.config.server.host + ':' + self.config.server.port + '/uide');
+        self.socket = io.connect(self.config.server.host + ':' + self.config.server.port + '/uide', { path: $app.wwwroot + 'socket.io/' });
         //self.socket.emit('get-session'); // not needed: 'refresh-session' is called in @server.py: socketio.on.connect !
         //console.log('@ult.app: socket-io: get-session!!!', { config: self.config });
 
