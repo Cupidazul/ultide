@@ -61,7 +61,7 @@ $(function() {
 
         // the constructor
         _create: function() {
-            console.log('@flowchart.flowchart: create!');
+            if ($app.debug) console.log('@flowchart.flowchart: create!');
 
             if (typeof document.__flowchartNumber == 'undefined') {
                 document.__flowchartNumber = 0;
