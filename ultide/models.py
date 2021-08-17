@@ -150,7 +150,7 @@ class DevLang(db.Model):
             cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
         else:
             perlExe = config.PERL_BIN
-            cmd = [ perlExe, '-MExtUtils::Installed', '-e', "use Data::Dumper; $i=ExtUtils::Installed->new(); $sep='';print '{';for $d ($i->modules()){ print $sep.\"'\".$d.\"':'\".$i->version($d).\"'\"; $sep=',';};print '}';" ]
+            cmd = [ perlExe, '-MExtUtils::Installed', '-e', "$i=ExtUtils::Installed->new(); $sep='';print '{';for $d ($i->modules()){ print $sep.\"'\".$d.\"':'\".$i->version($d).\"'\"; $sep=',';};print '}';" ]
 
         ret = ''
         try:
@@ -207,7 +207,7 @@ class DevLang(db.Model):
             cmd = [ 'cmd', '/c', "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s'$x':'$v';set s {,};};puts -nonewline \{$t\};|" + tclExe]
         else:
             tclExe = config.TCL_BIN
-            cmd = [ 'bash', '-c', "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s{'$x':'$v'};set s {,};};puts -nonewline $t;|" + tclExe]
+            cmd = [ 'bash', '-c', 'echo "set x [package require paths];set t {};set s {};foreach x [package names] { set v [package version \$x]; set t \"\$t\$s\\\'\$x\\\':\\\'\$v\\\'\";set s {,};};puts -nonewline \"\\\{\$t\\\}\"; " | ' + tclExe ]
 
         ret = ''
         try:
@@ -241,7 +241,7 @@ class DevLang(db.Model):
             cmd = [ 'cmd', '/c', "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s'$x':'$v';set s {,};};send_user \{$t\};|" + expectExe]
         else:
             expectExe = config.EXPECT_BIN
-            cmd = [ 'bash', '-c', "echo set x [package require paths];set t {};set s {};foreach x [package names] {set v [package version $x];set t $t$s{'$x':'$v'};set s {,};};send_user $t;|" + expectExe]
+            cmd = [ 'bash', '-c', 'echo "set x [package require paths];set t {};set s {};foreach x [package names] { set v [package version \$x]; set t \"\$t\$s\\\'\$x\\\':\\\'\$v\\\'\";set s {,};};send_user \"\\\{\$t\\\}\"; " | ' + expectExe ]
 
         ret = ''
         try:
