@@ -94,7 +94,8 @@ define(['app', 'ultiflow', '_', 'ultiflow-lib-jstree'], function(app, ultiflow, 
                                 })
                                 .on('mouseout', function(evt) {
                                     //console.log('mouseout!!', evt.offsetX);
-                                    if (evt.toElement && evt.toElement.className.baseVal === 'flowchart-links-layer' && !($app.ultiflow.flowchart.menuState)) {
+                                    var evtToElement = (evt.toElement || evt.relatedTarget || evt.target);
+                                    if (evtToElement && evtToElement.className.baseVal === 'flowchart-links-layer' && !($app.ultiflow.flowchart.menuState)) {
                                         setTimeout(function() {
                                             self.editTitleStop();
                                             $('.uf-side-bar.left').css('left', '-245px');
