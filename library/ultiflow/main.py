@@ -154,6 +154,8 @@ def on_get_os_versions(data, response, session_data):
     response['tcl-Modules'] = ''
     response['expect'] = ''
     response['expect-Modules'] = ''
+    response['node'] = ''
+    response['node-Modules'] = ''
 
     if DevLang.query.filter(DevLang.lang_name=='python').first():
         devlang_python = DevLang.query.filter_by(lang_name='python').first()
