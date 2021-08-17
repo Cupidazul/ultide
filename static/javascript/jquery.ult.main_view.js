@@ -56,7 +56,7 @@ define([
             var $menubtn = $('<button id="menu_btn" class="glyphicon glyphicon-menu-hamburger" style="position: fixed;top: 4px;margin-left: 20px;"></button>');
             $menubtn.appendTo(this.element.children()[0]);
 
-            var $userMenuBtn = $(`<div class="btn-group" role="group" style="float: right;right: 112px;float: right;right: 112px;top: 0px;position: absolute;">
+            var $userMenuBtn = $(`<div class="btn-group" role="group" style="float: right;right: 112px;top: 0px;position: absolute;">
     <div class="userMenuMask"></div>
     <button id="userMenuBtn1" type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img class="avatar" src="` + (user.avatar || '') + `">
