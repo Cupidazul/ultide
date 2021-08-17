@@ -32,7 +32,7 @@ def prep_config(session_data, config, config_path, oper_path, oper_name, proj_na
 
 def get_operators_infos(path, proj_name, session_data):
     items = os.listdir(path)
-    pprint(('@lib/ultiflow/main: get_operators_infos:',path, items))
+    if (core.DEBUG) : pprint(('@lib/ultiflow/main: get_operators_infos:',path, items))
     operators_tree = {}
     operators_list = {}
     for item in items:
@@ -59,7 +59,7 @@ def get_operators_infos(path, proj_name, session_data):
     return operators_tree, operators_list
 
 def update_operators_infos(directory, proj_name, operators_path, operators_list, operators_tree, session_data):
-    print('@lib/ultiflow/main: update_operators_infos:', directory, proj_name, operators_path)
+    if (core.DEBUG) : print('@lib/ultiflow/main: update_operators_infos:', directory, proj_name, operators_path)
     if (os.path.isdir(operators_path)):
         module_operators_tree, module_operators_list = get_operators_infos(operators_path, proj_name, session_data)
         operators_list.update(module_operators_list)
@@ -119,7 +119,7 @@ def on_modules_infos(data, response, session_data):
         oper_path = workspace + os.path.sep + db.app.config['PRJ']['PROJECT_DIR'] + os.path.sep + db.app.config['PRJ']['OPERATORS_DIR']
         NewPRJ_DIR = oper_path + os.path.sep + db.app.config['PRJ']['OPERATOR_DIR']
         config_path = NewPRJ_DIR + os.path.sep + db.app.config['PRJ']['CONFIG_FILE']
-        print('@lib/ultiflow/main: on_modules_infos: error: path not found: \'' + workspace + '\' Creating new Workspace!!! : ' + config_path)
+        if (core.DEBUG) : print('@lib/ultiflow/main: on_modules_infos: error: path not found: \'' + workspace + '\' Creating new Workspace!!! : ' + config_path)
         #copyfile('./templates/new_config.json', NewPRJ_DIR + os.path.sep + CONFIG_FILE)
         with open('./templates/new_config.json', 'r') as f:
             config = json.load(f)
