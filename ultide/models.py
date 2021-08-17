@@ -171,7 +171,7 @@ class DevLang(db.Model):
             ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
-        return ret.replace("Python ","").replace("\r\n","")
+        return ret.replace("Python ","").replace("\r\n","").replace("\n","")
 
     def get_version_python_modules ():  # returns python modules
         installed_packages = pkg_resources.working_set
