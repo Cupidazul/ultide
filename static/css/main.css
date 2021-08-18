@@ -156,11 +156,6 @@
     border-radius: 4px !important;
 }
 
-.menuicnBtnfixLeft {
-    max-height: 29px;
-    border-left: 1px solid #ccc !important;
-}
-
 .tblLabel {
     float: left;
     text-align: right;
