@@ -23,18 +23,18 @@ define(['app'], function(app) {
                 `
 <div class="col-md-4">
     <div class="input-group" style="float: left;left: -6px;top: -1px;">
-        <button type="button" class="btn btn-default btn input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');">
+        <button type="button" class="btn btn-default input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');">
             <li class="fa fa-cog"></li>
         </button>
-        <button id="btn_save" type="button" class="btn btn-default btn input-group-addon" title="Save">
+        <button id="btn_save" type="button" class="btn btn-default input-group-addon" title="Save">
             <li class="fa fa-save"></li>
         </button>
-        <button id="btn_play" type="button" class="btn btn-default btn input-group-addon" title="Run">
+        <button id="btn_play" type="button" class="btn btn-default input-group-addon" title="Run">
             <li class="fa fa-play"></li>
         </button>
     </div>
     <div class="input-group">
-        <button id="" type="button" class="btn btn-default btn input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -3px;" onclick="$app.main_view.showView('welcome');">
+        <button id="" type="button" class="btn btn-default input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -3px;" onclick="$app.main_view.showView('welcome');">
             <li class="glyphicon glyphicon-blackboard"></li>
         </button>
     </div>
@@ -46,16 +46,22 @@ define(['app'], function(app) {
             var BtnSelect = ''; //'<select id="btn_code_lang" class="selectpicker" style="font-size: 14px;"><option>Perl</option><option>Python</option></select>';
             self.els.buttons = $(`` +
                 `<nobr>` +
-                `   <div class="buttons" style="font-size: 10px;display: inline-flex;position: relative;text-align: center;">` +
+                `   <div class="col-md-2">` +
                 `       ${BtnStatus}` +
                 `   </div>` +
                 `</nobr>` +
                 `<nobr>` +
-                `   <div class="buttons" style="float: right;font-size: 10px;display: flex;padding-top: 5px;">` +
-                `       <button class="zoom-in">Zoom In</button>` +
-                `       <button class="zoom-out">Zoom Out</button>` +
+                `   <div class="col-md-3" style="float: right;display: flex;top: -1px;">` +
+                `       <button title="Zoom Out" class="zoom-out btn btn-default input-group-addon">` +
+                `           <li class="glyphicon glyphicon-zoom-out"></li>` +
+                `       </button>` +
+                `       <button title="Zoom In" class="zoom-in btn btn-default input-group-addon">` +
+                `           <li class="glyphicon glyphicon-zoom-in"></li>` +
+                `       </button>` +
                 `       <input type="range" class="zoom-range" step="0.5" min="0.5" max="3">` +
-                `       <button class="zoom-reset">Reset</button>` +
+                `       <button title="Zoom Reset" class="zoom-reset btn btn-default input-group-addon menuicnBtnfixLeft">` +
+                `           <li class="glyphicon glyphicon glyphicon-search"></li>` +
+                `       </button>` +
                 `   </div>` +
                 `</nobr>` +
                 ``);
@@ -65,10 +71,10 @@ define(['app'], function(app) {
             self.els.title.appendTo(self.element.children('nobr').children('div').children('div')[1]);
 
             self.els.state = $('<span class="uf-process-state" style="position: relative;top: 5px;"><span class="uf-process-state-saving">Saving changes...</span><span class="uf-process-state-saved">Changes saved.</span><span class="uf-process-state-error">Error!</span></span>');
-            self.els.state.appendTo(self.element);
+            self.els.state.appendTo(self.element.children('nobr').children('div')[1]);
 
-            self.els.path = $('<span class="uf-process-path"></span>');
-            self.els.path.appendTo(self.element);
+            //self.els.path = $('<span class="uf-process-path"></span>');
+            //self.els.path.appendTo(self.element);
 
             app.onEvent('ultiflow::process_open', function(evt, operatorData) {
                 self.setProcess(operatorData);

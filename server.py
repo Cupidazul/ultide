@@ -68,8 +68,8 @@ app = Flask(__name__)
 app.config.from_object(config)
 
 if (config.IO_SERVER.__contains__('cors') and config.IO_SERVER['cors']!='') :
-      socketio = SocketIO(app, async_mode=async_mode, logger=True if (DEBUG) else False, engineio_logger=True if (DEBUG) else False, cors_allowed_origins=config.IO_SERVER['cors'])
-else: socketio = SocketIO(app, async_mode=async_mode, logger=True if (DEBUG) else False, engineio_logger=True if (DEBUG) else False)
+      socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_logger=DEBUG, cors_allowed_origins=config.IO_SERVER['cors'])
+else: socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_logger=DEBUG)
 
 db.app = app
 db.init_app(app)
@@ -303,4 +303,4 @@ if __name__ == '__main__':
     else:
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
-    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG)
+    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG, log_output=DEBUG)
