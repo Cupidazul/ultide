@@ -598,50 +598,42 @@ def on_execWorkflowProcess(data, response, session_data):
         elif re.match(r".*::multiple_inputs_outputs", oType):
             #pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Init:',dict(fromLinks = WfProcess['tl'])))
             OutputVals = {}
+            # Cycle parent.data -> inputVars => Push into {OutputVals}
             for (_Idx, _pflink) in enumerate(WfProcess['fl']): # Link is Array := List
                 InputVar = _pflink['toConnector']
                 parentOutputVar = _pflink['fromConnector']
                 parentOperID = ''
-                for (_pIdx, _ppflink) in enumerate(WfProcess['tl']):
-                    try:
-                        #pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Init:',dict( InputVar = InputVar, parentOutputVar = parentOutputVar, fromLinksParents = _pflink['fromOperator'], parentID= WfProcess['parents'][_pIdx]['id'])))
-                        if (_pflink['fromOperator'] == WfProcess['parents'][_pIdx]['id']):
-                            OutputVar = WfProcess['tl'][_pIdx]['fromConnector']
-                            OutputVals[OutputVar] = ''
-                            parentOperID = WfProcess['fl'][_pIdx]['fromOperator']
+                try:
+                    #pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Init:',dict( InputVar = InputVar, parentOutputVar = parentOutputVar, fromLinksParents = _pflink['fromOperator'], parentID= WfProcess['parents'][_pIdx]['id'])))
+                    OutputVals[InputVar] = ''
+                    parentOperID = WfProcess['fl'][_Idx]['fromOperator']
 
-                            OutputVals[OutputVar] = str(WfProcessList[parentOperID][parentOutputVar])
-                            #pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: In:',dict(OutputVar=OutputVar, parentOutputVar=parentOutputVar, parentOperID=parentOperID, var=OutputVals[OutputVar])))
-                    except Exception as err:
-                        pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Error.In:', err, dict(_pflink= _pflink, fromLink= WfProcess['tl'], OutputVar=OutputVar, parentOutputVar=parentOutputVar ))) # To print out the exception message , print out the stdout messages up to the exception
-
-            # Repeat Cycle to json both inputVars to outputVars
-            for (_Idx, _pflink) in enumerate(WfProcess['fl']): # Link is Array := List
-                InputVar = _pflink['toConnector']
-                parentOutputVar = _pflink['fromConnector']
-                parentOperID = ''
-                for (_pIdx, _ppflink) in enumerate(WfProcess['tl']):
-                    try:
-                        if (_pflink['fromOperator'] == WfProcess['parents'][_pIdx]['id']):
-                            OutputVar = WfProcess['tl'][_pIdx]['fromConnector']
-                            WfProcess[OutputVar] = ''
-                            parentOperID = WfProcess['fl'][_pIdx]['fromOperator']
-
-                            WfProcess[OutputVar] = json.dumps(OutputVals) # json (join all data)
-                        if (DEBUG): pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Out:',dict(OutputVar=OutputVar, OutputVals=OutputVals, parentOperID=parentOperID, var=WfProcess[OutputVar])))
-
-                    except Exception as err:
-                        pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Error.Out:', err, dict(_pflink= _pflink, toLink= WfProcess['fl'], OutputVar=OutputVar, parentOutputVar=parentOutputVar ))) # To print out the exception message , print out the stdout messages up to the exception
+                    OutputVals[InputVar] = str(WfProcessList[parentOperID][parentOutputVar])
+                    pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: In:',dict(InputVar=InputVar, parentOutputVar=parentOutputVar, parentOperID=parentOperID, OutputVals=OutputVals)))
+                except Exception as err:
+                    pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: Error.In:', err, dict(_pflink= _pflink, fromLink= WfProcess['fl'], OutputVals=OutputVals ))) # To print out the exception message , print out the stdout messages up to the exception
 
                 try:
-                    if (len(WfProcess['fl'])==2):
-                        if (DEBUG): print('multiple_inputs_outputs: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' val:'+ json.dumps(OutputVals) + ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +str(WfProcess['parents'][0]['id'])+','+str(WfProcess['parents'][1]['id']))
-                    else:
-                        if (DEBUG): print('multiple_inputs_outputs: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' val:'+ json.dumps(OutputVals) + ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +str(WfProcess['parents'][0]['id']))
-
-                    if (DEBUG): print('multiple_inputs_outputs: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' +WfProcessList[procID][OutputVar])
+                    if (DEBUG): print('fl.multiple_inputs_outputs['+procID+']: In: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' +OutputVals[InputVar])
                 except Exception as err:
-                    pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Error:', err, dict(toLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
+                    pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: Error:', err, dict(fromLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
+
+            # Repeat Cycle to json both inputVars to outputVars
+            for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
+                OutputVar = _pflink['fromConnector']
+                try:
+                    WfProcess[OutputVar] = ''
+                    WfProcess[OutputVar] = json.dumps(OutputVals) # json (join all data)
+
+                    if (DEBUG): pprint(('@on_execWorkflowProcess.tl.multiple_inputs_outputs['+procID+']: Out:',dict(OutputVar=OutputVar, OutputVals=OutputVals, var=WfProcess[OutputVar])))
+
+                except Exception as err:
+                    pprint(('@on_execWorkflowProcess.tl.multiple_inputs_outputs['+procID+']: Error.Out:', err, dict(_pflink= _pflink, toLink= WfProcess['tl'], OutputVar=OutputVar ))) # To print out the exception message , print out the stdout messages up to the exception
+
+                try:
+                    if (DEBUG): print('tl.multiple_inputs_outputs: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' +WfProcessList[procID][OutputVar])
+                except Exception as err:
+                    pprint(('@on_execWorkflowProcess.tl.multiple_inputs_outputs['+procID+']: Error:', err, dict(toLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
                                     
         elif re.match(r".*::all_fields", oType):
 
@@ -667,7 +659,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
         elif re.match(r".*::perl_init", oType):
             for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
-                InputVar = _pflink['fromConnector']
+                OutputVar = _pflink['fromConnector']
                 #WfProcess[InputVar] = 'Teste123'
                 #_data = {}
                 #_data['cmd'] = json.dumps(WfProcess['p']) # Perl Parameters to JSON
@@ -677,13 +669,13 @@ def on_execWorkflowProcess(data, response, session_data):
                 #WfProcess[InputVar] = ''
                 #try: WfProcess[InputVar] = response['RetVal']
                 try:
-                    WfProcess[InputVar] = {}
-                    WfProcess[InputVar].update(WfProcess['p'])
-                    WfProcess[InputVar].update({'RetVal':response['RetVal']})
+                    WfProcess[OutputVar] = {}
+                    WfProcess[OutputVar].update(WfProcess['p'])
+                    WfProcess[OutputVar].update({'RetVal':str(response['RetVal'])})
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-                if (DEBUG): pprint(('perl_init['+procID+']: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' , WfProcessList[procID][InputVar]))
+                if (DEBUG): pprint(('perl_init['+procID+']: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' , WfProcessList[procID][OutputVar] , type(WfProcessList[procID][OutputVar]), len(str(WfProcessList[procID][OutputVar]))))
 
         elif re.match(r".*::python_init", oType):
             for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List

@@ -59,7 +59,7 @@ define(['socket-io'], function(io) {
                                 self.session = data;
                                 app.user = app.config.user = Object.assign(self.config.io.initial_session_data.user, app.config.user);
                                 //app.debug = app.config.debug = Object.assign(self.config.io.debug, app.config.debug);
-                                //try { if (window.$app) window.$app.user = app.config.user; } catch (err) {}
+                                try { if (window.$app) window.$app.user = app.config.user; } catch (err) {}
 
                                 // WaitFor: #btn_ioStatus
                                 let checkExist = setInterval(function() {
