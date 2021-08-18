@@ -679,24 +679,24 @@ def on_execWorkflowProcess(data, response, session_data):
 
         elif re.match(r".*::python_init", oType):
             for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
-                InputVar = _pflink['fromConnector']
-                #WfProcess[InputVar] = 'Teste123'
+                OutputVar = _pflink['fromConnector']
+                #WfProcess[OutputVar] = 'Teste123'
                 #_data = {}
                 #_data['cmd'] = json.dumps(WfProcess['p']) # Python Parameters to JSON
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
                 on_python_CodeRun( RunCmd, response, session_data)
                 
-                #WfProcess[InputVar] = ''
-                #try: WfProcess[InputVar] = response['RetVal']
+                #WfProcess[OutputVar] = ''
+                #try: WfProcess[OutputVar] = response['RetVal']
                 try:
-                    WfProcess[InputVar] = {}
-                    WfProcess[InputVar].update(WfProcess['p'])
-                    WfProcess[InputVar].update({'RetVal':response['RetVal']})
+                    WfProcess[OutputVar] = {}
+                    WfProcess[OutputVar].update(WfProcess['p'])
+                    WfProcess[OutputVar].update({'RetVal':response['RetVal']})
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
-                if (DEBUG): pprint(('python_init['+procID+']: SetVar: WfProcessList['+procID+'].'+InputVar+' := ' , WfProcessList[procID][InputVar]))
+                if (DEBUG): pprint(('python_init['+procID+']: SetVar: WfProcessList['+procID+'].'+OutputVar+' := ' , WfProcessList[procID][OutputVar]))
 
         elif re.match(r".*::perl_script", oType):
 
