@@ -823,6 +823,8 @@ def ex_npm ():
     if (os.name == 'nt'): return config.NPM_EXEC;
     else: return config.NPM_BIN;
 
+# UltideVARS functions START
+
 def uri_escape(val):
     try: return parse.quote(val, safe='', encoding='utf-8')
     except: return val
@@ -834,16 +836,24 @@ VARS={}
 RAWOUTPUT=''
 OUTPUT= ''
 
-def UltideInitVARS(_arg = sys.argv[1]):
-    _readVARS( processOUTPUT(_arg) )
+def UltideInitVARS(_arg = None):
+    try:
+        if (_arg == None): _arg = sys.argv[1]
+    except: None
+    if (type(_arg) is str):
+        _readVARS( processOUTPUT(_arg) )
 
-def processOUTPUT(_arg = sys.argv[1]):
+def processOUTPUT(_arg = None):
     global RAWOUTPUT, OUTPUT
-    RAWOUTPUT = decodeZlibString(_arg)
-    OUTPUT = json.loads(RAWOUTPUT)
-    setVAR ( '__OUTPUT__', OUTPUT)
-    setVAR ( '__RAWOUTPUT__', RAWOUTPUT)
-    return OUTPUT
+    try:
+        if (_arg == None): _arg = sys.argv[1]
+    except: None
+    if (type(_arg) is str):
+        RAWOUTPUT = decodeZlibString(_arg)
+        OUTPUT = json.loads(RAWOUTPUT)
+        setVAR ( '__OUTPUT__', OUTPUT)
+        setVAR ( '__RAWOUTPUT__', RAWOUTPUT)
+        return OUTPUT
 
 def unescapeOnce(val):
     if (val) :
@@ -879,7 +889,7 @@ def setVAR(key, val):
 def readVARS(obj = None,root = ''):
     global OUTPUT
     if (obj == None): obj = OUTPUT
-    if (obj): _readVARS(obj,root)
+    if (type(obj) in [str, dict]): _readVARS(obj,root)
 
 def _sub_readVARS(k,v):
     global VARS
