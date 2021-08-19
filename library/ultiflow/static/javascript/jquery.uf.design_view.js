@@ -97,8 +97,24 @@ define([
                     var whatCode = $('#btn_code_lang').val();
                     //if (whatCode == 'Perl') $app.ultiflow.PerlCodeRun();
                     //if (whatCode == 'Python') $app.ultiflow.PythonCodeRun();
+                    $app.ultiflow.CodeRunning();
                     $app.ultiflow.anyCodeRun();
                 });
+                app.ultiflow.CodeRunning = function() {
+                    $app.ultiflow.Codeisrunning = true;
+                    $('#btn_play').prop('disabled', true);
+                    $('#btn_play').children().removeClass('fa-play').addClass('fa-cog fa-spin');
+                };
+                app.ultiflow.CodeFinished = function(codeResult) {
+                    $app.ultiflow.Codeisrunning = false;
+                    $('#btn_play').prop('disabled', false);
+                    Object.keys(codeResult).forEach(function(elIdx) {
+                        $('#codeInfo' + String(elIdx)).remove();
+                        var codeInfo = $('<li id="codeInfo' + String(elIdx) + '" class="btn fa fa-info-circle code-info-btn"></li>');
+                        codeInfo.appendTo($app.flowchart.data.operators[elIdx].internal.els.title);
+                    });
+                    $('#btn_play').children().removeClass('fa-cog fa-spin').addClass('fa-play');
+                };
 
                 $('#btn_save').on('click', function(evt) {
                     //console.log('btn_save:', evt);

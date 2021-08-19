@@ -393,7 +393,9 @@ define(['app', '_', 'bootstrap'], function(app, _) {
             // START: HERE!
             app.sendRequest('execWorkflowProcess', { 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
                 if ($app.debug) console.log('execWorkflowProcess: ', response);
-                app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+                //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
+                $app.ultiflow.CodeRes = response;
+                $app.ultiflow.CodeFinished(response);
             });
         });
 

@@ -407,3 +407,17 @@
     min-width: 40px;
     min-height: 29px;
 }
+
+.code-info-btn {
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    color: #d007;
+    background-color: #ff07;
+    width: 20px;
+    height: 19px;
+    padding-left: 2px;
+    padding-top: 2px;
+    border-radius: 9px;
+    border: 1px solid;
+}

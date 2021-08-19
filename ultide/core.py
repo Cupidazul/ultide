@@ -472,7 +472,7 @@ def on_perl_CodeRun(data, response, session_data):
     if ( perlopts.__contains__('del_script') and perlopts['del_script'] == 1 ):
         os.remove(temp_script_path) # delete temp file
 
-    response['RetVal'] = ret
+    data['RetVal'] = ret
 
 def on_python_CodeRun(data, response, session_data):
     workspace = session_data['user'].get_property('workspace')
@@ -535,7 +535,7 @@ def on_python_CodeRun(data, response, session_data):
     if ( pythonopts.__contains__('del_script') and pythonopts['del_script'] == 1 ):
         os.remove(temp_script_path) # delete temp file
 
-    response['RetVal'] = ret
+    data['RetVal'] = ret
 
 def on_execWorkflowProcess(data, response, session_data):
     x = lzstring.LZString()
@@ -549,6 +549,7 @@ def on_execWorkflowProcess(data, response, session_data):
         procIDs.append(WfProcess['id']) # Honor ProcessID Original Array sequence
 
     for procID in procIDs:
+        if (not response.__contains__(procID)): response[procID] = {}   # Polulate response[#procID: 0...99] = store results of scripts
         WfProcess = WfProcessList[procID]
         #pprint(('WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
         #print('Operator.type:',WfProcess['o']['type'])
@@ -563,6 +564,7 @@ def on_execWorkflowProcess(data, response, session_data):
                         WfProcess[OutputVar] = ''
                         try:
                             WfProcess[OutputVar] = f.read() # 'Load File'.data = <file_data>
+                            response[procID].update({OutputVar:WfProcess[OutputVar]})
                         except Exception as err:
                             print('@on_execWorkflowProcess.load_file['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
                     
@@ -585,6 +587,7 @@ def on_execWorkflowProcess(data, response, session_data):
                             parentOperID = WfProcess['fl'][0]['fromOperator']
                             OutputVal = str(WfProcessList[parentOperID][parentOutputVar])
                             WfProcess[InputVar] = OutputVal
+                            response[procID].update({InputVar:WfProcess[InputVar]})
                             f.write( WfProcess[InputVar] )
 
                         except Exception as err:
@@ -628,6 +631,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
                     WfProcess[OutputVar].update({OutputVar:json.dumps(OutputVals)})
+                    response[procID].update(WfProcess[OutputVar])
 
                     if (DEBUG): pprint(('@on_execWorkflowProcess.tl.multiple_inputs_outputs['+procID+']: Out:', dict(OutputVar=OutputVar, OutputVals=OutputVals, var=WfProcess[OutputVar])))
 
@@ -656,7 +660,7 @@ def on_execWorkflowProcess(data, response, session_data):
                         OutputVals = str(WfProcessList[parentOperID][parentOutputVar])
 
                     WfProcess[OutputVar].update({OutputVar:OutputVals})
-
+                    response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.all_fields['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -670,7 +674,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 #_data['cmd'] = json.dumps(WfProcess['p']) # Perl Parameters to JSON
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
-                on_perl_CodeRun( RunCmd, response, session_data)
+                on_perl_CodeRun( RunCmd, response, session_data )
                 #WfProcess[InputVar] = ''
                 #try: WfProcess[InputVar] = response['RetVal']
                 try:
@@ -679,7 +683,8 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -693,7 +698,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 #_data['cmd'] = json.dumps(WfProcess['p']) # Python Parameters to JSON
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
-                on_python_CodeRun( RunCmd, response, session_data)
+                on_python_CodeRun( RunCmd, response, session_data )
                 
                 #WfProcess[OutputVar] = ''
                 #try: WfProcess[OutputVar] = response['RetVal']
@@ -703,7 +708,8 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -733,14 +739,15 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
-            on_perl_CodeRun( RunCmd, response, session_data)
+            on_perl_CodeRun( RunCmd, response, session_data )
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.perl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -770,14 +777,15 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
-            on_python_CodeRun( RunCmd, response, session_data)
+            on_python_CodeRun( RunCmd, response, session_data )
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.python_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
