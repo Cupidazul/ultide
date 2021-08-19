@@ -16,6 +16,7 @@ import zlib
 import base64
 import re
 import pytz
+from urllib import parse
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
@@ -448,7 +449,6 @@ def on_perl_CodeRun(data, response, session_data):
 
         if (DEBUG): print('@on_perl_CodeRun: script', temp_script_path)
 
-        #cmd = [ perlExe, '-e ' + perlobj['perl_init'].replace("\n","") ]
         cmd = [ perlExe, temp_script_path ]
 
         if ( hasattr(config, "PERL_EXEC") and config.PERL_EXEC !='' ):
@@ -516,11 +516,11 @@ def on_python_CodeRun(data, response, session_data):
         if ( hasattr(config, "PYTHON_EXEC") and config.PYTHON_EXEC != '' ):
             cmd = [ config.PYTHON_EXEC, temp_script_path ]
 
-        if (DEBUG): print('@on_python_CodeRun: cmd:',cmd)
     else:
         if (DEBUG): pprint(('@on_python_CodeRun: RunScript:', data))
         cmd = [ pythonExe , data['script']['python_script_file'], data['parm']]
         
+    if (DEBUG): print('@on_python_CodeRun: cmd:',cmd)
     ret = ''
     try:
         ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
@@ -674,10 +674,12 @@ def on_execWorkflowProcess(data, response, session_data):
                 #WfProcess[InputVar] = ''
                 #try: WfProcess[InputVar] = response['RetVal']
                 try:
+                    # Preprocess vars for OUTPUT
+                    WfProcess['p']['perl_init'] = parse.quote( pystache.render(WfProcess['p']['perl_init'], vars(config)) , safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal':str(response['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -696,10 +698,12 @@ def on_execWorkflowProcess(data, response, session_data):
                 #WfProcess[OutputVar] = ''
                 #try: WfProcess[OutputVar] = response['RetVal']
                 try:
+                    # Preprocess vars for OUTPUT
+                    WfProcess['p']['python_init'] = parse.quote( pystache.render(WfProcess['p']['python_init'], vars(config)) , safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal':response['RetVal']})
+                    WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -731,12 +735,12 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
             on_perl_CodeRun( RunCmd, response, session_data)
 
-            try:                                
+            try:
                 #WfProcess[OutputVar] = response['RetVal']
-                WfProcess[OutputVar] = {}
+                WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal':response['RetVal']})
+                WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
             except Exception as err:
                     print('@on_execWorkflowProcess.perl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
@@ -770,10 +774,10 @@ def on_execWorkflowProcess(data, response, session_data):
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
-                WfProcess[OutputVar] = {}
+                WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal':response['RetVal']})
+                WfProcess[OutputVar].update({'RetVal': str(response['RetVal'])})
             except Exception as err:
                     print('@on_execWorkflowProcess.python_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
