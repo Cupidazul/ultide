@@ -11,22 +11,23 @@ use MIME::Base64;
 use URI::Escape;
 use utf8;
 
-BEGIN { push(@INC, ($ENV{'PWD'}||'.')."/ultide"); }; use core; UltideInitVARS();
+BEGIN { push(@INC, ($ENV{'PWD'}||'.')."/ultide"); };
+use UltideCore;
+UltideInitVARS();
 
-#print("\n\nOUTPUT:::",Dumper($core::OUTPUT));
-#print("\n\nVARS:::",Dumper($core::VARS));
-#
-#print("\ngetVAR:",
-#Dumper( 
-#        \{(
-#            'Multiple%203%20Ins%2FOuts.output_2.input_1' => getVAR('Multiple%203%20Ins%2FOuts.output_2.input_1'),
-#            'Multiple%203%20Ins%2FOuts.output_2.input_2' => getVAR('Multiple%203%20Ins%2FOuts.output_2.input_2'),
-#            'Multiple%203%20Ins%2FOuts.output_2.input_3' => getVAR('Multiple%203%20Ins%2FOuts.output_2.input_3'),
-#            'Perl: Init.perl_init' => getVAR('Perl: Init.perl_init'),
-#            '__RAWOUTPUT__' => getVAR('__RAWOUTPUT__', 1 ),
-#            '__OUTPUT__' => getVAR('__OUTPUT__'),
-#        )}
+#print("\n\nOUTPUT:::",Dumper($UltideCore::OUTPUT));
+#print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
+
+#print("\n\ngetVAR:",
+#Dumper({
+#            'Multiple 3 Ins/Outs.output_2.input_1' => getVAR('Multiple 3 Ins/Outs.output_2.input_1'),
+#            'Multiple 3 Ins/Outs.output_2.input_2' => getVAR('Multiple 3 Ins/Outs.output_2.input_2'),
+#            'Multiple 3 Ins/Outs.output_2.input_3' => getVAR('Multiple 3 Ins/Outs.output_2.input_3'),
+#            'Perl: Init.perl_init'                 => getVAR('Perl: Init.perl_init'),
+#            '__RAWOUTPUT__'                        => getVAR('__RAWOUTPUT__', 1 ),
+#            '__OUTPUT__'                           => getVAR('__OUTPUT__'),
+#        }
 #    )
 #);
 
-print("Internal: test_perl_script_01 + ", $core::RAWOUTPUT||'' );
+print("Internal: test_perl_script_01 + \n RAWOUTPUT:", $UltideCore::RAWOUTPUT||'', "\n OUTPUT:", Dumper($UltideCore::OUTPUT||'') );

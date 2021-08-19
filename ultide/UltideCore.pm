@@ -1,4 +1,4 @@
-package core;
+package UltideCore;
 
 use 5.010;
 use strict 'vars';

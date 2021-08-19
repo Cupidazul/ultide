@@ -7,7 +7,7 @@ import os
 import os.path
 import imp
 from flask_login import current_user
-from pprint import pprint
+from pprint import pprint, pformat
 import inspect
 import pystache
 import subprocess
@@ -822,3 +822,127 @@ def ex_node ():
 def ex_npm ():
     if (os.name == 'nt'): return config.NPM_EXEC;
     else: return config.NPM_BIN;
+
+def uri_escape(val):
+    try: return parse.quote(val, safe='', encoding='utf-8')
+    except: return val
+def uri_unescape(val):
+    try: return parse.unquote(val, encoding='utf-8')
+    except: return val
+
+VARS={}
+RAWOUTPUT=''
+OUTPUT= ''
+
+def UltideInitVARS(_arg = sys.argv[1]):
+    _readVARS( processOUTPUT(_arg) )
+
+def processOUTPUT(_arg = sys.argv[1]):
+    global RAWOUTPUT, OUTPUT
+    RAWOUTPUT = decodeZlibString(_arg)
+    OUTPUT = json.loads(RAWOUTPUT)
+    setVAR ( '__OUTPUT__', OUTPUT)
+    setVAR ( '__RAWOUTPUT__', RAWOUTPUT)
+    return OUTPUT
+
+def unescapeOnce(val):
+    if (val) :
+        if (uri_unescape(val) == val): return val;                # key is not escaped. return!
+        else                         : return uri_unescape(val);  # key is escaped. return unescaped!
+
+def escapeOnce(val):
+    if (val) :
+        if (uri_unescape(val) == val): return uri_escape(val);   # key is not escaped. escape!
+        else                         : return val;               # escape not needed!
+
+def getVAR(key, dont_escape=False):
+    global VARS
+    val = ''
+    if (key):
+        try:  
+            if (VARS[key])            : val = VARS[key]
+        except: None
+        try:  
+            if (VARS[uri_escape(key)]): val = VARS[uri_escape(key)] 
+        except: None
+    return unescapeOnce(val) if dont_escape else val
+
+def setVAR(key, val):
+    global VARS
+    if (key):
+        _retObj = {}
+        _retKey = {}
+        _retKey = escapeOnce(key)
+        _retObj = VARS[_retKey] = val; # we could simply: unescapeOnce($val)
+        return ( _retObj, _retKey )
+
+def readVARS(obj = None,root = ''):
+    global OUTPUT
+    if (obj == None): obj = OUTPUT
+    if (obj): _readVARS(obj,root)
+
+def _sub_readVARS(k,v):
+    global VARS
+    if ( type(v) is dict ):
+            for k1 in v:
+                v1 = v[k1]
+                if ( type(v1) is dict ):
+                    if (k1 != 'name'):
+                        if ( type(v1) is str and re.match(r"^\{", v1) ):
+                            try:
+                                (_obj, _objNm) = setVAR( escapeOnce(v1['name']) , json.dumps(v1))
+                                _readVARS(_obj, _objNm)
+                            except: None
+                        else:
+                            try:
+                                (_obj, _objNm) = setVAR( escapeOnce(v1['name']) , v1)
+                                _readVARS(_obj, _objNm)
+                            except: None
+            if (k != 'name'):
+                if ( type(v) is str and re.match(r"^\{", v) ):
+                    try:
+                        (_obj, _objNm) = setVAR( escapeOnce(v['name']) , json.dumps(v))
+                        _readVARS(_obj, _objNm)
+                    except: None
+                else:
+                    try:
+                        (_obj, _objNm) = setVAR( escapeOnce(v['name']) , v)
+                        _readVARS(_obj, _objNm)
+                    except: None
+                #_readVARS(v, k);
+    return not type(v) is dict
+
+def _readVARS(obj, root = None):
+    if (root == None): root = ''
+    
+    for k in obj:
+        v = obj[k]
+        try: 
+            if ( type(v) is str and re.match(r"^\{\'", v) ): v = re.sub(r'\'', '"', v)
+        except: None
+
+        #print("\n\nreadVARS: ->>", pformat((v, k)), ' <<-' )
+
+        if ( _sub_readVARS(k,v) ):
+            if (k != 'name'):
+                #if (root != ''): setVAR( root+'.'+escapeOnce(k), v )
+                #else           : setVAR(  'root.'+escapeOnce(k), v )
+
+                if ( type(v) is str and re.match(r"^\{", str(v)) ):
+                    try:
+                        (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , json.loads(v))
+                        _readVARS(_obj, _objNm)
+                        #_readVARS(json.loads(v), k);
+                    except: None
+                else:
+                    try:
+                        (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , v)
+                        _readVARS(_obj, _objNm)
+                        #_readVARS(v, k);
+                    except: None
+
+                try: v = json.loads(v)
+                except: None
+                _sub_readVARS(k,v)
+
+    if (root == ''): setVAR( 'root', obj )
