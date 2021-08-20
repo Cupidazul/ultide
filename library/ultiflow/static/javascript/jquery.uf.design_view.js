@@ -112,6 +112,13 @@ define([
                         $('#codeInfo' + String(elIdx)).remove();
                         var codeInfo = $('<li id="codeInfo' + String(elIdx) + '" class="btn fa fa-info-circle code-info-btn"></li>');
                         codeInfo.appendTo($app.flowchart.data.operators[elIdx].internal.els.title);
+                        codeInfo.data('opID', elIdx);
+                        codeInfo.on('click', function(evt) {
+                            evt.stopImmediatePropagation();
+                            var evtToElement = (evt.toElement || evt.relatedTarget || evt.target);
+                            $app.ultiflow.showCodeInfo($(evtToElement).data('opID'));
+                            return false;
+                        });
                     });
                     $('#btn_play').children().removeClass('fa-cog fa-spin').addClass('fa-play');
                 };
