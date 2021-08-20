@@ -224,7 +224,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         });
     };
 
-    ultiflow.CompileCode = function(_data, StartOpID) {
+    ultiflow.CompileCode = function(_data, _runCodeNow = true, _cronFile = '') {
         let _Code = '';
         let _linkTree = {};
         // # Generate LinkTree basics with operators and parameters
@@ -389,18 +389,22 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
             _Jlz = $app.lzString.compressToBase64(_J);
             if ($app.debug) console.log('CompileCode finalProcessListJSON Sizes: JSONstr:' + _J.length + ' Lz:' + _Jlz.length + ' CompressRate:' + parseInt(((_J.length - _Jlz.length) / _J.length) * 100) + '%');
 
-            // **1 - Migrate to Python! for Cron offline workflow execution to be possible...
-            // START: HERE!
-            app.sendRequest('execWorkflowProcess', { 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
-                if ($app.debug) console.log('execWorkflowProcess: ', { response: response });
-                //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
-                $app.ultiflow.CodeRes = response;
-                $app.ultiflow.CodeFinished(response);
-            });
+            if (_runCodeNow) {
+                app.sendRequest('execWorkflowProcess', { 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
+                    if ($app.debug) console.log('execWorkflowProcess: ', { response: response });
+                    $app.ultiflow.CodeRes = response;
+                    $app.ultiflow.CodeFinished(response);
+                });
+            } else {
+                // **1 - Savefile to Python! for Cron offline workflow execution to be possible...
+                app.sendRequest('saveWorkflowProcess', { 'cronFile': _cronFile, 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
+                    if ($app.debug) console.log('saveWorkflowProcess: ', { response: response });
+                });
+            }
         });
 
-        //if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, rootProcessTree: rootProcessTree, finalProcessList: finalProcessList });
-        if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, StartOpID: StartOpID, finalProcessList: finalProcessList });
+        //if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, rootProcessTree: rootProcessTree, finalProcessList: finalProcessList });
+        if ($app.debug) console.log('CompileCode Process:', { _linkTree: _linkTree, finalProcessList: finalProcessList });
 
         return _Code;
     };
@@ -411,7 +415,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         try { _data = ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process; /*$app.ultiflow.flowchart.data; # TooMuch Data to jsonStringify*/ } catch (er) {}
         if ($app.debug) console.log('jsonPerlCodeRun: processData:', _data);
         if (_data !== null) {
-            ultiflow.CompileCode(_data, '');
+            ultiflow.CompileCode(_data);
             // var jsonPerlCodeRun = '';
             // Object.entries(_data.operators).forEach(elm => {
             //     const [oKey, oVal] = elm;
@@ -421,7 +425,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
             //         if (oVal.type && (oVal.type === 'perl_procs::perl_init')) {
             //             // Run through Hierarchy:
             //             // window.infos = contains info from last dropped object
-            //             ultiflow.CompileCode(_data, oKey);
+            //             ultiflow.CompileCode(_data);
             //             jsonPerlCodeRun = JSON.stringify(_data.parameters[oKey]);
             //         }
             //     }
@@ -438,13 +442,23 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         }
     };
 
+    ultiflow.anyCodeSaveCron = function(_filename) {
+        var _self = this;
+        var _data = null;
+        try { _data = ultiflow.processData.process; } catch (er) {}
+        if ($app.debug) console.log('jsonCodeRun: processData:', _data);
+        if (_data !== null) {
+            ultiflow.CompileCode(_data, false, _filename);
+        }
+    };
+
     ultiflow.anyCodeRun = function() {
         var _self = this;
         var _data = null;
         try { _data = ultiflow.processData.process; } catch (er) {}
         if ($app.debug) console.log('jsonCodeRun: processData:', _data);
         if (_data !== null) {
-            ultiflow.CompileCode(_data, '');
+            ultiflow.CompileCode(_data);
         }
     };
 
@@ -454,7 +468,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         try { _data = ultiflow.processData.process; } catch (er) {}
         if ($app.debug) console.log('jsonPythonCodeRun: processData:', _data);
         if (_data !== null) {
-            ultiflow.CompileCode(_data, '');
+            ultiflow.CompileCode(_data);
             //var jsonPythonCodeRun = '';
             //Object.entries(_data.operators).forEach(elm => {
             //    const [oKey, oVal] = elm;

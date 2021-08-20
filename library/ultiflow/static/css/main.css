@@ -445,3 +445,7 @@
     left: 0;
     right: 0;
 }
+
+.border-left-0 {
+    border-left: none;
+}

@@ -315,8 +315,11 @@ define([
                 `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default btn input-group-addon" title="Change Password">` +
                 `               <li class="fa fa-key"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon" title="New User">` +
+                `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon border-left-0" title="New User">` +
                 `               <li class="fa fa-user-plus"></li>` +
+                `           </button>` +
+                `           <button id="btnSH_adminListUsers" type="button" class="btn btn-default btn input-group-addon" title="List Users" disabled="disabled">` +
+                `               <li class="fa fa-users"></li>` +
                 `           </button>` +
                 `       </div>` +
                 `       <div class="input-group">` +

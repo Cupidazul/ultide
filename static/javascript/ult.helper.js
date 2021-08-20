@@ -1,5 +1,8 @@
-define(['file_chooser'], function(file_chooser) {
-    var helper = {};
+define(['app', 'file_chooser'], function(app, file_chooser) {
+    var self = this;
+    let helper = {};
+    if ($app.debug) console.log('@ult.helper:', { helper: helper });
+    app.helper = helper;
 
     helper.fileChooser = function(customOptions) {
         var self = this;
@@ -129,9 +132,8 @@ define(['file_chooser'], function(file_chooser) {
             options.onSelected(selectedPath);
             $modal.remove();
         });
-    };
 
-    $app.ultiflow.helper = {...$app.ultiflow.helper || {}, ...helper };
+    };
 
     return helper;
 });

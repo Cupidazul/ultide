@@ -29,12 +29,15 @@ define(['app'], function(app) {
         <button id="btn_save" type="button" class="btn btn-default input-group-addon" title="Save">
             <li class="fa fa-save"></li>
         </button>
+        <button id="btn_cronsave" type="button" class="btn btn-default input-group-addon border-left-0" title="Build to Cron" style="max-width: 39px;padding-left: 11px;">
+            <li class="fa fa-box-open"></li>
+        </button>
         <button id="btn_play" type="button" class="btn btn-default input-group-addon" title="Run">
             <li class="fa fa-play"></li>
         </button>
     </div>
     <div class="input-group">
-        <button id="" type="button" class="btn btn-default input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -3px;" onclick="$app.main_view.showView('welcome');">
+        <button id="" type="button" class="btn btn-default input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -2px;" onclick="$app.main_view.showView('welcome');">
             <li class="glyphicon glyphicon-blackboard"></li>
         </button>
     </div>
@@ -92,6 +95,19 @@ define(['app'], function(app) {
                 } else {
                     self.setState('error');
                 }
+            });
+
+            $('#btn_cronsave').on('mouseover', function() { $('#btn_cronsave').children().first().removeClass('fa-box-open').addClass('fa-box'); });
+            $('#btn_cronsave').on('mouseout', function() { $('#btn_cronsave').children().first().removeClass('fa-box').addClass('fa-box-open'); });
+
+            $('#btn_cronsave').click(function() {
+                $app.helper.fileChooser({
+                    action: 'save',
+                    onSelected: function(_fileName) {
+                        console.log('btn_cronsave:', { fileName: _fileName });
+                        $app.ultiflow.anyCodeSaveCron(_fileName);
+                    }
+                });
             });
         },
 

@@ -21,9 +21,10 @@ define([
 
         // the constructor
         _create: function() {
+            if ($app.debug) console.log('@ult.file_chooser:', { file_chooser: this });
             var self = this;
 
-            $app.ultiflow.file_chooser = self;
+            app.ultiflow.file_chooser = self;
 
             var $inputGroup = $('<div class="input-group"></div>');
             var $inputGroupBtn = $('<span class="input-group-btn"></span>');

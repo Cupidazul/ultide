@@ -197,7 +197,7 @@ def on_write_file(data, response, session_data):
     content = data['content']
     response['error'] = False
     try:
-        with open(file_path, 'w') as outfile:
+        with open(file_path, 'w', encoding='utf-8', newline='') as outfile:
             #outfile.write(content.encode('utf8'))
             outfile.write(content)
     except:
@@ -392,8 +392,15 @@ def exception_as_dict(ex):
     return dict(type=ex.__class__.__name__, errno=errno , message=message, strerror=strerror, output=output)
             
 def on_perl_CodeRun(data, response, session_data):
-    workspace = session_data['user'].get_property('workspace')
-    if (DEBUG): pprint(('@on_perl_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
+    workspace = config.PRJ['WORKSPACE_DIR']
+    if data.__contains__('workspace'):
+        workspace = data['workspace']
+    else:
+        try:
+            workspace = session_data['user'].get_property('workspace')
+        except: None
+
+    if (DEBUG): pprint(('@on_perl_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', workspace))
 
     # Check if Exists: scripts <DIR> and create it if not...
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
@@ -442,7 +449,7 @@ def on_perl_CodeRun(data, response, session_data):
         from tempfile import mkstemp
         fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-perl_script", suffix = '.pl')
         # use a context manager to open the file at that path and close it again
-        with open(temp_script_path, 'w') as f:
+        with open(temp_script_path, 'w', encoding='utf-8', newline='') as f:
             f.write( perl_code )
         # close the file descriptor
         os.close(fd)
@@ -475,8 +482,15 @@ def on_perl_CodeRun(data, response, session_data):
     data['RetVal'] = ret
 
 def on_python_CodeRun(data, response, session_data):
-    workspace = session_data['user'].get_property('workspace')
-    if (DEBUG): pprint(('@on_python_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
+    workspace = config.PRJ['WORKSPACE_DIR']
+    if data.__contains__('workspace'):
+        workspace = data['workspace']
+    else:
+        try:
+            workspace = session_data['user'].get_property('workspace')
+        except: None
+
+    if (DEBUG): pprint(('@on_python_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', workspace))
 
     # Check if Exists: scripts <DIR> and create it if not...
     scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
@@ -504,7 +518,7 @@ def on_python_CodeRun(data, response, session_data):
         from tempfile import mkstemp
         fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-python_script", suffix = '.py')
         # use a context manager to open the file at that path and close it again
-        with open(temp_script_path, 'w') as f:
+        with open(temp_script_path, 'w', encoding='utf-8', newline='') as f:
             f.write( python_code )
         # close the file descriptor
         os.close(fd)
@@ -536,6 +550,45 @@ def on_python_CodeRun(data, response, session_data):
         os.remove(temp_script_path) # delete temp file
 
     data['RetVal'] = ret
+
+def on_saveWorkflowProcess(data, response, session_data):
+    if (DEBUG): pprint(('@on_saveWorkflowProcess: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
+    cronFile = ''
+    if data.__contains__('cronFile'): cronFile = data['cronFile']
+    if (cronFile !=''):
+        with open(cronFile, 'w', encoding='utf-8', newline='') as f:
+            strCode = ''
+            try:
+                strCode += '#!' + config.PYTHON_BIN + "\n"
+                strCode += '# create_dt: '+ datestr('{:02}-{:02}-{:02}H{:02}:{:02}:{:02}') + ' uid:' + str(current_user.id) + ' username:' + str(current_user.username) + " \n"
+                strCode += "\n"
+                strCode += 'import sys; sys.dont_write_bytecode = True; # don\'t write __pycache__ DIR' + "\n"
+                strCode += "\n"
+                strCode += 'from pprint import pprint, pformat' + "\n"
+                strCode += 'import subprocess' + "\n"
+                strCode += 'import psycopg2' + "\n"
+                strCode += 'import base64' + "\n"
+                strCode += 'import json' + "\n"
+                strCode += 'import os' + "\n"
+                strCode += 'import zlib' + "\n"
+                strCode += 'import base64' + "\n"
+                strCode += "\n"
+                strCode += "osSEP = '/' if ( not os.name == 'nt') else '\\\\';sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..'+osSEP+'..'+osSEP+'..')))" + "\n"
+                strCode += 'import ultide.core as UltideCore' + "\n"
+                strCode += "\n"
+                strCode += 'processData = "'+ data['lz'] + '"' + "\n"
+                strCode += 'response={}' + "\n"
+                strCode += 'UltideCore.execWorkflowProcess(processData, response)' + "\n"
+
+                f.write( strCode )
+            except Exception as err:
+                print('@on_saveWorkflowProcess: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+        f.close()
+
+def execWorkflowProcess(processData, response):
+    session_data={}
+    on_execWorkflowProcess({'lz': processData}, response, session_data)
 
 def on_execWorkflowProcess(data, response, session_data):
     x = lzstring.LZString()
@@ -577,7 +630,7 @@ def on_execWorkflowProcess(data, response, session_data):
         elif re.match(r".*::save_file", oType):
 
             if (WfProcess['p']['filepath'] != ''):
-                with open(WfProcess['p']['filepath'], 'w') as f:
+                with open(WfProcess['p']['filepath'], 'w', encoding='utf-8', newline='') as f:
                     for (_Idx, _pflink) in enumerate(WfProcess['fl']):  # Link is Array := List
                         InputVar = _pflink['toConnector']
                         parentOutputVar = _pflink['fromConnector']
@@ -809,7 +862,7 @@ def on_saveNewProject(data, response, session_data):
     #os.makedirs(os.getcwd() + "\\" + cfgPATH)
     if (not os.path.isdir(cfgPATH)):
         os.makedirs(cfgPATH)
-    with open(data['cfg']['path'], 'w') as f:
+    with open(data['cfg']['path'], 'w', encoding='utf-8', newline='') as f:
         f.write( json.dumps( data['cfg'] ))
 
 def ex_perl ():
