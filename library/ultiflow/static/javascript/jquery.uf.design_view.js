@@ -99,6 +99,19 @@ define([
                     //if (whatCode == 'Python') $app.ultiflow.PythonCodeRun();
                     $app.ultiflow.CodeRunning();
                     $app.ultiflow.anyCodeRun();
+
+                    // Alert: if Running time exceeds 5 secs !!!
+                    setTimeout(function() {
+                        if ($app.ultiflow.Codeisrunning) {
+                            var codeInfoAlert = $('<li class="btn fa fa-exclamation-triangle code-info-btn-alert"></li>');
+                            codeInfoAlert.appendTo($('.uf-process-main-infos >nobr .input-group').first());
+                            codeInfoAlert.on('click', function(evt) {
+                                evt.stopImmediatePropagation();
+                                return false;
+                            });
+                            $('#btn_play').prop('disabled', false);
+                        }
+                    }, 5000);
                 });
                 app.ultiflow.CodeRunning = function() {
                     $app.ultiflow.Codeisrunning = true;
@@ -107,6 +120,7 @@ define([
                 };
                 app.ultiflow.CodeFinished = function(codeResult) {
                     $app.ultiflow.Codeisrunning = false;
+                    $('.code-info-btn-alert').remove();
                     $('#btn_play').prop('disabled', false);
                     Object.keys(codeResult).forEach(function(elIdx) {
                         $('#codeInfo' + String(elIdx)).remove();
