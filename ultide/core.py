@@ -665,7 +665,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     parentOperID = WfProcess['fl'][_Idx]['fromOperator']
 
                     OutputVals[InputVar] = str(WfProcessList[parentOperID][parentOutputVar])
-                    pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: In:', dict(InputVar=InputVar, parentOutputVar=parentOutputVar, parentOperID=parentOperID, OutputVals=OutputVals)))
+                    if (DEBUG): pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: In:', dict(InputVar=InputVar, parentOutputVar=parentOutputVar, parentOperID=parentOperID, OutputVals=OutputVals)))
                 except Exception as err:
                     pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: Error.In:', err, dict(_pflink= _pflink, fromLink= WfProcess['fl'], OutputVals=OutputVals ))) # To print out the exception message , print out the stdout messages up to the exception
 
