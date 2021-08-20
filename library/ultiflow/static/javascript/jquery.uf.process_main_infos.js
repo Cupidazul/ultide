@@ -18,31 +18,34 @@ define(['app'], function(app) {
             self.els.title = $('<span class="uf-process-title"></span>');
             //this.els.title.appendTo(this.element);
 
+            var BtnCron = `` +
+                `        <button id="btn_cronsave" type="button" class="btn btn-default input-group-addon border-left-0" title="Build to Cron" style="max-width: 39px;padding-left: 11px;">` +
+                `            <li class="fa fa-box-open"></li>` +
+                `        </button>`;
+
+            if (!app.user.is_admin) BtnCron = '';
+
             var BtnStatus = '<button id="btn_ioStatus" class="btn">PyServer</button>';
             var Btns = $(`` +
-                `
-<div class="col-md-4">
-    <div class="input-group" style="float: left;left: -6px;top: -1px;">
-        <button type="button" class="btn btn-default input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');">
-            <li class="fa fa-cog"></li>
-        </button>
-        <button id="btn_save" type="button" class="btn btn-default input-group-addon" title="Save">
-            <li class="fa fa-save"></li>
-        </button>
-        <button id="btn_cronsave" type="button" class="btn btn-default input-group-addon border-left-0" title="Build to Cron" style="max-width: 39px;padding-left: 11px;">
-            <li class="fa fa-box-open"></li>
-        </button>
-        <button id="btn_play" type="button" class="btn btn-default input-group-addon" title="Run">
-            <li class="fa fa-play"></li>
-        </button>
-    </div>
-    <div class="input-group">
-        <button id="" type="button" class="btn btn-default input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -2px;" onclick="$app.main_view.showView('welcome');">
-            <li class="glyphicon glyphicon-blackboard"></li>
-        </button>
-    </div>
-</div>
-`);
+                `<div class="col-md-4">` +
+                `    <div class="input-group" style="float: left;left: -6px;top: -1px;">` +
+                `        <button type="button" class="btn btn-default input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');">` +
+                `            <li class="fa fa-cog"></li>` +
+                `        </button>` +
+                `        <button id="btn_save" type="button" class="btn btn-default input-group-addon" title="Save">` +
+                `            <li class="fa fa-save"></li>` +
+                `        </button>` +
+                `` + BtnCron +
+                `        <button id="btn_play" type="button" class="btn btn-default input-group-addon" title="Run">` +
+                `            <li class="fa fa-play"></li>` +
+                `        </button>` +
+                `    </div>` +
+                `    <div class="input-group">` +
+                `        <button id="" type="button" class="btn btn-default input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -2px;" onclick="$app.main_view.showView('welcome');">` +
+                `            <li class="glyphicon glyphicon-blackboard"></li>` +
+                `        </button>` +
+                `    </div>` +
+                `</div>`);
             var BtnSettings = '<button id="btn_settings" title="Settings" class="fa fa-cog" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnSave = '<button id="btn_save" title="Save" class="fa fa-save" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
             var BtnPlay = '<button id="btn_play" title="Run" class="fa fa-play" style="width: 30px;font-size: 20px;padding-left: 4px;padding-top: 2px;"></button>';
