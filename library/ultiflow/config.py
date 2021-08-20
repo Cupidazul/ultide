@@ -18,6 +18,5 @@ requirejs_paths = {
   'ultiflow-lib-jstree': 'static/modules/ultiflow/plugins/jstree/dist/jstree.min',
   'ace': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/ace',
   'ace/mode/json' : 'static/modules/ultiflow/plugins/ace/src-min-noconflict/mode-json',
-  'ace/ext/beautify' : 'static/modules/ultiflow/plugins/ace/src-min-noconflict/ext-beautify',
   'ace/theme/terminal': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/theme-terminal'
 }
