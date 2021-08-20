@@ -392,7 +392,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
             // **1 - Migrate to Python! for Cron offline workflow execution to be possible...
             // START: HERE!
             app.sendRequest('execWorkflowProcess', { 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
-                if ($app.debug) console.log('execWorkflowProcess: ', response);
+                if ($app.debug) console.log('execWorkflowProcess: ', { response: response });
                 //app.data.versions = Object.assign(app.data.versions || {}, { os: response });
                 $app.ultiflow.CodeRes = response;
                 $app.ultiflow.CodeFinished(response);
@@ -907,10 +907,10 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         });
     };
 
-    ultiflow.showCodeInfo = function(opID) {
+    ultiflow.showCodeRunInfo = function(opID) {
         var _self = this;
 
-        var Title = 'Show Code Info Results';
+        var Title = 'Show CodeRun Info Results';
         var CodeStr = app.JSONSafeStringify($app.ultiflow.CodeRes[opID], null, 4);
         var str = `
 <div class="modal fade" id="addCodeInfoWksModal" tabindex="-1" role="dialog" aria-labelledby="myCodeModalLabel">

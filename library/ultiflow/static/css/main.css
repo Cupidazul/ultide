@@ -408,12 +408,12 @@
     min-height: 29px;
 }
 
-.code-info-btn {
+.code-info-btn-info {
     position: absolute;
     right: -10px;
     top: -10px;
-    color: #d007;
-    background-color: #ff07;
+    color: #00d7;
+    background-color: #ffd7;
     width: 20px;
     height: 19px;
     padding-left: 2px;

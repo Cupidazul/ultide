@@ -94,11 +94,14 @@ define([
                 //console.log('uf_design_view:', self);
                 $('#btn_play').on('click', function(evt) {
                     //console.log('btn_play:', evt);
-                    var whatCode = $('#btn_code_lang').val();
+                    //var whatCode = $('#btn_code_lang').val();
                     //if (whatCode == 'Perl') $app.ultiflow.PerlCodeRun();
                     //if (whatCode == 'Python') $app.ultiflow.PythonCodeRun();
-                    $app.ultiflow.CodeRunning();
-                    $app.ultiflow.anyCodeRun();
+
+                    // Clear: codeInfo previous Results.
+                    Object.keys($app.flowchart.data.operators).forEach(function(elIdx) { $('#codeInfo' + String(elIdx)).remove(); });
+                    $app.ultiflow.CodeRunning(); // Rotate cog
+                    $app.ultiflow.anyCodeRun(); // RUN !
 
                     // Alert: if Running time exceeds 5 secs !!!
                     setTimeout(function() {
@@ -124,13 +127,13 @@ define([
                     $('#btn_play').prop('disabled', false);
                     Object.keys(codeResult).forEach(function(elIdx) {
                         $('#codeInfo' + String(elIdx)).remove();
-                        var codeInfo = $('<li id="codeInfo' + String(elIdx) + '" class="btn fa fa-info-circle code-info-btn"></li>');
+                        var codeInfo = $('<li id="codeInfo' + String(elIdx) + '" class="btn fa fa-info-circle code-info-btn-info"></li>');
                         codeInfo.appendTo($app.flowchart.data.operators[elIdx].internal.els.title);
                         codeInfo.data('opID', elIdx);
                         codeInfo.on('click', function(evt) {
                             evt.stopImmediatePropagation();
                             var evtToElement = (evt.toElement || evt.relatedTarget || evt.target);
-                            $app.ultiflow.showCodeInfo($(evtToElement).data('opID'));
+                            $app.ultiflow.showCodeRunInfo($(evtToElement).data('opID'));
                             return false;
                         });
                     });
