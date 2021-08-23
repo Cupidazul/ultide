@@ -51,7 +51,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
             //alert(response['demo_response']);
             return setTimeout(function() {
                 window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
-                try { app.versions.Browser = ((typeof(uaData.brands) !== 'undefined') ? (uaData.brands[2].brand + ' ' + uaData.brands[2].version) : navigator.appVersion); } catch (err) { console.log('err:', err); }
+                try { app.versions.Browser = ((typeof(uaData.brands) !== 'undefined') ? (uaData.brands[2].brand + ' ' + uaData.highEntropyValues.uaFullVersion) : navigator.appVersion); } catch (err) { console.log('err:', err); }
                 try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.jquery = jQuery.fn.jquery; } catch (err) { console.log('err:', err); }
                 try { app.versions['jquery-ui'] = jQuery.ui.version; } catch (err) { console.log('err:', err); }
