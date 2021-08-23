@@ -150,7 +150,9 @@ class DevLang(db.Model):
             if (line!=''):
                 try:
                     (_libname,_version) = line.split("\t")
-                    _version = _version.replace(" ","").replace("undef","").replace(u"\u0004","")
+                    _version = _version.replace(" ","").replace("undef","").replace(u"\u0004","4.").replace(u"\u0003","3.").replace(u"\u0002","2.").replace(u"\u0001","1.").replace(u"\u0000","0.")
+                    _version = re.sub(r'^v', '', _version)
+                    _version = re.sub(r'\.$', '', _version)
                     #pprint(((_libname,_version)))
                     _jsonStr += _sep + '"' + _libname + '":"' + _version + '"'
                     if (_sep==''): _sep = ','
