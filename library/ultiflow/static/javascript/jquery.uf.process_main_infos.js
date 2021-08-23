@@ -64,8 +64,8 @@ define(['app'], function(app) {
                 `       <button title="Zoom In" class="zoom-in btn btn-default input-group-addon">` +
                 `           <li class="glyphicon glyphicon-zoom-in"></li>` +
                 `       </button>` +
-                `       <button class="zoom-in input-group-addon" style="width: auto;border-left: none;">` +
-                `           <input type="range" class="zoom-range" step="0.5" min="0.5" max="3">` +
+                `       <button class="input-group-addon" style="width: auto;border-left: none;max-height: 30px;display: flex;">` +
+                `           <input type="range" class="zoom-range" step="0.5" min="0.5" max="3" style="max-width: 144px;">` +
                 `       </button>` +
                 `       <button title="Zoom Reset" class="zoom-reset btn btn-default input-group-addon" style="max-height: 30px;">` +
                 `           <li class="glyphicon glyphicon glyphicon-search"></li>` +
