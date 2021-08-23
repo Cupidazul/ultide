@@ -560,7 +560,7 @@ def on_saveWorkflowProcess(data, response, session_data):
             strCode = ''
             try:
                 strCode += '#!' + config.PYTHON_BIN + "\n"
-                strCode += '# create_dt: '+ datestr('{:02}-{:02}-{:02}H{:02}:{:02}:{:02}') + ' uid:' + str(current_user.id) + ' username:' + str(current_user.username) + " \n"
+                strCode += '# create_dt:'+ datestr('{:02}-{:02}-{:02}H{:02}:{:02}:{:02}') + ' uid:' + str(current_user.id) + ' username:' + str(current_user.username) + " \n"
                 strCode += "\n"
                 strCode += 'import sys; sys.dont_write_bytecode = True; # don\'t write __pycache__ DIR' + "\n"
                 strCode += "\n"
