@@ -143,21 +143,41 @@ class DevLang(db.Model):
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
         return ret.replace("v","").replace("\r\n","")
 
+    def cpan_list_all_modsJSON (_objList):
+        _jsonStr = ''
+        _sep = ''
+        for line in _objList.split("\n"):
+            if (line!=''):
+                try:
+                    (_libname,_version) = line.split("\t")
+                    _version = _version.replace(" ","").replace("undef","")
+                    #pprint(((_libname,_version)))
+                    _jsonStr += _sep + '"' + _libname + '":"' + _version + '"'
+                    if (_sep==''): _sep = ','
+                except Exception as err:
+                    pprint(('Error:', {'err':err, 'line':line}))
+        return "{"+_jsonStr+"}"
+
     def get_version_perl_modules ():  # returns perl modules
         perlExe = 'perl'
+        _stdErr = sys.stdout
         if (os.name == 'nt'):
             perlExe = config.PERL_EXEC.replace('/','\\')
-            cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
+            #cmd = [ perlExe, '-MExtUtils::Installed', '-e $i=ExtUtils::Installed->new();$sep=\'\';print \'{\';for($i->modules()){print $sep.\'\\\'\'.$_.\'\\\':\\\'\'.$i->version($_).\'\\\'\';$sep=\',\';};print \'}\';' ]
+            cmd = [ perlExe, '-e', 'use App::Cpan; App::Cpan::_list_all_mods();']
         else:
             perlExe = config.PERL_BIN
-            cmd = [ perlExe, '-MExtUtils::Installed', '-e', "$i=ExtUtils::Installed->new(); $sep='';print '{';for $d ($i->modules()){ print $sep.\"'\".$d.\"':'\".$i->version($d).\"'\"; $sep=',';};print '}';" ]
+            #cmd = [ perlExe, '-MExtUtils::Installed', '-e', "$i=ExtUtils::Installed->new(); $sep='';print '{';for $d ($i->modules()){ print $sep.\"'\".$d.\"':'\".$i->version($d).\"'\"; $sep=',';};print '}';" ]
+            cmd = [ perlExe, '-e', 'use App::Cpan; App::Cpan::_list_all_mods();']
+            _stdErr = subprocess.DEVNULL
 
         ret = ''
         try:
-            ret = subprocess.check_output(cmd, stderr=sys.stdout).decode('ascii')
+            ret = subprocess.check_output(cmd, stderr=_stdErr).decode('ascii')
         except Exception as e:
             print(e, e.output.decode()) # To print out the exception message , print out the stdout messages up to the exception
-        return ret.replace("\r\n","").replace("'","\"")
+        
+        return DevLang.cpan_list_all_modsJSON(ret).replace("\r\n","").replace("'","\"")
 
     def get_version_python ():  # returns python version
         pythonExe = sys.executable
