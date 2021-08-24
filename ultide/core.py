@@ -985,9 +985,11 @@ def _sub_readVARS(k,v):
                 #_readVARS(v, k);
     return not type(v) is dict
 
-def _readVARS(obj, root = None):
+def _readVARS(obj, root = None, depth = None):
     if (root == None): root = ''
-    
+    if (depth == None): depth = -1
+    depth += 1
+
     for k in obj:
         v = obj[k]
         try: 
@@ -1003,14 +1005,17 @@ def _readVARS(obj, root = None):
 
                 if ( type(v) is str and re.match(r"^\{", str(v)) ):
                     try:
+                        if (depth==0) :
+                            (_obj, _objNm) = setVAR( root + ('' if (root != '') else 'root')                  , json.loads(v))
+                            _readVARS(_obj, _objNm, depth)
                         (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , json.loads(v))
-                        _readVARS(_obj, _objNm)
+                        _readVARS(_obj, _objNm, depth)
                         #_readVARS(json.loads(v), k);
                     except: None
                 else:
                     try:
                         (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , v)
-                        _readVARS(_obj, _objNm)
+                        _readVARS(_obj, _objNm, depth)
                         #_readVARS(v, k);
                     except: None
 

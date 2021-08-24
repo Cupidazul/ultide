@@ -20,12 +20,14 @@ UltideCore.UltideInitVARS()
 
 #print("\n\ngetVAR:",
 #pformat({
-#            'Multiple 3 Ins/Outs.output_2.input_1' : UltideCore.getVAR('Multiple 3 Ins/Outs.output_2.input_1'),
-#            'Multiple 3 Ins/Outs.output_2.input_2' : UltideCore.getVAR('Multiple 3 Ins/Outs.output_2.input_2'),
-#            'Multiple 3 Ins/Outs.output_2.input_3' : UltideCore.getVAR('Multiple 3 Ins/Outs.output_2.input_3'),
-#            'Perl: Init.perl_init'                 : UltideCore.getVAR('Perl: Init.perl_init'),
-#            '__RAWOUTPUT__'                        : UltideCore.getVAR('__RAWOUTPUT__', 1 ),
-#            '__OUTPUT__'                           : UltideCore.getVAR('__OUTPUT__'),
+#            '_parent_'                     : UltideCore.getVAR( UltideCore.getVAR('_parent_') ),
+#            '_parent_.input_1'             : UltideCore.getVAR( UltideCore.getVAR('_parent_') + '.input_1' ),
+#            'Multiple 3 Ins/Outs.input_1'  : UltideCore.getVAR( 'Multiple 3 Ins/Outs.input_1' ),
+#            'Multiple 3 Ins/Outs.input_2'  : UltideCore.getVAR( 'Multiple 3 Ins/Outs.input_2' ),
+#            'Multiple 3 Ins/Outs.input_3'  : UltideCore.getVAR( 'Multiple 3 Ins/Outs.input_3' ),
+#            'Perl: Init.perl_init'         : UltideCore.getVAR( 'Perl: Init.perl_init' ),
+#            '__RAWOUTPUT__'                : UltideCore.getVAR( '__RAWOUTPUT__', 1 ),
+#            '__OUTPUT__'                   : UltideCore.getVAR( '__OUTPUT__' ),
 #        }
 #    )
 #)

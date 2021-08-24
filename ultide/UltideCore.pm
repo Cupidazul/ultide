@@ -127,8 +127,9 @@ sub _sub_readVARS {
 }
 
 sub _readVARS {
-    my ($obj,$root,$depth) = @_;
+    my ($obj, $root, $depth) = @_;
     $root = ''     if (!$root);
+    $depth = -1    if (!$depth); $depth++;
     
     while (my ($k, $v) = each (%$obj)) {
         $v =~ s/\'/"/g if ($v =~ /^\{\'/);
@@ -142,14 +143,19 @@ sub _readVARS {
 
                 if ($v =~ /^\{/) {
                     eval {
-                        my ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'.':'root.').escapeOnce($k) , JSON->new->utf8->allow_nonref(1)->decode($v));
-                        _readVARS($_obj, $_objNm);
+                        my ($_obj, $_objNm) = ();
+                        if ($depth==0) {
+                            ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'':'root')                  , JSON->new->utf8->allow_nonref(1)->decode($v));
+                            _readVARS($_obj, $_objNm, \$depth);
+                        }
+                            ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'.':'root.').escapeOnce($k) , JSON->new->utf8->allow_nonref(1)->decode($v));
+                            _readVARS($_obj, $_objNm, \$depth);
                         #_readVARS(JSON->new->utf8->allow_nonref(1)->decode($v), $k);
                     };
                 } else {
                     eval {
                         my ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'.':'root.').escapeOnce($k) , $v);
-                        _readVARS($_obj, $_objNm);
+                        _readVARS($_obj, $_objNm, \$depth);
                         #_readVARS($v, $k);
                     };
                 }
