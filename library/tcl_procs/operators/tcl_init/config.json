@@ -1,0 +1,28 @@
+{
+    "id": "tcl_procs::tcl_init",
+    "title": "TclSh: Init",
+    "type": "operator",
+    "inputs": {},
+    "outputs": {
+        "data": {
+            "label": "Start: Data"
+        }
+    },
+    "parameters": [{
+        "id": "tcl_init",
+        "label": "TclSh Code:",
+        "type": "ultiflow::textarea",
+        "config": {
+            "attr": {
+                "rows": 10
+            },
+            "css": {
+                "font-size": "11px",
+                "white-space": "nowrap",
+                "width": "100%",
+                "font-family": "monospace"
+            },
+            "default": "#!{{TCL_BIN}}\n\n"
+        }
+    }]
+}

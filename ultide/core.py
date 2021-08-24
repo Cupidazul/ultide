@@ -551,6 +551,216 @@ def on_python_CodeRun(data, response, session_data):
 
     data['RetVal'] = ret
 
+def on_expect_CodeRun(data, response, session_data):
+    workspace = config.PRJ['WORKSPACE_DIR']
+    if data.__contains__('workspace'):
+        workspace = data['workspace']
+    else:
+        try:
+            workspace = session_data['user'].get_property('workspace')
+        except: None
+
+    if (DEBUG): pprint(('@on_expect_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', workspace))
+
+    # Check if Exists: scripts <DIR> and create it if not...
+    scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
+    if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
+
+    expectExe = sys.executable
+    if (os.name == 'nt'):
+        expectExe = config.EXPECT_EXEC
+    else:
+        expectExe = config.EXPECT_BIN
+
+    cmd = [ expectExe ]
+    expectopts = {}
+    if data.__contains__('opts'): expectopts = data['opts']
+
+    # If cmd exists we are running expect_init
+    if ( data.__contains__('cmd') and hasattr(data['cmd'], "__len__" ) ):
+        expectopts['del_script'] = 1; # DEFAULT DELETE SCRIPTS
+        expectobj = data['cmd'];  # "expect_incdirs":[], "expect_add_use":[], "expect_init":'<expect init code>'
+
+        # First ADD expect Init Code:
+        expect_code = expectobj['expect_init']
+        expect_code = pystache.render(expect_code, vars(config)); ## Apply Mustache {{}} from config variables
+
+        from tempfile import mkstemp
+        fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-expect_script", suffix = '.exp')
+        # use a context manager to open the file at that path and close it again
+        with open(temp_script_path, 'w', encoding='utf-8', newline='') as f:
+            f.write( expect_code )
+        # close the file descriptor
+        os.close(fd)
+
+        if (DEBUG): print('@on_expect_CodeRun: script', temp_script_path)
+
+        cmd = [ expectExe, temp_script_path ]
+
+        if ( hasattr(config, "EXPECT_EXEC") and config.EXPECT_EXEC != '' ):
+            cmd = [ config.EXPECT_EXEC, temp_script_path ]
+
+    else:
+        if (DEBUG): pprint(('@on_expect_CodeRun: RunScript:', data))
+        cmd = [ expectExe , data['script']['expect_script_file'], data['parm']]
+        
+    if (DEBUG): print('@on_expect_CodeRun: cmd:',cmd)
+    ret = ''
+    try:
+        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
+        if (DEBUG): print('@on_expect_CodeRun: RetVal:', ret)
+    except Exception as err:
+        import traceback
+        exc_info = sys.exc_info()
+        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+        print('@on_expect_CodeRun: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+    
+    if ( expectopts.__contains__('del_script') and expectopts['del_script'] == 1 ):
+        os.remove(temp_script_path) # delete temp file
+
+    data['RetVal'] = ret
+
+def on_tcl_CodeRun(data, response, session_data):
+    workspace = config.PRJ['WORKSPACE_DIR']
+    if data.__contains__('workspace'):
+        workspace = data['workspace']
+    else:
+        try:
+            workspace = session_data['user'].get_property('workspace')
+        except: None
+
+    if (DEBUG): pprint(('@on_tcl_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', workspace))
+
+    # Check if Exists: scripts <DIR> and create it if not...
+    scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
+    if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
+
+    tclExe = sys.executable
+    if (os.name == 'nt'):
+        tclExe = config.TCL_EXEC
+    else:
+        tclExe = config.TCL_BIN
+
+    cmd = [ tclExe ]
+    tclopts = {}
+    if data.__contains__('opts'): tclopts = data['opts']
+
+    # If cmd exists we are running tcl_init
+    if ( data.__contains__('cmd') and hasattr(data['cmd'], "__len__" ) ):
+        tclopts['del_script'] = 1; # DEFAULT DELETE SCRIPTS
+        tclobj = data['cmd'];  # "tcl_incdirs":[], "tcl_add_use":[], "tcl_init":'<tcl init code>'
+
+        # First ADD tcl Init Code:
+        tcl_code = tclobj['tcl_init']
+        tcl_code = pystache.render(tcl_code, vars(config)); ## Apply Mustache {{}} from config variables
+
+        from tempfile import mkstemp
+        fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-tcl_script", suffix = '.tcl')
+        # use a context manager to open the file at that path and close it again
+        with open(temp_script_path, 'w', encoding='utf-8', newline='') as f:
+            f.write( tcl_code )
+        # close the file descriptor
+        os.close(fd)
+
+        if (DEBUG): print('@on_tcl_CodeRun: script', temp_script_path)
+
+        cmd = [ tclExe, temp_script_path ]
+
+        if ( hasattr(config, "TCL_EXEC") and config.TCL_EXEC != '' ):
+            cmd = [ config.TCL_EXEC, temp_script_path ]
+
+    else:
+        if (DEBUG): pprint(('@on_tcl_CodeRun: RunScript:', data))
+        cmd = [ tclExe , data['script']['tcl_script_file'], data['parm']]
+        
+    if (DEBUG): print('@on_tcl_CodeRun: cmd:',cmd)
+    ret = ''
+    try:
+        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
+        if (DEBUG): print('@on_tcl_CodeRun: RetVal:', ret)
+    except Exception as err:
+        import traceback
+        exc_info = sys.exc_info()
+        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+        print('@on_tcl_CodeRun: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+    
+    if ( tclopts.__contains__('del_script') and tclopts['del_script'] == 1 ):
+        os.remove(temp_script_path) # delete temp file
+
+    data['RetVal'] = ret
+
+def on_node_CodeRun(data, response, session_data):
+    workspace = config.PRJ['WORKSPACE_DIR']
+    if data.__contains__('workspace'):
+        workspace = data['workspace']
+    else:
+        try:
+            workspace = session_data['user'].get_property('workspace')
+        except: None
+
+    if (DEBUG): pprint(('@on_node_CodeRun: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:', workspace))
+
+    # Check if Exists: scripts <DIR> and create it if not...
+    scripts_dir = os.path.dirname('./' + workspace + '/scripts/')
+    if not os.path.exists(scripts_dir): os.makedirs(scripts_dir)
+
+    nodeExe = sys.executable
+    if (os.name == 'nt'):
+        nodeExe = config.NODE_EXEC
+    else:
+        nodeExe = config.NODE_BIN
+
+    cmd = [ nodeExe ]
+    nodeopts = {}
+    if data.__contains__('opts'): nodeopts = data['opts']
+
+    # If cmd exists we are running node_init
+    if ( data.__contains__('cmd') and hasattr(data['cmd'], "__len__" ) ):
+        nodeopts['del_script'] = 1; # DEFAULT DELETE SCRIPTS
+        nodeobj = data['cmd'];  # "node_incdirs":[], "node_add_use":[], "node_init":'<node init code>'
+
+        # First ADD node Init Code:
+        node_code = nodeobj['node_init']
+        node_code = pystache.render(node_code, vars(config)); ## Apply Mustache {{}} from config variables
+
+        from tempfile import mkstemp
+        fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-node_script", suffix = '.js')
+        # use a context manager to open the file at that path and close it again
+        with open(temp_script_path, 'w', encoding='utf-8', newline='') as f:
+            f.write( node_code )
+        # close the file descriptor
+        os.close(fd)
+
+        if (DEBUG): print('@on_node_CodeRun: script', temp_script_path)
+
+        cmd = [ nodeExe, temp_script_path ]
+
+        if ( hasattr(config, "NODE_EXEC") and config.NODE_EXEC != '' ):
+            cmd = [ config.NODE_EXEC, temp_script_path ]
+
+    else:
+        if (DEBUG): pprint(('@on_node_CodeRun: RunScript:', data))
+        cmd = [ nodeExe , data['script']['node_script_file'], data['parm']]
+        
+    if (DEBUG): print('@on_node_CodeRun: cmd:',cmd)
+    ret = ''
+    try:
+        ret = subprocess.check_output(cmd, stderr=subprocess.STDOUT, encoding='UTF-8')
+        if (DEBUG): print('@on_node_CodeRun: RetVal:', ret)
+    except Exception as err:
+        import traceback
+        exc_info = sys.exc_info()
+        #ret = dict( traceback = json.dumps(traceback.format_exception(*exc_info)), Exception = json.dumps(exception_as_dict(err),indent=2) ) # as JSON
+        ret = dict( traceback=traceback.format_exception(*exc_info), Exception=exception_as_dict(err) , error='true') # pure objects
+        print('@on_node_CodeRun: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+    
+    if ( nodeopts.__contains__('del_script') and nodeopts['del_script'] == 1 ):
+        os.remove(temp_script_path) # delete temp file
+
+    data['RetVal'] = ret
+
 def on_saveWorkflowProcess(data, response, session_data):
     if (DEBUG): pprint(('@on_saveWorkflowProcess: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
     cronFile = ''
@@ -768,6 +978,60 @@ def on_execWorkflowProcess(data, response, session_data):
 
                 if (DEBUG): pprint(('python_init['+procID+']: SetVar: WfProcessList['+procID+'].', OutputVar, ' := ', WfProcessList[procID][OutputVar]))
 
+        elif re.match(r".*::expect_init", oType):
+            for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
+                OutputVar = _pflink['fromConnector']
+                RunCmd = {}
+                RunCmd['cmd'] = WfProcess['p']
+                on_expect_CodeRun( RunCmd, response, session_data )                
+                try:
+                    # Preprocess vars for OUTPUT
+                    WfProcess['p']['expect_init'] = parse.quote( pystache.render(WfProcess['p']['expect_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess[OutputVar] = {}
+                    WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                    WfProcess[OutputVar].update(WfProcess['p'])
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    response[procID].update(WfProcess[OutputVar])
+                except Exception as err:
+                    print('@on_execWorkflowProcess.expect_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+                if (DEBUG): pprint(('expect_init['+procID+']: SetVar: WfProcessList['+procID+'].', OutputVar, ' := ', WfProcessList[procID][OutputVar]))
+
+        elif re.match(r".*::tcl_init", oType):
+            for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
+                OutputVar = _pflink['fromConnector']
+                RunCmd = {}
+                RunCmd['cmd'] = WfProcess['p']
+                on_tcl_CodeRun( RunCmd, response, session_data )                
+                try:
+                    # Preprocess vars for OUTPUT
+                    WfProcess['p']['tcl_init'] = parse.quote( pystache.render(WfProcess['p']['tcl_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess[OutputVar] = {}
+                    WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                    WfProcess[OutputVar].update(WfProcess['p'])
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    response[procID].update(WfProcess[OutputVar])
+                except Exception as err:
+                    print('@on_execWorkflowProcess.tcl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+                if (DEBUG): pprint(('tcl_init['+procID+']: SetVar: WfProcessList['+procID+'].', OutputVar, ' := ', WfProcessList[procID][OutputVar]))
+
+        elif re.match(r".*::node_init", oType):
+            for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
+                OutputVar = _pflink['fromConnector']
+                RunCmd = {}
+                RunCmd['cmd'] = WfProcess['p']
+                on_node_CodeRun( RunCmd, response, session_data )                
+                try:
+                    # Preprocess vars for OUTPUT
+                    WfProcess['p']['node_init'] = parse.quote( pystache.render(WfProcess['p']['node_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess[OutputVar] = {}
+                    WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                    WfProcess[OutputVar].update(WfProcess['p'])
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    response[procID].update(WfProcess[OutputVar])
+                except Exception as err:
+                    print('@on_execWorkflowProcess.node_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+                if (DEBUG): pprint(('node_init['+procID+']: SetVar: WfProcessList['+procID+'].', OutputVar, ' := ', WfProcessList[procID][OutputVar]))
+
         elif re.match(r".*::perl_script", oType):
 
             OutputVals = {}
@@ -844,8 +1108,123 @@ def on_execWorkflowProcess(data, response, session_data):
 
             if (DEBUG): pprint(('python_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
 
+        elif re.match(r".*::expect_script", oType):
+
+            OutputVals = {}
+            for (_Idx, _pflink) in enumerate(WfProcess['fl']): # Link is Array := List
+                InputVar = _pflink['toConnector']
+                parentOutputVar = _pflink['fromConnector']
+                #OutputVal = ''
+                parentOperID = ''
+                try:
+                    if (_pflink['fromOperator'] == WfProcess['parents'][0]['id']):
+                        OutputVar = WfProcess['tl'][0]['fromConnector']
+                        WfProcess[OutputVar] = ''
+                        parentOperID = WfProcess['fl'][0]['fromOperator']
+                        #OutputVal = str(WfProcessList[parentOperID][parentOutputVar])
+                        OutputVals.update(WfProcess['p'])
+                        OutputVals.update({ OutputVar: WfProcessList[parentOperID][parentOutputVar]})
+
+                except Exception as err:
+                    print('@on_execWorkflowProcess.expect_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+            if (DEBUG): pprint(('expect_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
+            RunCmd = {}
+            RunCmd['script'] = WfProcess['p']
+            RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+            on_expect_CodeRun( RunCmd, response, session_data )
+
+            try:
+                #WfProcess[OutputVar] = response['RetVal']
+                WfProcess[OutputVar] = OutputVals
+                WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                WfProcess[OutputVar].update(WfProcess['p'])
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                response[procID].update(WfProcess[OutputVar])
+            except Exception as err:
+                    print('@on_execWorkflowProcess.expect_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+            if (DEBUG): pprint(('expect_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
+
+        elif re.match(r".*::tcl_script", oType):
+
+            OutputVals = {}
+            for (_Idx, _pflink) in enumerate(WfProcess['fl']): # Link is Array := List
+                InputVar = _pflink['toConnector']
+                parentOutputVar = _pflink['fromConnector']
+                #OutputVal = ''
+                parentOperID = ''
+                try:
+                    if (_pflink['fromOperator'] == WfProcess['parents'][0]['id']):
+                        OutputVar = WfProcess['tl'][0]['fromConnector']
+                        WfProcess[OutputVar] = ''
+                        parentOperID = WfProcess['fl'][0]['fromOperator']
+                        #OutputVal = str(WfProcessList[parentOperID][parentOutputVar])
+                        OutputVals.update(WfProcess['p'])
+                        OutputVals.update({ OutputVar: WfProcessList[parentOperID][parentOutputVar]})
+
+                except Exception as err:
+                    print('@on_execWorkflowProcess.tcl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+            if (DEBUG): pprint(('tcl_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
+            RunCmd = {}
+            RunCmd['script'] = WfProcess['p']
+            RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+            on_tcl_CodeRun( RunCmd, response, session_data )
+
+            try:
+                #WfProcess[OutputVar] = response['RetVal']
+                WfProcess[OutputVar] = OutputVals
+                WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                WfProcess[OutputVar].update(WfProcess['p'])
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                response[procID].update(WfProcess[OutputVar])
+            except Exception as err:
+                    print('@on_execWorkflowProcess.tcl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+            if (DEBUG): pprint(('tcl_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
+
+        elif re.match(r".*::node_script", oType):
+
+            OutputVals = {}
+            for (_Idx, _pflink) in enumerate(WfProcess['fl']): # Link is Array := List
+                InputVar = _pflink['toConnector']
+                parentOutputVar = _pflink['fromConnector']
+                #OutputVal = ''
+                parentOperID = ''
+                try:
+                    if (_pflink['fromOperator'] == WfProcess['parents'][0]['id']):
+                        OutputVar = WfProcess['tl'][0]['fromConnector']
+                        WfProcess[OutputVar] = ''
+                        parentOperID = WfProcess['fl'][0]['fromOperator']
+                        #OutputVal = str(WfProcessList[parentOperID][parentOutputVar])
+                        OutputVals.update(WfProcess['p'])
+                        OutputVals.update({ OutputVar: WfProcessList[parentOperID][parentOutputVar]})
+
+                except Exception as err:
+                    print('@on_execWorkflowProcess.node_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+            if (DEBUG): pprint(('node_script['+procID+']: Parameter:', str(json.dumps(OutputVals))))
+            RunCmd = {}
+            RunCmd['script'] = WfProcess['p']
+            RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+            on_node_CodeRun( RunCmd, response, session_data )
+
+            try:
+                #WfProcess[OutputVar] = response['RetVal']
+                WfProcess[OutputVar] = OutputVals
+                WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                WfProcess[OutputVar].update(WfProcess['p'])
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                response[procID].update(WfProcess[OutputVar])
+            except Exception as err:
+                    print('@on_execWorkflowProcess.node_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+
+            if (DEBUG): pprint(('node_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
+
         else:
             print('@on_execWorkflowProcess['+procID+']: Error: Undefined Workflow Process')
+
 
 def on_getDefaultConfig(data, response, session_data):
     response['raw']=open('templates/new_config.json').read()

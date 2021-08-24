@@ -805,6 +805,15 @@ $(function() {
             return data;
         },
 
+        getFullData: function()  {
+            var keys = ['operators', 'links'];
+            var data = {};
+            data.operators = $.extend(true, {}, this.data.operators);
+            data.links = $.extend(true, {}, this.data.links);
+            data.operatorTypes = this.data.operatorTypes;
+            return data;
+        },
+
         setOperatorTitle: function(operatorId, title) {
             this.data.operators[String(operatorId)].internal.els.title.text(title);
             if (typeof this.data.operators[String(operatorId)].properties == 'undefined') {

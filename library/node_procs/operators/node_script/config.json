@@ -1,0 +1,26 @@
+{
+    "id": "node_procs::node_script",
+    "title": "NodeJS Script",
+    "type": "operator",
+    "inputs": {
+        "input": {
+            "label": "Input"
+        }
+    },
+    "outputs": {
+        "output": {
+            "label": "Output"
+        }
+    },
+    "parameters": [{
+        "id": "node_script_file",
+        "label": "File:",
+        "type": "ultiflow::file",
+        "config": {
+            "fileChooser": {
+                "type": "file",
+                "action": "load"
+            }
+        }
+    }]
+}

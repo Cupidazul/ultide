@@ -1,0 +1,28 @@
+{
+    "id": "expect_procs::expect_init",
+    "title": "Expect: Init",
+    "type": "operator",
+    "inputs": {},
+    "outputs": {
+        "data": {
+            "label": "Start: Data"
+        }
+    },
+    "parameters": [{
+        "id": "expect_init",
+        "label": "Expect Code:",
+        "type": "ultiflow::textarea",
+        "config": {
+            "attr": {
+                "rows": 10
+            },
+            "css": {
+                "font-size": "11px",
+                "white-space": "nowrap",
+                "width": "100%",
+                "font-family": "monospace"
+            },
+            "default": "#!{{EXPECT_BIN}}\n\nset errorInfo \"\"\ncatch { package require json; } err ; #if {$errorInfo ne \"\"} { puts \"go:I: '$err' » '$errorInfo'\"; set errorInfo \"\"} \nset errorInfo \"\";\n\n"
+        }
+    }]
+}

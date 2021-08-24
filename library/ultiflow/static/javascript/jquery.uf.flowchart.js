@@ -360,6 +360,9 @@ define([
             self.centerView();
         },
 
+        getFullData: function() {
+            return this.els.flowchart.flowchart('getFullData');
+        },
         getData: function() {
             var data = this.els.flowchart.flowchart('getData');
             delete data.operatorTypes;
@@ -378,21 +381,21 @@ define([
 
         addOperator: function(operatorData) {
             this.isSettingData = true;
-            if ($app.debug) console.log('addOperator:', JSON.stringify(operatorData));
+            if ($app.debug) console.log('@ultiflow.uf_flowchart.addOperator:', JSON.stringify(operatorData), this.els.flowchart);
             //this.postProcessOperatorData(operatorData);
             // todo: check same ids ?
 
             this.els.flowchart.flowchart('addOperator', operatorData);
             var elm = operatorData.internal.els.operator[0].children[0];
 
-            var currentProcessData = ultiflow.getOpenedProcessData();
-            var flowchartData = this.getData();
+            var currentProcessData = $app.ultiflow.getOpenedProcessData();
+            //var flowchartData = this.getData();
+            var flowchartData = this.getFullData();
 
-            //console.log('currentProcessData:', JSON.stringify(currentProcessData));
-            //console.log('flowchartData:', JSON.stringify(flowchartData));
+            //console.log('@ultiflow.uf_flowchart.addOperator: currentProcessData:', JSON.stringify(currentProcessData));
+            //console.log('@ultiflow.uf_flowchart.addOperator: flowchartData:', JSON.stringify(flowchartData));
 
-            var operatorObjs = Object.keys(flowchartData.operators);
-            if (Object.keys(currentProcessData.process.parameters).length > operatorObjs.length) { operatorObjs = Object.keys(currentProcessData.process.parameters); }
+            var operatorObjs = Object.assign(Object.keys(flowchartData.operators), Object.keys(currentProcessData.process.parameters));
 
             for (var operatorId in operatorObjs) {
                 //console.log('operatorId:', operatorId);
@@ -449,6 +452,11 @@ define([
             return this.els.flowchart.flowchart('getOperatorElement', operatorData);
         },
 
+        getOperatorCompleteData: function(operatorData) {
+            //this.postProcessOperatorData(operatorData);
+            return this.els.flowchart.flowchart('getOperatorCompleteData', operatorData);
+        },
+
         miniViewShow: function() {
             this.els.flowchartMiniViewContent.show();
         },
@@ -464,13 +472,14 @@ define([
             }
 
             var flowchartData = this.getData();
+            var flowchartFullData = this.getFullData();
             //var flowchartProcess = $.extend(true, {}, flowchartData);
 
             currentProcessData.process.operators = flowchartData.operators;
             currentProcessData.process.links = flowchartData.links;
 
-            var operatorObjs = Object.keys(currentProcessData.process.operators);
-            if (Object.keys(currentProcessData.process.parameters).length > operatorObjs.length) { operatorObjs = Object.keys(currentProcessData.process.parameters); }
+            var operatorObjs = Object.assign(Object.keys(flowchartData.operators), Object.keys(currentProcessData.process.parameters));
+
             for (var operatorId in operatorObjs) {
                 var iOperator = currentProcessData.process.operators;
                 if (typeof iOperator[operatorId] == 'undefined') {
@@ -486,8 +495,9 @@ define([
                             //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
                             currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
                         }
-
                     }
+                    if (this.data.operators[operatorId] == 'undefined') { this.data.operators[operatorId] = flowchartFullData.operators[operatorId]; } else if (this.data.operators[operatorId] !== flowchartFullData.operators[operatorId]) { this.data.operators[operatorId] = flowchartFullData.operators[operatorId]; }
+                    if (this.data.links[operatorId] == 'undefined') { this.data.links[operatorId] = flowchartFullData.links[operatorId]; } else if (this.data.links[operatorId] !== flowchartFullData.links[operatorId]) { this.data.operators[operatorId] = flowchartFullData.links[operatorId]; }
                 }
             }
 

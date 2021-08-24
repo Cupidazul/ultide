@@ -1,0 +1,28 @@
+{
+    "id": "node_procs::node_init",
+    "title": "NodeJS: Init",
+    "type": "operator",
+    "inputs": {},
+    "outputs": {
+        "data": {
+            "label": "Start: Data"
+        }
+    },
+    "parameters": [{
+        "id": "node_init",
+        "label": "NodeJS Code:",
+        "type": "ultiflow::textarea",
+        "config": {
+            "attr": {
+                "rows": 10
+            },
+            "css": {
+                "font-size": "11px",
+                "white-space": "nowrap",
+                "width": "100%",
+                "font-family": "monospace"
+            },
+            "default": "#!{{NODE_BIN}}\n\n"
+        }
+    }]
+}

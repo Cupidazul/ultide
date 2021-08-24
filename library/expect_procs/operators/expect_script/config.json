@@ -1,0 +1,26 @@
+{
+    "id": "expect_procs::expect_script",
+    "title": "Expect Script",
+    "type": "operator",
+    "inputs": {
+        "input": {
+            "label": "Input"
+        }
+    },
+    "outputs": {
+        "output": {
+            "label": "Output"
+        }
+    },
+    "parameters": [{
+        "id": "expect_script_file",
+        "label": "File:",
+        "type": "ultiflow::file",
+        "config": {
+            "fileChooser": {
+                "type": "file",
+                "action": "load"
+            }
+        }
+    }]
+}
