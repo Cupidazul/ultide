@@ -495,9 +495,10 @@ define([
                             //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
                             currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
                         }
+                        //this.data.parameters[operatorId] = currentProcessData.process.parameters[operatorId];
                     }
-                    if (this.data.operators[operatorId] == 'undefined') { this.data.operators[operatorId] = flowchartFullData.operators[operatorId]; } else if (this.data.operators[operatorId] !== flowchartFullData.operators[operatorId]) { this.data.operators[operatorId] = flowchartFullData.operators[operatorId]; }
-                    if (this.data.links[operatorId] == 'undefined') { this.data.links[operatorId] = flowchartFullData.links[operatorId]; } else if (this.data.links[operatorId] !== flowchartFullData.links[operatorId]) { this.data.operators[operatorId] = flowchartFullData.links[operatorId]; }
+                    if (this.data.operators[operatorId] || {} !== flowchartFullData.operators[operatorId]) this.data.operators[operatorId] = flowchartFullData.operators[operatorId];
+                    if (this.data.links[operatorId] || {} !== flowchartFullData.links[operatorId]) this.data.links[operatorId] = flowchartFullData.links[operatorId];
                 }
             }
 
