@@ -110,11 +110,13 @@ sub _sub_readVARS {
                     eval {
                         my ($_obj, $_objNm) = setVAR( escapeOnce($v->{'name'}) , JSON->new->utf8->allow_nonref(1)->decode($v));
                         _readVARS($_obj, $_objNm);
+                        setVAR( '_parent_', escapeOnce($v->{'name'}) );
                     };
                 } else {
                     eval {
                         my ($_obj, $_objNm) = setVAR( escapeOnce($v->{'name'}) , $v);
                         _readVARS($_obj, $_objNm);
+                        setVAR( '_parent_', escapeOnce($v->{'name'}) );
                     };
                 }
                 #_readVARS($v, $k);
@@ -125,7 +127,7 @@ sub _sub_readVARS {
 }
 
 sub _readVARS {
-    my ($obj,$root) = @_;
+    my ($obj,$root,$depth) = @_;
     $root = ''     if (!$root);
     
     while (my ($k, $v) = each (%$obj)) {

@@ -15,8 +15,8 @@ BEGIN { push(@INC, ($ENV{'PWD'}||'.')."/ultide"); };
 use UltideCore;
 UltideInitVARS();
 
-#print("\n\nOUTPUT:::",Dumper($UltideCore::OUTPUT));
-#print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
+print("\n\nOUTPUT:::",Dumper($UltideCore::OUTPUT));
+print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
 
 #print("\n\ngetVAR:",
 #Dumper({

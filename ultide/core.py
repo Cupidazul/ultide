@@ -974,11 +974,13 @@ def _sub_readVARS(k,v):
                     try:
                         (_obj, _objNm) = setVAR( escapeOnce(v['name']) , json.dumps(v))
                         _readVARS(_obj, _objNm)
+                        setVAR( '_parent_', escapeOnce(v['name']) )
                     except: None
                 else:
                     try:
                         (_obj, _objNm) = setVAR( escapeOnce(v['name']) , v)
                         _readVARS(_obj, _objNm)
+                        setVAR( '_parent_', escapeOnce(v['name']) )
                     except: None
                 #_readVARS(v, k);
     return not type(v) is dict
