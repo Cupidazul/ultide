@@ -127,7 +127,7 @@ define([
                     `</div>`;
             };
             let $userSettings_Card =
-                `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+                `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: none;">` +
                 `    <div class="card-content">` +
                 `        <form id="userSettings-form">` +
                 `            <div class="form-group">` +
@@ -266,7 +266,7 @@ define([
 
             if (!user.is_admin)
                 $userSettings_Card =
-                `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: block;">` +
+                `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: none;">` +
                 `    <div class="card-content">` +
                 `        <form id="userSettings-form">` +
                 `            <div class="form-group">` +
@@ -360,11 +360,11 @@ define([
 
             if (user.is_admin) {
                 settingsForm = adminForm;
-                adminForm.hide();
+                //adminForm.hide();
                 adminForm.appendTo(this.element.children()[1]);
             } else {
                 settingsForm = userForm;
-                userForm.hide();
+                //userForm.hide();
                 userForm.appendTo(this.element.children()[1]);
             }
 
@@ -551,7 +551,8 @@ define([
                 });
             });
 
-            _fn_ShowCard('userSettings');
+            //_fn_ShowCard('userSettings');
+            $('#adminCardsView .card').hide();
             if (user.avatar.length > 0) $(`#settings_avatar`).val(user.avatar);
 
             $('#btnSH_flowchart').on('click', function(evt) {

@@ -29,7 +29,7 @@ define(['app'], function(app) {
             var Btns = $(`` +
                 `<div class="col-md-4">` +
                 `    <div class="input-group" style="float: left;left: -6px;top: -1px;">` +
-                `        <button type="button" class="btn btn-default input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');">` +
+                `        <button type="button" class="btn btn-default input-group-addon" title="Settings" onclick="$app.main_view.showView('welcome');$('#btnSH_userSettings').click();">` +
                 `            <li class="fa fa-cog"></li>` +
                 `        </button>` +
                 `        <button id="btn_save" type="button" class="btn btn-default input-group-addon" title="Save">` +
