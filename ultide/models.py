@@ -60,7 +60,6 @@ class User(db.Model, UserMixin):
             'create_date': self.confirmed_at,
             'active': self.active,
             'is_admin': self.is_admin,
-            'is_auth': self.is_authenticated
         }
         
     def user_exists(self, usrname):

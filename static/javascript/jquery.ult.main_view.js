@@ -279,7 +279,6 @@ define([
                 `               <th>Create Date</th>` +
                 `               <th>Is Active</th>` +
                 `               <th>Is Admin</th>` +
-                `               <th>Is Auth</th>` +
                 `           </tr>` +
                 `       </thead>` +
                 `       <tbody>` +
@@ -573,7 +572,6 @@ define([
                                 { data: 'create_date' },
                                 { data: 'active' },
                                 { data: 'is_admin' },
-                                { data: 'is_auth' },
                             ],
                         });
                     }
