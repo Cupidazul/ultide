@@ -562,7 +562,7 @@ define([
                     if (user.is_admin && CurrCardName == 'adminListUsers') {
                         $app.adminListUsersDT = $('#adminListUsers-data').DataTable({
                             ajax: '/api/user_data',
-                            retrieve: true,
+                            destroy: true,
                             columns: [
                                 { data: 'username' },
                                 { data: 'first_name' },
