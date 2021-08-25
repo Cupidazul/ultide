@@ -10,6 +10,8 @@ IO_SERVER = {
     'cors' : ''                 # for CORS :nginx-https-proxy: set 'https://<servername>'
 }
 TIMEZONE = 'GMT+0'
+LOGFILE  = './data/ultide.log'
+LOGLEVEL = 'DEBUG'              # CRITICAL, FATAL, ERROR, WARN, WARNING, INFO, DEBUG, NOTSET
 
 # Flask settings
 SECRET_KEY                      =     os.getenv('SECRET_KEY',       'THIS IS AN INSECURE SECRET')

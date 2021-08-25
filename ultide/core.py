@@ -17,12 +17,17 @@ import base64
 import re
 import pytz
 from urllib import parse
+import logging
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
 DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
+
+logging.basicConfig(filename=config.LOGFILE, encoding='utf-8', level=logging._nameToLevel[config.LOGLEVEL], format='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s')
+logging.Formatter.formatTime = (lambda self, record, datefmt: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat())
+ulog = logging.getLogger()
 
 def decodeZlibString(_str):
     return zlib.decompress(base64.b64decode(_str),0).decode("utf-8")
