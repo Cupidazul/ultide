@@ -18,6 +18,7 @@ import re
 import pytz
 from urllib import parse
 import logging
+from logging.handlers import TimedRotatingFileHandler
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
@@ -25,9 +26,23 @@ DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
 
-logging.basicConfig(filename=config.LOGFILE, encoding='utf-8', level=logging._nameToLevel[config.LOGLEVEL], format='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s')
-logging.Formatter.formatTime = (lambda self, record, datefmt: datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat())
+## Logging Config Start ###############################
+
+class ISOFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        return datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat()
+
+filer = os.path.dirname(config.LOGFILE) + '/' + datetime.datetime.now().strftime("%Y%m%d") + '-' + os.path.basename(config.LOGFILE)
+
+rotating_file_handler = TimedRotatingFileHandler(filename=filer, when='midnight', interval=2, encoding='utf-8')
+rotating_file_handler.rotation_filename = filer
+rotating_file_handler.setFormatter(ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
+
 ulog = logging.getLogger()
+ulog.addHandler(rotating_file_handler)
+ulog.setLevel(logging._nameToLevel[config.LOGLEVEL])
+
+## Logging Config End ###############################
 
 def decodeZlibString(_str):
     return zlib.decompress(base64.b64decode(_str),0).decode("utf-8")
