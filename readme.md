@@ -47,7 +47,7 @@ WIP and basic features are missing. Backward compatibility is NOT guaranteed. Do
 External contributions for features, documentation, or simply suggestion are very welcome. Don't hesitate to contact us
 via the `Issues` tab.
 
-![Screenshot](https://ultide.github.io/ultide-documentation/images/screenshot.png?version=2)
+![20210825-screenshot](https://user-images.githubusercontent.com/12242582/130753181-cf09d5c0-82f3-42db-bc56-a33cab190b80.png)
 
 ## Requirements
 

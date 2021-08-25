@@ -40,7 +40,7 @@ define(['app'], function(app) {
                 `            <li class="fa fa-play"></li>` +
                 `        </button>` +
                 `    </div>` +
-                `    <div class="input-group">` +
+                `    <div class="input-group" style="display: contents;">` +
                 `        <button id="" type="button" class="btn btn-default input-group-addon menuicnBtnfix active" title="Flowchart" style="position: relative;top: -4px;left: -2px;" onclick="$app.main_view.showView('welcome');">` +
                 `            <li class="glyphicon glyphicon-blackboard"></li>` +
                 `        </button>` +
