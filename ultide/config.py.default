@@ -11,7 +11,7 @@ IO_SERVER = {
 }
 TIMEZONE = 'GMT+0'
 LOGFILE  = './data/ultide.log'
-LOGLEVEL = 'ERROR'              # CRITICAL, FATAL, ERROR, WARN, WARNING, INFO, DEBUG, NOTSET
+LOGLEVEL = 'ERROR'              # CRITICAL=FATAL=50, ERROR=40, WARN=WARNING=30, INFO=20, DEBUG=10, NOTSET=0
 
 # Flask settings
 SECRET_KEY                      =     os.getenv('SECRET_KEY',       'THIS IS AN INSECURE SECRET')

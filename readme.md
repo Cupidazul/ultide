@@ -11,9 +11,9 @@ For now we are focusing on:
 
 * Perl
 * Python
-* NodeJS (WIP)
-* Expect (WIP)
-* TCL (WIP)
+* NodeJS
+* Expect
+* TCL
 * others (WIP)
 
 We will try to use json with input/output options that permits us to modularize each programming language, so as to input and output values
