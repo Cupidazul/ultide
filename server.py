@@ -275,6 +275,10 @@ def modules_static(path):
     if (DEBUG): print('@server: module load:', "./" + module_path.replace("\\","/") + '/' + '/'.join(splitted_path));sys.stdout.flush();
     return send_from_directory(module_path, '/'.join(splitted_path))
 
+@app.route('/api/user_data')
+def user_data():
+    if ( current_user.is_admin ): return {'data': [user.to_dict() for user in User.query]}
+
 @socketio.on('connect', namespace='/uide')
 def test_connect():
     sessions_data[session['uuid']] = core.get_init_session_data(core)

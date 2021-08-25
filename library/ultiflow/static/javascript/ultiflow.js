@@ -61,6 +61,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
                 try { app.versions.mousewheel = $.event.special.mousewheel.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.JSONSafeStringify = app.JSONSafeStringify.version; } catch (err) { console.log('err:', err); }
                 try { app.versions.lzString = app.lzString.version; } catch (err) { console.log('err:', err); }
+                try { app.versions.DataTable = jQuery.fn.DataTable.version; } catch (err) { console.log('err:', err); }
 
                 try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
                 try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }

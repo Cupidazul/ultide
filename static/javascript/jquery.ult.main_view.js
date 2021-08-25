@@ -264,6 +264,31 @@ define([
                 `    </div>` +
                 `</div>`;
 
+            let $adminListUsers_Card =
+                `<div id="adminListUsers" class="col-md-12 card" style="display: none;">` +
+                `    <div class="card-content">` +
+                `   <table id="adminListUsers-data" class="table table-striped">` +
+                `       <thead>` +
+                `           <tr>` +
+                `               <th>Username</th>` +
+                `               <th>First Name</th>` +
+                `               <th>Last Name</th>` +
+                `               <th>Group</th>` +
+                `               <th>Avatar</th>` +
+                `               <th>Email</th>` +
+                `               <th>Create Date</th>` +
+                `               <th>Is Active</th>` +
+                `               <th>Is Admin</th>` +
+                `               <th>Is Auth</th>` +
+                `           </tr>` +
+                `       </thead>` +
+                `       <tbody>` +
+                `       </tbody>` +
+                `    </table>` +
+                `        <label id="msgChgPwd"></label>` +
+                `    </div>` +
+                `</div>`;
+
             if (!user.is_admin)
                 $userSettings_Card =
                 `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: none;">` +
@@ -318,7 +343,7 @@ define([
                 `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon border-left-0" title="New User">` +
                 `               <li class="fa fa-user-plus"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_adminListUsers" type="button" class="btn btn-default btn input-group-addon" title="List Users" disabled="disabled">` +
+                `           <button id="btnSH_adminListUsers" type="button" class="btn btn-default btn input-group-addon" title="List Users">` +
                 `               <li class="fa fa-users"></li>` +
                 `           </button>` +
                 `       </div>` +
@@ -333,6 +358,7 @@ define([
                 `    ${$userSettings_Card}` +
                 `    ${$userChgPwd_Card}` +
                 `    ${$adminNewUser_Card}` +
+                `    ${$adminListUsers_Card}` +
                 `</div>`);
 
             let userForm = $('<hr>' +
@@ -530,9 +556,27 @@ define([
             $('#adminMenuBtns > div > button').each((Idx, element) => {
                 //console.log('@ult.main_view: adminMenuBtns.each', { 'Idx': Idx, 'element': element });
                 $(element).on('click', function(evt) {
-                    //console.log('@ult.main_view: adminMenuBtns.click', { 'evt': evt, 'element': element });
                     let CurrCardName = (evt.currentTarget.id || evt.currentTarget.nodeName).split('_')[1];
+                    if ($app.debug) console.log('@ult.main_view: adminMenuBtns.click', { CurrCardName: CurrCardName, evt: evt, element: element });
                     _fn_ShowCard(CurrCardName, (CurrCardName !== 'flowchart'));
+                    if (user.is_admin && CurrCardName == 'adminListUsers') {
+                        $app.adminListUsersDT = $('#adminListUsers-data').DataTable({
+                            ajax: '/api/user_data',
+                            retrieve: true,
+                            columns: [
+                                { data: 'username' },
+                                { data: 'first_name' },
+                                { data: 'last_name' },
+                                { data: 'group' },
+                                { data: 'avatar' },
+                                { data: 'email' },
+                                { data: 'create_date' },
+                                { data: 'active' },
+                                { data: 'is_admin' },
+                                { data: 'is_auth' },
+                            ],
+                        });
+                    }
                 });
             });
             /* Add Avatar OnClick for each dropdown selected (li.a) option */

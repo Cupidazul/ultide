@@ -49,6 +49,20 @@ class User(db.Model, UserMixin):
     # │└───────── (64)  - Role 7
     # └────────── (128) - Admin
 
+    def to_dict(self):
+        return {
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'group': self.group,
+            'email': self.email,
+            'avatar': self.avatar,
+            'create_date': self.confirmed_at,
+            'active': self.active,
+            'is_admin': self.is_admin,
+            'is_auth': self.is_authenticated
+        }
+        
     def user_exists(self, usrname):
         return not (not User.query.filter(User.username==usrname).first())
 
