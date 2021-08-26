@@ -165,3 +165,45 @@
 .mainBtnFix {
     border-left: 1px solid #ccc !important;
 }
+
+.paginate_button.previous {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+
+.paginate_button.next {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+    color: #fff;
+    background-color: #337ab7;
+    border-color: #2e6da4;
+}
+
+.paginate_button.previous.disabled,
+.paginate_button.next.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.paginate_button.current {
+    padding: 5px 10px;
+}
+
+.dt-center {
+    text-align: center !important;
+}
+
+.editor-edit {
+    padding: 10px 5px !important;
+}
+
+.editor-delete {
+    padding: 10px 5px !important;
+}

@@ -270,6 +270,7 @@ define([
                 `   <table id="adminListUsers-data" class="table table-striped">` +
                 `       <thead>` +
                 `           <tr>` +
+                `               <th>id</th>` +
                 `               <th>Username</th>` +
                 `               <th>First Name</th>` +
                 `               <th>Last Name</th>` +
@@ -279,6 +280,8 @@ define([
                 `               <th>Create Date</th>` +
                 `               <th>Is Active</th>` +
                 `               <th>Is Admin</th>` +
+                `               <th></th>` +
+                `               <th></th>` +
                 `           </tr>` +
                 `       </thead>` +
                 `       <tbody>` +
@@ -556,13 +559,17 @@ define([
                 //console.log('@ult.main_view: adminMenuBtns.each', { 'Idx': Idx, 'element': element });
                 $(element).on('click', function(evt) {
                     let CurrCardName = (evt.currentTarget.id || evt.currentTarget.nodeName).split('_')[1];
-                    if ($app.debug) console.log('@ult.main_view: adminMenuBtns.click', { CurrCardName: CurrCardName, evt: evt, element: element });
+                    //if ($app.debug) console.log('@ult.main_view: adminMenuBtns.click', { CurrCardName: CurrCardName, evt: evt, element: element });
                     _fn_ShowCard(CurrCardName, (CurrCardName !== 'flowchart'));
                     if (user.is_admin && CurrCardName == 'adminListUsers') {
                         $app.adminListUsersDT = $('#adminListUsers-data').DataTable({
                             ajax: '/api/user_data',
                             destroy: true,
+                            responsive: true,
+                            autoWidth: true,
+                            searching: true,
                             columns: [
+                                { data: 'id' },
                                 { data: 'username' },
                                 { data: 'first_name' },
                                 { data: 'last_name' },
@@ -572,9 +579,51 @@ define([
                                 { data: 'create_date' },
                                 { data: 'active' },
                                 { data: 'is_admin' },
+                                { data: null, className: "dt-center editor-edit", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-pen"/></button>', orderable: false },
+                                { data: null, className: "dt-center editor-delete", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-trash"/></button>', orderable: false }
                             ],
+                            initComplete: function() {
+                                this.api().rows().every(function(evt1) {
+                                    let that = this,
+                                        elData = that.data(),
+                                        elNode = that.node();
+                                    //console.log('initComplete:', { evt1: evt1, that: that, data: elData, node: elNode });
+                                    if (elData.username == 'root') { //prevent delete root user!
+                                        $(elNode).find('.editor-edit').css({ 'opacity': 0.4, 'pointer-events': 'none' });
+                                        $(elNode).find('.editor-delete').css({ 'opacity': 0.4, 'pointer-events': 'none' });
+                                    }
+                                });
+                            }
+                        });
+
+                        // Edit record
+                        $('#adminListUsers-data').on('click', 'td.editor-edit', function(evt) {
+                            evt.stopImmediatePropagation();
+                            evt.preventDefault();
+                            let UsrElm = $app.adminListUsersDT.row(this).data();
+                            console.log('adminListUsers-data.td.editor-edit', { evt: evt, this: this, UsrElm: UsrElm });
+                            return false;
+                        });
+
+                        // Delete a record
+                        $('#adminListUsers-data').on('click', 'td.editor-delete', function(evt) {
+                            evt.stopImmediatePropagation();
+                            evt.preventDefault();
+                            let UsrElm = $app.adminListUsersDT.row(this).data();
+                            console.log('adminListUsers-data.td.editor-delete', { evt: evt, this: this, UsrElm: UsrElm });
+
+                            if (UsrElm.username !== "root") { //prevent delete root user!
+                                let dRes = confirm("Confirm deletion of user: " + UsrElm.username);
+                                if (dRes) {
+                                    app.ultiflow.deleteUser(UsrElm, function() {
+                                        $('#btnSH_adminListUsers').click();
+                                    });
+                                }
+                            }
+                            return false;
                         });
                     }
+                    return false;
                 });
             });
             /* Add Avatar OnClick for each dropdown selected (li.a) option */

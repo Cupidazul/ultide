@@ -19,5 +19,5 @@ requirejs_paths = {
   'ace': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/ace',
   'ace/mode/json' : 'static/modules/ultiflow/plugins/ace/src-min-noconflict/mode-json',
   'ace/theme/terminal': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/theme-terminal',
-  'datatables': 'static/modules/ultiflow/plugins/datatables/datatables.min'
+  'datatables': 'static/modules/ultiflow/plugins/datatables/datatables.min',
 }

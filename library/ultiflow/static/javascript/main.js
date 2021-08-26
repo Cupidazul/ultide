@@ -5,7 +5,8 @@ define([
     'css!static/modules/ultiflow/css/main',
     'css!static/modules/ultiflow/plugins/jstree/dist/themes/default/style.min',
     'css!static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min.css',
-    'css!static/modules/ultiflow/plugins/datatables/datatables.min.css'
+    'css!static/modules/ultiflow/plugins/datatables/datatables.min.css',
+    'css!static/modules/ultiflow/plugins/datatables/dataTables.bootstrap.min.css',
 ], function(app) {
     if ($app.debug) console.log('@library/ultiflow/main: app:', app);
     var self = this;

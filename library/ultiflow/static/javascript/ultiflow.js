@@ -225,6 +225,14 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         });
     };
 
+    ultiflow.deleteUser = function(userData, cb) {
+        if ($app.debug) console.log('ultiflow.delete_user:', { userData: userData });
+        app.sendRequest('delete_user', userData, function(response) {
+            if ($app.debug) console.log('delete_user: ', response);
+            cb();
+        });
+    };
+
     ultiflow.CompileCode = function(_data, _runCodeNow = true, _cronFile = '') {
         let _Code = '';
         let _linkTree = {};

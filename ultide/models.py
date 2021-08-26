@@ -51,6 +51,7 @@ class User(db.Model, UserMixin):
 
     def to_dict(self):
         return {
+            'id': self.id,
             'username': self.username,
             'first_name': self.first_name,
             'last_name': self.last_name,
@@ -64,6 +65,11 @@ class User(db.Model, UserMixin):
         
     def user_exists(self, usrname):
         return not (not User.query.filter(User.username==usrname).first())
+
+    def del_user(self, user):
+        del_user = User.query.filter(User.username==user['username']).first()
+        db.session.delete(del_user)
+        db.session.commit()
 
     def add_user(self, user):
         new_user = User(

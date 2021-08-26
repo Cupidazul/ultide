@@ -203,6 +203,10 @@ def on_add_new_user(data, response, session_data):
             response['error'] = sys.exc_info()[0]
             pprint(('Error:', response['error'], ret))
 
+def on_delete_user(data, response, session_data):
+    if (DEBUG): pprint(('@main: deleteUser: ', data))
+    current_user.del_user(data)
+
 def on_set_user_property(data, response, session_data):
     user = session_data['user']
     user.set_property(data['key'], data['value'])
