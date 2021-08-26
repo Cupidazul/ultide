@@ -225,12 +225,268 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         });
     };
 
+    function _fn_countdown(val, _id) {
+        var counter = val - 1;
+        CountDown = setInterval(function() {
+            if (counter < 0) document.getElementById(_id).innerHTML = "0";
+            if (counter >= 0) document.getElementById(_id).innerHTML = counter--;
+        }, 1000);
+    }
+
+    ultiflow.ChgPwdUser = function(CurrPWD, NewPWD) {
+        app.sendRequest('change_user_password', { CurrPWD: CurrPWD, NewPWD: NewPWD }, function(data) {
+            let _msg = '';
+            if ($app.debug) console.log('@ult.main_view: change_user_password:', { 'data': data });
+            if (data.res === true) {
+                _msg += "Password change sucessfull...<br>Logoff in <b id='countdown'>3</b> secs...";
+                _fn_countdown(3, "countdown");
+                setTimeout(function() { document.location = './logout'; }, 4000);
+            } else {
+                _msg += "Change password failed...<br>";
+            }
+            if (data.CurrPwdOK === false) _msg += "Current password doesn't match...<br>";
+            $('#msgChgPwd').html(_msg);
+        });
+    };
+
+    ultiflow.updateUser = function(userData, _msgId, cb) {
+        if ($app.debug) console.log('ultiflow.updateUser:', userData);
+        let _obj = {};
+        _obj.id = userData.id;
+        _obj.username = userData.username; //String($('#settings_username').val());
+        if (userData.password && userData.password != '') { _obj.password = userData.password; }
+        _obj.avatar = userData.avatar; //String($('#settings_avatar').val());
+        _obj.first_name = userData.first_name; //String($('#settings_first_name').val());
+        _obj.last_name = userData.last_name; //String($('#settings_last_name').val());
+        _obj.email = userData.email; //String($('#settings_email').val());
+        if (userData.group >= 0) _obj.group = userData.group; //String($('#settings_group').val()); // fix: user is not admin
+
+        app.sendRequest('change_user_settings', {
+            'user': JSON.stringify(_obj)
+        }, function(data) {
+            let _msg = '';
+            if ($app.debug) console.log('@ult.main_view: change_user_settings:', { data: data });
+            if (data.res === true) {
+                if (!cb) {
+                    _msg += "Update sucessfull...<br>Refresh in <b id='sys_countdown'>3</b> secs...";
+                    _fn_countdown(3, "sys_countdown");
+                    setTimeout(function() { document.location = '/'; }, 4000);
+                } else {
+                    // CallBack exists.
+                    _msg += "Update sucessfull...<br>";
+                }
+            } else {
+                _msg += "Update failed...<br>";
+            }
+            if (data.dif === false) _msg += "No changes detected to your settings...<br>";
+            if (data.usr_exists === true) _msg += "Username allready exists...<br>";
+            $('#' + _msgId).html(_msg);
+            if (cb) {
+                // run CallBack!
+                cb();
+            }
+        });
+    };
+
+    ultiflow.addUser = function(userData) {
+        //if ($app.debug) console.log('ultiflow.addUser:', { userData: userData }); // carefull: password in cleartext is here
+        app.sendRequest('add_new_user', {
+            'user': JSON.stringify({
+                username: userData.username, //String($('#new_username').val()),
+                password: userData.password, //String($('#new_confirm_pwd').val()),
+                avatar: userData.avatar, //String($('#new_avatar').val()),
+                first_name: userData.first_name, //String($('#new_first_name').val()),
+                last_name: userData.last_name, //String($('#new_last_name').val()),
+                email: userData.email, //String($('#new_email').val()),
+                group: userData.group //String($('#new_group').val()),
+            })
+        }, function(data) {
+            let _msg = '';
+            if ($app.debug) console.log('@ult.main_view: add_new_user:', { data: data });
+
+            if (data.res === true) {
+                _msg += "User Created sucessfully...<br>";
+            } else {
+                _msg += "User Creation failed...<br>";
+            }
+
+            if (data.usr_exists === true) _msg += "Username allready exists...<br>";
+
+            $('#msgNewUser').html(_msg);
+
+        });
+    };
+
     ultiflow.deleteUser = function(userData, cb) {
         if ($app.debug) console.log('ultiflow.delete_user:', { userData: userData });
         app.sendRequest('delete_user', userData, function(response) {
             if ($app.debug) console.log('delete_user: ', response);
             cb();
         });
+    };
+
+    ultiflow.editUser = function(userData, cb) {
+        var _self = this;
+
+        var Title = 'Edit User';
+        var str = `
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="myeditUserModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myeditUserModalLabel">${Title}</h4>
+            </div>
+            <div class="modal-body" style="height: 67vh;">
+            </div>
+            <div class="modal-footer" style="min-height: 60px;">
+                <div style="float: left;text-align: left;min-width: 400px;">
+                <label><div style="float:right"></div></label>
+            </div>
+            <div style="float: right;position: fixed;bottom: 16px;right: -20px;">
+                <button type="button" class="btn btn-primary btn-close" data-dismiss="modal" style="width: 100px;">Cancel</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+        let $adminEditUser_Card =
+            `<div id="adminEditUser" class="col-md-12 card" style="display: block;">` +
+            `    <div class="card-content">` +
+            `        <form id="adminEditUser-form">` +
+            `            <div class="form-group">` +
+            `                   <label for="editUserView" style="margin-bottom: 15px;">&nbsp;</label>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">Username: </div>` +
+            `                   <input id="edit_userid" type="hidden" class="form-control" placeholder="user_id" >` +
+            `                   <input id="edit_username" type="text" class="form-control" placeholder="Username" style="width: 100px;">` +
+            `                </div>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">Avatar: </div>` +
+            `                   ` + app.fn._printAvatar('edit', userData) +
+            `                </div>` +
+            `                <p></p>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">Password: </div>` +
+            `                   <input id="edit_new_pwd" type="password" class="form-control" placeholder="Password" style="width: 200px;">` +
+            `                </div>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">Confirm: </div>` +
+            `                   <input id="edit_confirm_pwd" type="password" class="form-control" placeholder="Repeat Password" style="width: 200px;">` +
+            `                </div>` +
+            `                <p></p>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">FirstName: </div>` +
+            `                   <input id="edit_first_name" type="text" class="form-control" placeholder="First Name" style="width: 150px;">` +
+            `                </div>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">LastName: </div>` +
+            `                   <input id="edit_last_name" type="text" class="form-control" placeholder="Last Name" style="width: 150px;">` +
+            `                </div>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">E-mail: </div>` +
+            `                   <input id="edit_email" type="email" class="form-control" placeholder="Email" style="width: 200px;">` +
+            `                </div>` +
+            `                <div class="col">` +
+            `                   <div class="tblLabel col-md-3">Group: </div>` +
+            `                   <select id="edit_group" type="text" class="form-control" placeholder="Group (0...255)" style="width: 150px;" value="255">
+            <option value="255" ` + ((parseInt(userData.group) == 255) ? 'selected="selected"' : '') + `>Superuser</option>
+            <option value="128" ` + ((parseInt(userData.group) == 128) ? 'selected="selected"' : '') + `>Admin</option>
+            <option value="64" ` + ((parseInt(userData.group) == 64) ? 'selected="selected"' : '') + `>Profile 1</option>
+            <option value="32" ` + ((parseInt(userData.group) == 32) ? 'selected="selected"' : '') + `>Profile 2</option>
+            <option value="16" ` + ((parseInt(userData.group) == 16) ? 'selected="selected"' : '') + `>Profile 3</option>
+            <option value="8" ` + ((parseInt(userData.group) == 8) ? 'selected="selected"' : '') + `>Profile 4</option>
+            <option value="4" ` + ((parseInt(userData.group) == 4) ? 'selected="selected"' : '') + `>Profile 5</option>
+            <option value="2" ` + ((parseInt(userData.group) == 2) ? 'selected="selected"' : '') + `>Profile 6</option>
+            <option value="1" ` + ((parseInt(userData.group) == 1) ? 'selected="selected"' : '') + `>Profile 7</option>
+            <option value="0" ` + ((parseInt(userData.group) == 0) ? 'selected="selected"' : '') + `>No Group</option>
+            </select>` +
+            `                </div>` +
+            `            </div>` +
+            `            <div class="col">` +
+            `               <div class="tblLabel col-md-3"></div>` +
+            `               <button type="submit" class="btn btn-primary">Submit</button>` +
+            `            </div>` +
+            `        </form>` +
+            `        <label id="msgEditUser"></label>` +
+            `    </div>` +
+            `</div>`;
+
+
+        var $modal = $(str);
+        var $title = $modal.find('.modal-title');
+        var $body = $modal.find('.modal-body');
+        var $cancelButton = $modal.find('.btn-close');
+
+        $($adminEditUser_Card).appendTo($body);
+
+        $cancelButton.click(function() {
+            $modal.modal('hide');
+        });
+
+        $modal.modal();
+        $modal.on('hidden.bs.modal', function() {
+            $modal.remove();
+            cb();
+        });
+
+        $modal.on('shown.bs.modal', function() {
+            // init: on Modal Shown()
+            $('#edit_userid').val(userData.id);
+            $('#edit_username').val(userData.username);
+            $('#edit_avatar').val(userData.avatar);
+            $('#edit_first_name').val(userData.first_name);
+            $('#edit_last_name').val(userData.last_name);
+            $('#edit_email').val(userData.email);
+            $('#edit_group').val(userData.group);
+
+            app.fn._onChangeUpdateAvatar('edit');
+
+            $('#adminEditUser-form').on('submit', function(evt) {
+                if ($app.debug) console.log('@ult.main_view: adminEditUser-form.submit:', evt);
+                let _msg = '';
+                let NewPWD = String($('#edit_new_pwd').val());
+                let CnfPWD = String($('#edit_confirm_pwd').val());
+                let CnfGrp = String($('#edit_group').val());
+                if (typeof(CnfGrp) == 'undefined') CnfGrp = 0;
+                if (String($('#edit_username').val()) != '' &&
+                    String($('#edit_avatar').val()) != '' &&
+                    String($('#edit_email').val()) != '' &&
+                    Number.isInteger(parseInt(CnfGrp)) &&
+                    (parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) {
+                    if (NewPWD === CnfPWD) {
+                        app.ultiflow.updateUser({
+                            id: String($('#edit_userid').val()),
+                            username: String($('#edit_username').val()),
+                            password: String($('#edit_password').val()),
+                            avatar: String($('#edit_avatar').val()),
+                            first_name: String($('#edit_first_name').val()),
+                            last_name: String($('#edit_last_name').val()),
+                            email: String($('#edit_email').val()),
+                            group: String($('#edit_group').val()), // fix: user is not admin
+                        }, 'msgEditUser', function() { // Callback
+                            $modal.modal('hide');
+                        });
+                    } else {
+                        if ($app.debug) console.log('@ult.main_view: edit_user: error:', { 'evt': evt });
+                        if (NewPWD != CnfPWD) _msg += "New Password and Confirm don't match!<br>";
+                    }
+                } else {
+                    if ($app.debug) console.log('@ult.main_view: edit_user: error:', { 'evt': evt });
+                    if (NewPWD != CnfPWD) _msg += "New Password and Confirm don't match!";
+                    if (String($('#edit_username').val()) == '') _msg += "You must insert a username<br>";
+                    if (String($('#edit_email').val()) == '') _msg += "You must insert a email<br>";
+                    if (String($('#edit_avatar').val()) == '') _msg += "You must select a avatar<br>";
+                    if (!Number.isInteger(parseInt(CnfGrp)) || !(parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) _msg += "Group should be a number from 0...255<br>";
+                }
+
+                $('#msgEditUser').html(_msg);
+
+                return false;
+            });
+        });
+
     };
 
     ultiflow.CompileCode = function(_data, _runCodeNow = true, _cronFile = '') {

@@ -100,32 +100,6 @@ define([
         addSettingsView: function(user) {
             let settingsForm = '';
             //console.log('ult.main_view: addSettingsView');
-            let _fn_printAvatar = function(name, _user) {
-                _avatar_name = (imgSrc) => {
-                    try {
-                        let imgNm = imgSrc.split('/');
-                        let imgID0 = imgNm[imgNm.length - 1].split('.')[0].replace('img_avatar', '');
-                        let imgID = String(parseInt(imgID0) + 1);
-                        if (imgID0.length > 0) return ' Avatar ' + imgID;
-                    } catch (err) {}
-                    return '-Avatar-';
-                };
-                return `` +
-                    `<div class="dropdown">` +
-                    `   <button id="${name}_avatar" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="min-width: 150px;text-align: left;overflow: hidden;max-height: 34px;">` +
-                    `       <span id="${name}_avatar_selected" style="color: darkgray;">` + ((_user.avatar.length > 0) ? '<img class="avatar" src="' + _user.avatar + '">' + (_avatar_name(_user.avatar)) : '-Avatar-') + `</span>` +
-                    `       <span class="caret" style="float: right;margin-top: 5px;"></span>` +
-                    `   </button>` +
-                    `   <ul id="${name}_avatar_list" class="dropdown-menu" aria-labelledby="${name}_avatar">` +
-                    `       <li><a id='${name}_img_avatar0' href=""><img class="avatar" src="./static/modules/ultiflow/images/img_avatar0.png"> Avatar 1</a></li>` +
-                    `       <li><a id='${name}_img_avatar1' href=""><img class="avatar" src="./static/modules/ultiflow/images/img_avatar1.png"> Avatar 2</a></li>` +
-                    `       <li><a id='${name}_img_avatar2' href=""><img class="avatar" src="./static/modules/ultiflow/images/img_avatar2.png"> Avatar 3</a></li>` +
-                    `       <li><a id='${name}_img_avatar3' href=""><img class="avatar" src="./static/modules/ultiflow/images/img_avatar3.png"> Avatar 4</a></li>` +
-                    `       <li><a id='${name}_img_avatar4' href=""><img class="avatar" src="./static/modules/ultiflow/images/img_avatar4.png"> Avatar 5</a></li>` +
-                    `       <li><a id='${name}_img_avatar5' href=""><img class="avatar" src="./static/modules/ultiflow/images/img_avatar5.png"> Avatar 6</a></li>` +
-                    `   </ul>` +
-                    `</div>`;
-            };
             let $userSettings_Card =
                 `<div id="userSettings" class="col-md-4 card" style="margin-left: 100px; margin-right: 100px; display: none;">` +
                 `    <div class="card-content">` +
@@ -138,7 +112,7 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Avatar: </div>` +
-                `                   ` + _fn_printAvatar('settings', user) +
+                `                   ` + app.fn._printAvatar('settings', user) +
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">FirstName: </div>` +
@@ -215,7 +189,7 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Avatar: </div>` +
-                `                   ` + _fn_printAvatar('new', { 'avatar': '' }) +
+                `                   ` + app.fn._printAvatar('new', { 'avatar': '' }) +
                 `                </div>` +
                 `                <p></p>` +
                 `                <div class="col">` +
@@ -304,7 +278,7 @@ define([
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">Avatar: </div>` +
-                `                   ` + _fn_printAvatar('settings', user) +
+                `                   ` + app.fn._printAvatar('settings', user) +
                 `                </div>` +
                 `                <div class="col">` +
                 `                   <div class="tblLabel col-md-3">FirstName: </div>` +
@@ -396,16 +370,6 @@ define([
                 userForm.appendTo(this.element.children()[1]);
             }
 
-            var CountDown;
-
-            function _fn_countdown(val, _id) {
-                var counter = val - 1;
-                CountDown = setInterval(function() {
-                    if (counter < 0) document.getElementById(_id).innerHTML = "0";
-                    if (counter >= 0) document.getElementById(_id).innerHTML = counter--;
-                }, 1000);
-            }
-
             $('#userSettings-form').on('submit', function(evt) {
                 let _msg = '';
                 let CnfGrp = String($('#settings_group').val());
@@ -415,32 +379,14 @@ define([
                     String($('#settings_email').val()) != '' &&
                     Number.isInteger(parseInt(CnfGrp)) &&
                     (parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) {
-                    setTimeout(function() {
-                        let _obj = {};
-                        _obj.username = String($('#settings_username').val());
-                        _obj.avatar = String($('#settings_avatar').val());
-                        _obj.first_name = String($('#settings_first_name').val());
-                        _obj.last_name = String($('#settings_last_name').val());
-                        _obj.email = String($('#settings_email').val());
-                        if ($('#settings_group').length > 0) _obj.group = String($('#settings_group').val()); // fix: user is not admin
-
-                        app.sendRequest('change_user_settings', {
-                            'user': JSON.stringify(_obj)
-                        }, function(data) {
-                            let _msg = '';
-                            if ($app.debug) console.log('@ult.main_view: change_user_settings:', { data: data });
-                            if (data.res === true) {
-                                _msg += "Update sucessfull...<br>Refresh in <b id='sys_countdown'>3</b> secs...";
-                                _fn_countdown(3, "sys_countdown");
-                                setTimeout(function() { document.location = '/'; }, 4000);
-                            } else {
-                                _msg += "Update failed...<br>";
-                            }
-                            if (data.dif === false) _msg += "No changes detected to your settings...<br>";
-                            if (data.usr_exists === true) _msg += "Username allready exists...<br>";
-                            $('#msgSettings').html(_msg);
-                        });
-                    }, 1);
+                    app.ultiflow.updateUser({
+                        username: String($('#settings_username').val()),
+                        avatar: String($('#settings_avatar').val()),
+                        first_name: String($('#settings_first_name').val()),
+                        last_name: String($('#settings_last_name').val()),
+                        email: String($('#settings_email').val()),
+                        group: String($('#settings_group').val()), // fix: user is not admin
+                    }, 'msgSettings');
                 } else {
                     if ($app.debug) console.log('@ult.main_view: add_new_user: error:', { 'evt': evt });
                     if (String($('#settings_username').val()) == '') _msg += "You must insert a username<br>";
@@ -468,33 +414,15 @@ define([
                     Number.isInteger(parseInt(CnfGrp)) &&
                     (parseInt(CnfGrp) >= 0 && parseInt(CnfGrp) <= 255)) {
                     if (NewPWD === CnfPWD) {
-                        setTimeout(function() {
-                            app.sendRequest('add_new_user', {
-                                'user': JSON.stringify({
-                                    username: String($('#new_username').val()),
-                                    password: String($('#new_confirm_pwd').val()),
-                                    avatar: String($('#new_avatar').val()),
-                                    first_name: String($('#new_first_name').val()),
-                                    last_name: String($('#new_last_name').val()),
-                                    email: String($('#new_email').val()),
-                                    group: String($('#new_group').val()),
-                                })
-                            }, function(data) {
-                                let _msg = '';
-                                if ($app.debug) console.log('@ult.main_view: add_new_user:', { data: data });
-
-                                if (data.res === true) {
-                                    _msg += "User Created sucessfully...<br>";
-                                } else {
-                                    _msg += "User Creation failed...<br>";
-                                }
-
-                                if (data.usr_exists === true) _msg += "Username allready exists...<br>";
-
-                                $('#msgNewUser').html(_msg);
-
-                            });
-                        }, 1);
+                        app.ultiflow.addUser({
+                            username: String($('#new_username').val()),
+                            password: String($('#new_confirm_pwd').val()),
+                            avatar: String($('#new_avatar').val()),
+                            first_name: String($('#new_first_name').val()),
+                            last_name: String($('#new_last_name').val()),
+                            email: String($('#new_email').val()),
+                            group: String($('#new_group').val()),
+                        });
                     } else {
                         if ($app.debug) console.log('@ult.main_view: add_new_user: error:', { 'evt': evt });
                         if (NewPWD != CnfPWD) _msg += "New Password and Confirm don't match!<br>";
@@ -521,23 +449,7 @@ define([
                 let CnfPWD = String($('#confirm_pwd').val());
                 if (CurrPWD != '' && NewPWD != '' && CnfPWD != '') {
                     if (NewPWD === CnfPWD && CurrPWD != NewPWD) {
-                        setTimeout(function() {
-                            app.sendRequest('change_user_password', { CurrPWD: CurrPWD, NewPWD: NewPWD }, function(data) {
-                                let _msg = '';
-                                if ($app.debug) console.log('@ult.main_view: change_user_password:', { 'data': data });
-                                if (data.res === true) {
-                                    _msg += "Password change sucessfull...<br>Logoff in <b id='countdown'>3</b> secs...";
-
-                                    _fn_countdown(3, "countdown");
-                                    setTimeout(function() { document.location = './logout'; }, 4000);
-
-                                } else {
-                                    _msg += "Change password failed...<br>";
-                                }
-                                if (data.CurrPwdOK === false) _msg += "Current password doesn't match...<br>";
-                                $('#msgChgPwd').html(_msg);
-                            });
-                        }, 1);
+                        app.ultiflow.ChgPwdUser(CurrPWD, NewPWD);
                     } else {
                         if ($app.debug) console.log('@ult.main_view: change_user_password: error:', { 'evt': evt });
                         if (NewPWD != CnfPWD) $('#msgChgPwd').html("New Password and Confirm don't match!");
@@ -589,7 +501,7 @@ define([
                                         elNode = that.node();
                                     //console.log('initComplete:', { evt1: evt1, that: that, data: elData, node: elNode });
                                     if (elData.username == 'root') { //prevent delete root user!
-                                        $(elNode).find('.editor-edit').css({ 'opacity': 0.4, 'pointer-events': 'none' });
+                                        //$(elNode).find('.editor-edit').css({ 'opacity': 0.4, 'pointer-events': 'none' });
                                         $(elNode).find('.editor-delete').css({ 'opacity': 0.4, 'pointer-events': 'none' });
                                     }
                                 });
@@ -601,7 +513,10 @@ define([
                             evt.stopImmediatePropagation();
                             evt.preventDefault();
                             let UsrElm = $app.adminListUsersDT.row(this).data();
-                            console.log('adminListUsers-data.td.editor-edit', { evt: evt, this: this, UsrElm: UsrElm });
+                            //if ($app.debug) console.log('@ult.main_view: adminListUsers-data.td.editor-edit', { evt: evt, this: this, UsrElm: UsrElm });
+                            app.ultiflow.editUser(UsrElm, function() {
+                                $('#btnSH_adminListUsers').click();
+                            });
                             return false;
                         });
 
@@ -610,14 +525,11 @@ define([
                             evt.stopImmediatePropagation();
                             evt.preventDefault();
                             let UsrElm = $app.adminListUsersDT.row(this).data();
-                            console.log('adminListUsers-data.td.editor-delete', { evt: evt, this: this, UsrElm: UsrElm });
-
-                            if (UsrElm.username !== "root") { //prevent delete root user!
+                            //if ($app.debug) console.log('@ult.main_view: adminListUsers-data.td.editor-delete', { evt: evt, this: this, UsrElm: UsrElm });
+                            if (UsrElm.username !== "root") { // enforce prevent delete root user!
                                 let dRes = confirm("Confirm deletion of user: " + UsrElm.username);
                                 if (dRes) {
-                                    app.ultiflow.deleteUser(UsrElm, function() {
-                                        $('#btnSH_adminListUsers').click();
-                                    });
+                                    app.ultiflow.deleteUser(UsrElm, function() { $('#btnSH_adminListUsers').click(); });
                                 }
                             }
                             return false;
@@ -629,17 +541,7 @@ define([
             /* Add Avatar OnClick for each dropdown selected (li.a) option */
             ['new', 'settings'].forEach((elmName, _Idx) => {
                 //console.log('@ult.main_view: AvatarList.forEach', { '_Idx': _Idx, 'elmName': elmName });
-                $(`#${elmName}_avatar_list > li > a`).each((Idx, element) => {
-                    //console.log('@ult.main_view: AvatarList.each', { 'Idx': Idx, 'element': element });
-                    $(element).on('click', function(evt) {
-                        let CurrAvatar = (evt.currentTarget.id || evt.currentTarget.nodeName);
-                        //console.log('@ult.main_view: Avatar OnClick.each', { '_Idx': _Idx, 'elmName': elmName, 'Idx': Idx, 'element': element, 'evt': evt, 'CurrAvatar': CurrAvatar });
-                        $(`#${elmName}_avatar_selected`).html(element.innerHTML);
-                        $(`#${elmName}_avatar`).val($('#' + (element.id) + ' > img').attr('src')); // get: $('#settings_avatar').data('avatar_selected')
-                        $(`#${elmName}_avatar`).dropdown('toggle');
-                        return false;
-                    });
-                });
+                app.fn._onChangeUpdateAvatar(elmName);
             });
 
             //_fn_ShowCard('userSettings');

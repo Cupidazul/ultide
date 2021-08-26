@@ -136,12 +136,8 @@
     min-height: 29px;
 }
 
-#settings_avatar_selected .avatar {
-    margin-top: -5px;
-    height: 30px;
-    width: 30px;
-}
-
+#settings_avatar_selected .avatar,
+#edit_avatar_selected .avatar,
 #new_avatar_selected .avatar {
     margin-top: -5px;
     height: 30px;

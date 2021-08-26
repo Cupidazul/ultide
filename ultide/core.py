@@ -137,8 +137,13 @@ def on_change_user_password(data, response, session_data):
             pprint(('Error:',response['error']))
 
 def on_change_user_settings(data, response, session_data):
-    user = current_user
     userData = json.loads(data['user'])
+
+    if (userData.__contains__('id') and userData['id'] == current_user.id):
+        user = current_user
+    else:
+        user = User.query.filter(User.username==userData['username']).first()
+
     response['res'] = False
     response['usr_exists'] = False
     HasDiff = False
@@ -148,6 +153,7 @@ def on_change_user_settings(data, response, session_data):
         pprint(('@on_change_user_settings: Error: User Allready Exists!', { 'data':data, 'response':response, 'session_data': session_data, 'userData': userData, 'HasDiff': HasDiff }))
     else:
         if ( not str(user.username) == str(userData['username'])): HasDiff = True
+        if userData.__contains__('password'): HasDiff = True
         if ( not str(user.first_name) == str(userData['first_name'])): HasDiff = True
         if ( not str(user.last_name) == str(userData['last_name'])): HasDiff = True
         if ( not str(user.email) == str(userData['email'])): HasDiff = True
@@ -160,6 +166,7 @@ def on_change_user_settings(data, response, session_data):
         if (HasDiff == True):
             try:
                 user.username = userData['username']
+                if userData.__contains__('password'): user.set_password(userData['password'])
                 user.first_name = userData['first_name']
                 user.last_name = userData['last_name']
                 user.email = userData['email']

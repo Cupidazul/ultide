@@ -89,6 +89,49 @@ document.onreadystatechange = function($) {
 
             });
 
+            app.fn = {
+                _printAvatar: function(name, _user) {
+                    let _avatar_name = (imgSrc) => {
+                        try {
+                            let imgNm = imgSrc.split('/');
+                            let imgID0 = imgNm[imgNm.length - 1].split('.')[0].replace('img_avatar', '');
+                            let imgID = String(parseInt(imgID0) + 1);
+                            if (imgID0.length > 0) return ' Avatar ' + imgID;
+                        } catch (err) {}
+                        return '-Avatar-';
+                    };
+                    let str = '';
+                    str += '<div class="dropdown">';
+                    str += '   <button id="' + name + '_avatar" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="min-width: 150px;text-align: left;overflow: hidden;max-height: 34px;">';
+                    str += '       <span id="' + name + '_avatar_selected" style="color: darkgray;">' + ((_user.avatar.length > 0) ? '<img class="avatar" src="' + _user.avatar + '">' + (_avatar_name(_user.avatar)) : '-Avatar-') + '</span>';
+                    str += '       <span class="caret" style="float: right;margin-top: 5px;"></span>';
+                    str += '   </button>';
+                    str += '   <ul id="' + name + '_avatar_list" class="dropdown-menu" aria-labelledby="' + name + '_avatar">';
+                    str += '       <li><a id="' + name + '_img_avatar0"><img class="avatar" src="./static/modules/ultiflow/images/img_avatar0.png"> Avatar 1</a></li>';
+                    str += '       <li><a id="' + name + '_img_avatar1"><img class="avatar" src="./static/modules/ultiflow/images/img_avatar1.png"> Avatar 2</a></li>';
+                    str += '       <li><a id="' + name + '_img_avatar2"><img class="avatar" src="./static/modules/ultiflow/images/img_avatar2.png"> Avatar 3</a></li>';
+                    str += '       <li><a id="' + name + '_img_avatar3"><img class="avatar" src="./static/modules/ultiflow/images/img_avatar3.png"> Avatar 4</a></li>';
+                    str += '       <li><a id="' + name + '_img_avatar4"><img class="avatar" src="./static/modules/ultiflow/images/img_avatar4.png"> Avatar 5</a></li>';
+                    str += '       <li><a id="' + name + '_img_avatar5"><img class="avatar" src="./static/modules/ultiflow/images/img_avatar5.png"> Avatar 6</a></li>';
+                    str += '   </ul>';
+                    str += '</div>';
+                    return str;
+                },
+                _onChangeUpdateAvatar: function(elmName) {
+                    $(`#${elmName}_avatar_list > li > a`).each((Idx, element) => {
+                        //console.log('@ult.main_view: AvatarList.each', { 'Idx': Idx, 'element': element });
+                        $(element).on('click', function(evt) {
+                            //let CurrAvatar = (evt.currentTarget.id || evt.currentTarget.nodeName);
+                            //console.log('@ult.main_view: Avatar OnClick.each', { '_Idx': _Idx, 'elmName': elmName, 'Idx': Idx, 'element': element, 'evt': evt, 'CurrAvatar': CurrAvatar });
+                            $(`#${elmName}_avatar_selected`).html(element.innerHTML);
+                            $(`#${elmName}_avatar`).val($('#' + (element.id) + ' > img').attr('src')); // get: $('#settings_avatar').data('avatar_selected')
+                            $(`#${elmName}_avatar`).dropdown('toggle');
+                            return false;
+                        });
+                    });
+                }
+            };
+
         }, function(err) {
             console.log('@static/main: fn.error:', { error: err });
         });
