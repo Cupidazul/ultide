@@ -358,7 +358,37 @@ def mod_2_dict(Modobj, options={'exclude':[],'include':[],'depth': 0,'maxdepth':
                     else:
                         all_vars[i] = { 'value':str(Modobj[i]), 'type':str(type(Modobj[i])), 'name':str(iStr), 'isclass':isClass, 'className': className }
     return all_vars
-                    
+
+# from: https://stackoverflow.com/questions/3768895/how-to-make-a-class-json-serializable
+def sterilize(obj):
+    """Make an object more ameniable to dumping as json
+    """
+    if type(obj) in (str, float, int, bool, type(None)):
+        return obj
+    elif isinstance(obj, dict):
+        return {k: sterilize(v) for k, v in obj.items()}
+    list_ret = []
+    dict_ret = {}
+    for a in dir(obj):
+        if a == '__iter__' and callable(obj.__iter__):
+            list_ret.extend([sterilize(v) for v in obj])
+        elif a == '__dict__':
+            dict_ret.update({k: sterilize(v) for k, v in obj.__dict__.items() if k not in ['__module__', '__dict__', '__weakref__', '__doc__']})
+        elif a not in ['__doc__', '__module__']:
+            aval = getattr(obj, a)
+            if type(aval) in (str, float, int, bool, type(None)):
+                dict_ret[a] = aval
+            elif a != '__class__' and a != '__objclass__' and isinstance(aval, type):
+                dict_ret[a] = sterilize(aval)
+    if len(list_ret) == 0:
+        if len(dict_ret) == 0:
+            return repr(obj)
+        return dict_ret
+    else:
+        if len(dict_ret) == 0:
+            return list_ret
+    return (list_ret, dict_ret)
+
 # Initialize ALL sessions_data for each session
 def get_init_session_data(_core_):
     data = {}
@@ -822,7 +852,7 @@ def on_saveWorkflowProcess(data, response, session_data):
                 true=True;false=False;null=None; # json.fix: true/false/null => True/False/None
                 for _item in json.loads(x.decompressFromBase64(data['lz'])):
                     #strCode += 'json.dumps(' + pformat(eval(_item)) + '),' + "\n"  # PrettyPrint
-                    strCode += 'json.dumps(' + str(eval(_item)) + '),' + "\n"  # eval is to activate json.fix
+                    strCode += 'json.dumps(' + str(json.loads(_item)) + '),' + "\n"  # json.loads replaced := OLD {eval is to activate json.fix}
                 strCode += ']' + "\n"
                 strCode += 'response={}' + "\n"
                 strCode += 'UltideCore.execWorkflowProcess(lzstring.LZString().compressToBase64(json.dumps(processData)), response)' + "\n"
@@ -848,7 +878,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
     procIDs = []
     for jsonWfProcess in finalProcessList:
-        WfProcess = WfProcessList[WfProcess['id']] = json.loads( pystache.render( jsonWfProcess, globals(), **{ 'config': vars(config), 'VARS': VARS, 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() } ) )
+        WfProcess = WfProcessList[WfProcess['id']] = json.loads( pystache.render( jsonWfProcess, globals(), **{ 'config': sterilize(config), 'VARS': VARS, 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() } ) )
         procIDs.append(WfProcess['id']) # Honor ProcessID Original Array sequence
 
     for procID in procIDs:
