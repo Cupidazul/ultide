@@ -22,7 +22,7 @@
                 "width": "100%",
                 "font-family": "monospace"
             },
-            "default": "#!{{EXPECT_BIN}}\n\nset errorInfo \"\"\ncatch { package require json; } err ;\nset errorInfo \"\";\n\n"
+            "default": "#!{{config.EXPECT_BIN}}\n\nset errorInfo \"\"\ncatch { package require json; } err ;\nset errorInfo \"\";\n\n"
         }
     }]
 }

@@ -22,7 +22,7 @@
                 "width": "100%",
                 "font-family": "monospace"
             },
-            "default": "#!{{PYTHON_BIN}}\n\nimport sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR\n\nfrom pprint import pprint\nimport subprocess\nimport psycopg2\nimport base64\nimport json\nimport os\n\n"
+            "default": "#!{{config.PYTHON_BIN}}\n\nimport sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR\n\nfrom pprint import pprint\nimport subprocess\nimport psycopg2\nimport base64\nimport json\nimport os\n\n"
         }
     }]
 }

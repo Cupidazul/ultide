@@ -22,7 +22,7 @@
                 "width": "100%",
                 "font-family": "monospace"
             },
-            "default": "#!{{NODE_BIN}}\n\n"
+            "default": "#!{{config.NODE_BIN}}\n\n"
         }
     }]
 }

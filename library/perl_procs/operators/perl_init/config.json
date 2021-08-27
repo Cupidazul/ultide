@@ -57,7 +57,7 @@
                     "width": "100%",
                     "font-family": "monospace"
                 },
-                "default": "#!{{PERL_BIN}}\n\nuse strict;\nuse warnings;\nno if $] >= 5.020, warnings => qw(experimental::smartmatch);\nuse Data::Dumper;\nuse JSON;\nuse Encode qw(decode encode is_utf8);\nuse Getopt::Long;\nuse IO::Handle;\nuse utf8;\n"
+                "default": "#!{{config.PERL_BIN}}\n\nuse strict;\nuse warnings;\nno if $] >= 5.020, warnings => qw(experimental::smartmatch);\nuse Data::Dumper;\nuse JSON;\nuse Encode qw(decode encode is_utf8);\nuse Getopt::Long;\nuse IO::Handle;\nuse utf8;\n"
             }
         }
 

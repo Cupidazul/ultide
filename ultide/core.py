@@ -25,6 +25,9 @@ PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '.
 DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
+VARS={}
+RAWOUTPUT=''
+OUTPUT= ''
 
 ## Logging Config Start ###############################
 
@@ -32,9 +35,9 @@ class ISOFormatter(logging.Formatter):
     def formatTime(self, record, datefmt=None):
         return datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat()
 
-filer = os.path.dirname(config.LOGFILE) + '/' + datetime.datetime.now().strftime("%Y%m%d") + '-' + os.path.basename(config.LOGFILE)
+def filer(default_name=''): return os.path.dirname(config.LOGFILE) + '/' + datetime.datetime.now().strftime("%Y%m%d") + '-' + os.path.basename(config.LOGFILE);
 
-rotating_file_handler = TimedRotatingFileHandler(filename=filer, when='midnight', interval=2, encoding='utf-8')
+rotating_file_handler = TimedRotatingFileHandler(filename=filer(), when='midnight', interval=2, encoding='utf-8')
 rotating_file_handler.rotation_filename = filer
 rotating_file_handler.setFormatter(ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
 
@@ -454,7 +457,6 @@ def on_perl_CodeRun(data, response, session_data):
 
         # First ADD Perl Init Code:
         perl_code = perlobj['perl_init']
-        perl_code = pystache.render(perl_code, vars(config)); ## Apply Mustache {{}} from config variables
 
         # Then ADD @INC DIRs:
         if ( hasattr(perlobj['perl_incdirs'], "__len__" ) and not perl_code.endswith("\n") ): # Add NewLine if it's not there
@@ -544,7 +546,6 @@ def on_python_CodeRun(data, response, session_data):
 
         # First ADD python Init Code:
         python_code = pythonobj['python_init']
-        python_code = pystache.render(python_code, vars(config)); ## Apply Mustache {{}} from config variables
 
         from tempfile import mkstemp
         fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-python_script", suffix = '.py')
@@ -614,7 +615,6 @@ def on_expect_CodeRun(data, response, session_data):
 
         # First ADD expect Init Code:
         expect_code = expectobj['expect_init']
-        expect_code = pystache.render(expect_code, vars(config)); ## Apply Mustache {{}} from config variables
 
         from tempfile import mkstemp
         fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-expect_script", suffix = '.exp')
@@ -684,7 +684,6 @@ def on_tcl_CodeRun(data, response, session_data):
 
         # First ADD tcl Init Code:
         tcl_code = tclobj['tcl_init']
-        tcl_code = pystache.render(tcl_code, vars(config)); ## Apply Mustache {{}} from config variables
 
         from tempfile import mkstemp
         fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-tcl_script", suffix = '.tcl')
@@ -754,7 +753,6 @@ def on_node_CodeRun(data, response, session_data):
 
         # First ADD node Init Code:
         node_code = nodeobj['node_init']
-        node_code = pystache.render(node_code, vars(config)); ## Apply Mustache {{}} from config variables
 
         from tempfile import mkstemp
         fd, temp_script_path = mkstemp(dir=scripts_dir, prefix= datetime.datetime.today().strftime('%Y%m%d%H%M%S') + "-node_script", suffix = '.js')
@@ -793,11 +791,13 @@ def on_node_CodeRun(data, response, session_data):
     data['RetVal'] = ret
 
 def on_saveWorkflowProcess(data, response, session_data):
+    global RAWOUTPUT, OUTPUT, VARS
     if (DEBUG): pprint(('@on_saveWorkflowProcess: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
     cronFile = ''
     if data.__contains__('cronFile'): cronFile = data['cronFile']
     if (cronFile !=''):
         with open(cronFile, 'w', encoding='utf-8', newline='') as f:
+            x = lzstring.LZString()
             strCode = ''
             try:
                 strCode += '#!' + config.PYTHON_BIN + "\n"
@@ -813,13 +813,19 @@ def on_saveWorkflowProcess(data, response, session_data):
                 strCode += 'import os' + "\n"
                 strCode += 'import zlib' + "\n"
                 strCode += 'import base64' + "\n"
+                strCode += 'import lzstring' + "\n"
                 strCode += "\n"
                 strCode += "osSEP = '/' if ( not os.name == 'nt') else '\\\\';sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..'+osSEP+'..'+osSEP+'..')))" + "\n"
                 strCode += 'import ultide.core as UltideCore' + "\n"
                 strCode += "\n"
-                strCode += 'processData = "'+ data['lz'] + '"' + "\n"
+                strCode += 'processData = [' + "\n"
+                true=True;false=False;null=None; # json.fix: true/false/null => True/False/None
+                for _item in json.loads(x.decompressFromBase64(data['lz'])):
+                    #strCode += 'json.dumps(' + pformat(eval(_item)) + '),' + "\n"  # PrettyPrint
+                    strCode += 'json.dumps(' + str(eval(_item)) + '),' + "\n"  # eval is to activate json.fix
+                strCode += ']' + "\n"
                 strCode += 'response={}' + "\n"
-                strCode += 'UltideCore.execWorkflowProcess(processData, response)' + "\n"
+                strCode += 'UltideCore.execWorkflowProcess(lzstring.LZString().compressToBase64(json.dumps(processData)), response)' + "\n"
 
                 f.write( strCode )
             except Exception as err:
@@ -832,6 +838,9 @@ def execWorkflowProcess(processData, response):
     on_execWorkflowProcess({'lz': processData}, response, session_data)
 
 def on_execWorkflowProcess(data, response, session_data):
+    global RAWOUTPUT, OUTPUT, VARS
+    true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
+
     x = lzstring.LZString()
     finalProcessList = {}
     finalProcessList = json.loads(x.decompressFromBase64(data['lz']))
@@ -839,7 +848,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
     procIDs = []
     for jsonWfProcess in finalProcessList:
-        WfProcess = WfProcessList[WfProcess['id']] = json.loads(jsonWfProcess)
+        WfProcess = WfProcessList[WfProcess['id']] = json.loads( pystache.render( jsonWfProcess, globals(), **{ 'config': vars(config), 'VARS': VARS, 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() } ) )
         procIDs.append(WfProcess['id']) # Honor ProcessID Original Array sequence
 
     for procID in procIDs:
@@ -973,7 +982,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 #try: WfProcess[InputVar] = response['RetVal']
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['perl_init'] = parse.quote( pystache.render(WfProcess['p']['perl_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess['p']['perl_init'] = parse.quote( WfProcess['p']['perl_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -998,7 +1007,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 #try: WfProcess[OutputVar] = response['RetVal']
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['python_init'] = parse.quote( pystache.render(WfProcess['p']['python_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess['p']['python_init'] = parse.quote( WfProcess['p']['python_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1017,7 +1026,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 on_expect_CodeRun( RunCmd, response, session_data )                
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['expect_init'] = parse.quote( pystache.render(WfProcess['p']['expect_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess['p']['expect_init'] = parse.quote( WfProcess['p']['expect_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1035,7 +1044,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 on_tcl_CodeRun( RunCmd, response, session_data )                
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['tcl_init'] = parse.quote( pystache.render(WfProcess['p']['tcl_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess['p']['tcl_init'] = parse.quote( WfProcess['p']['tcl_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1053,7 +1062,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 on_node_CodeRun( RunCmd, response, session_data )                
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['node_init'] = parse.quote( pystache.render(WfProcess['p']['node_init'], vars(config)) , safe='', encoding='utf-8')
+                    WfProcess['p']['node_init'] = parse.quote( WfProcess['p']['node_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1302,10 +1311,6 @@ def uri_escape(val):
 def uri_unescape(val):
     try: return parse.unquote(val, encoding='utf-8')
     except: return val
-
-VARS={}
-RAWOUTPUT=''
-OUTPUT= ''
 
 def UltideInitVARS(_arg = None):
     try:
