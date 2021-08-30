@@ -580,7 +580,7 @@ define([
                     if (user.is_admin && CurrCardName == 'adminLogsList') {
                         let _fn_shortMsg = function(data, type, row) {
                             return '<div class="short-log-msg">' + data + '</div>';
-                        }
+                        };
                         $app.adminLogsListDT = $('#adminLogsList-data').DataTable({
                             ajax: '/api/logs_data',
                             destroy: true,
