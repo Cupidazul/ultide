@@ -303,7 +303,7 @@ def get_session():
     emit('refresh-session', session_info)   # Send session_info to upstream javascript
     print(('@server: Client get-session:', request.sid, session['uuid']));sys.stdout.flush();
 
-csrf = CSRFProtect()
+#csrf = CSRFProtect()
 
 if __name__ == '__main__':
     if (DEBUG): pprint(('@server.main: app.config:', app.config)); sys.stdout.flush();
@@ -314,5 +314,5 @@ if __name__ == '__main__':
     else:
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
-    csrf.init_app(app)
+    #csrf.init_app(app)
     socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG, log_output=DEBUG)
