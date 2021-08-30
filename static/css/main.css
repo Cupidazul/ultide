@@ -203,3 +203,35 @@
 .editor-delete {
     padding: 10px 5px !important;
 }
+
+td.text-log-msg {
+    font-size: 12px;
+    font-weight: bolder;
+    font-family: auto;
+}
+
+td div.short-log-msg {
+    width: auto;
+    height: auto;
+    max-width: 700px;
+    max-height: 100px;
+    overflow-x: hidden;
+    font-size: 11px;
+    font-family: monospace;
+    font-weight: bolder;
+    word-break: break-all;
+}
+
+td div.short-log-msg::-webkit-scrollbar {
+    width: 8px;
+}
+
+td div.short-log-msg::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+td div.short-log-msg::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}

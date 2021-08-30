@@ -11,10 +11,15 @@ import ultide.config as config
 from werkzeug.security import generate_password_hash, check_password_hash
 from pprint import pprint
 from datetime import datetime
+from pytz import timezone
 import re
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
+
+TZ = timezone(config.TIMEZONE)
+def time_now():
+    return datetime.now(TZ)
 
 # Define the User data model. Make sure to add flask.ext.user UserMixin !!!
 class User(db.Model, UserMixin):
@@ -340,3 +345,69 @@ class Library(db.Model):
     lib_name = db.Column(db.String(255), nullable=False, server_default='', autoincrement=False)
     lib_oper = db.Column(db.String(255), nullable=False, server_default='', autoincrement=False)
     lib_code = db.Column(db.Text(),      nullable=False, server_default='')
+
+class Log(db.Model):
+    __tablename__ = 'logs'
+    id = db.Column(db.Integer, primary_key=True) # auto incrementing
+    usr = db.Column(db.String(255), nullable=False)
+    name = db.Column(db.String(100)) # the name of the logger. (e.g. myapp.views)
+    level = db.Column(db.String(100)) # info, debug, or error?
+    trace = db.Column(db.String(4096), nullable=True) # the full traceback printout
+    msg = db.Column(db.Text()) # any custom log you may have included
+    created_at = db.Column(db.DateTime, default=time_now) # the current timestamp
+    start_date = db.Column(db.DateTime, nullable=True, default=None)
+    end_date = db.Column(db.DateTime, nullable=True, default=None)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'usr': self.usr,
+            'name': self.name,
+            'level': self.level,
+            'created_at': self.created_at,
+            'start_date': self.start_date,
+            'end_date': self.end_date,
+            'trace': self.trace,
+            'msg': self.msg,
+        }
+
+    def __init__(self, name=None, level=None, trace=None, msg=None):
+        self.name = name
+        self.level = level
+        self.trace = trace
+        self.msg = msg
+
+    def __unicode__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return "<Log: %s - %s>" % (self.created_at.strftime('%m/%d/%Y-%H:%M:%S'), self.msg[:50])
+
+    def write(self, record):
+        import traceback
+        trace = ''
+        exc = sys.exc_info()
+        if exc and (exc != (None, None, None)):
+            trace = json.dumps(traceback.format_exc().split("\n"))
+        log = Log(
+            name=record['name'],
+            level=record['level'],
+            trace=trace,
+            msg=record['msg'],
+        )
+        if record.__contains__('created_at'): log.created_at = record['created_at']
+        if record.__contains__('start_date'): log.start_date = record['start_date']
+        if record.__contains__('end_date'): log.end_date = record['end_date']
+        if record.__contains__('usr'): log.usr = record['usr']
+
+        if (db.app is None):
+            config.SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.abspath(config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///',''))
+            from flask import Flask
+            app = Flask(__name__)
+            app.config.from_object(config)
+            db.app = app
+            db.init_app(app)
+            db.create_all()
+
+        db.session.add(log)
+        db.session.commit()

@@ -261,7 +261,33 @@ define([
                 `       <tbody>` +
                 `       </tbody>` +
                 `    </table>` +
-                `        <label id="msgChgPwd"></label>` +
+                `        <label id="msgListUsers"></label>` +
+                `    </div>` +
+                `</div>`;
+
+            let $adminLogsList_Card =
+                `<div id="adminLogsList" class="col-md-12 card" style="display: none;">` +
+                `    <div class="card-content">` +
+                `   <table id="adminLogsList-data" class="table table-striped">` +
+                `       <thead>` +
+                `           <tr>` +
+                `               <th>id</th>` +
+                `               <th>Username</th>` +
+                `               <th>AppName</th>` +
+                `               <th>Level</th>` +
+                `               <th>Create Date</th>` +
+                `               <th>Start Date</th>` +
+                `               <th>End Date</th>` +
+                `               <th>Trace</th>` +
+                `               <th>Message</th>` +
+                `               <th></th>` +
+                `               <th></th>` +
+                `           </tr>` +
+                `       </thead>` +
+                `       <tbody>` +
+                `       </tbody>` +
+                `    </table>` +
+                `        <label id="msgLogsList"></label>` +
                 `    </div>` +
                 `</div>`;
 
@@ -308,25 +334,39 @@ define([
 
             let adminForm = $('<hr>' +
                 `<div class="row mx-auto">` +
-                `    <div id="adminMenuBtns" class="col-md-3">` +
-                `       <div class="input-group" style="float: left;">` +
-                `           <button id="btnSH_userSettings" type="button" class="btn btn-default btn input-group-addon" title="Settings">` +
+                `    <div id="adminMenuBtns" class="col-md-9">` +
+                `       <div class="input-group col-md-2" style="float: left;max-width: 160px;">` +
+                `           <button id="btnSH_userSettings" type="button" class="btn btn-default input-group-addon" title="Settings">` +
                 `               <li class="fa fa-cog"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default btn input-group-addon" title="Change Password">` +
+                `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default input-group-addon" title="Change Password">` +
                 `               <li class="fa fa-key"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default btn input-group-addon border-left-0" title="New User">` +
+                `           <button id="btnSH_adminNewUser"  type="button" class="btn btn-default input-group-addon border-left-0" title="New User">` +
                 `               <li class="fa fa-user-plus"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_adminListUsers" type="button" class="btn btn-default btn input-group-addon" title="List Users">` +
+                `           <button id="btnSH_adminListUsers" type="button" class="btn btn-default input-group-addon" title="List Users">` +
                 `               <li class="fa fa-users"></li>` +
                 `           </button>` +
                 `       </div>` +
-                `       <div class="input-group">` +
-                `           <button id="btnSH_flowchart" type="button" class="btn btn-default btn input-group-addon menuicnBtnfix" title="Flowchart">` +
+                `       <div class="input-group" style="float: left;padding: 0px 5px;">` +
+                `           <button id="btnSH_flowchart" type="button" class="btn btn-default input-group-addon menuicnBtnfix" title="Flowchart">` +
                 `              <li class="glyphicon glyphicon-blackboard"></li>` +
                 `           </button>` +
+                `       </div>` +
+                `       <div class="input-group col-md-2" style="float: left;">` +
+                `          <button id="btnSH_adminLogsList" type="button" class="btn btn-default input-group-addon menuicnBtnfix" title="Logs List">` +
+                `              <li class="fa fa-th-list" style="font-size: 16px;"></li>` +
+                `          </button>` +
+                `<!--          <button id="" type="button" class="btn btn-default input-group-addon" title="">` +
+                `              <li class="fa fa-key"></li>` +
+                `          </button>` +
+                `          <button id="" type="button" class="btn btn-default input-group-addon border-left-0" title="">` +
+                `              <li class="fa fa-user-plus"></li>` +
+                `          </button>` +
+                `          <button id="" type="button" class="btn btn-default input-group-addon" title="">` +
+                `              <li class="fa fa-users"></li>` +
+                `-->          </button>` +
                 `       </div>` +
                 `   </div>` +
                 `</div>` +
@@ -335,21 +375,22 @@ define([
                 `    ${$userChgPwd_Card}` +
                 `    ${$adminNewUser_Card}` +
                 `    ${$adminListUsers_Card}` +
+                `    ${$adminLogsList_Card}` +
                 `</div>`);
 
             let userForm = $('<hr>' +
                 `<div class="row mx-auto">` +
                 `    <div id="adminMenuBtns" class="col-md-3">` +
                 `       <div class="input-group" style="float: left;">` +
-                `           <button id="btnSH_userSettings" type="button" class="btn btn-default btn input-group-addon" title="Settings">` +
+                `           <button id="btnSH_userSettings" type="button" class="btn btn-default input-group-addon" title="Settings">` +
                 `               <li class="fa fa-cog"></li>` +
                 `           </button>` +
-                `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default btn input-group-addon mainBtnFix" title="Change Password">` +
+                `           <button id="btnSH_userChgPwd"   type="button" class="btn btn-default input-group-addon mainBtnFix" title="Change Password">` +
                 `               <li class="fa fa-key"></li>` +
                 `           </button>` +
                 `       </div>` +
                 `       <div class="input-group">` +
-                `           <button id="btnSH_flowchart" type="button" class="btn btn-default btn input-group-addon menuicnBtnfix" title="Flowchart">` +
+                `           <button id="btnSH_flowchart" type="button" class="btn btn-default input-group-addon menuicnBtnfix" title="Flowchart">` +
                 `              <li class="glyphicon glyphicon-blackboard"></li>` +
                 `           </button>` +
                 `       </div>` +
@@ -535,6 +576,73 @@ define([
                             return false;
                         });
                     }
+
+                    if (user.is_admin && CurrCardName == 'adminLogsList') {
+                        let _fn_shortMsg = function(data, type, row) {
+                            return '<div class="short-log-msg">' + data + '</div>';
+                        }
+                        $app.adminLogsListDT = $('#adminLogsList-data').DataTable({
+                            ajax: '/api/logs_data',
+                            destroy: true,
+                            responsive: true,
+                            autoWidth: true,
+                            searching: true,
+                            columns: [
+                                { data: 'id', className: "text-log-msg" },
+                                { data: 'usr', className: "text-log-msg" },
+                                { data: 'name', className: "text-log-msg" },
+                                { data: 'level', className: "text-log-msg" },
+                                { data: 'created_at', className: "text-log-msg" },
+                                { data: 'start_date', className: "text-log-msg" },
+                                { data: 'end_date', className: "text-log-msg" },
+                                { data: 'trace', render: _fn_shortMsg },
+                                { data: 'msg', render: _fn_shortMsg },
+                                { data: null, className: "dt-center editor-edit", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-pen"/></button>', orderable: false },
+                                { data: null, className: "dt-center editor-delete", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-trash"/></button>', orderable: false }
+                            ],
+                            initComplete: function() {
+                                this.api().rows().every(function(evt1) {
+                                    let that = this,
+                                        elData = that.data(),
+                                        elNode = that.node();
+                                    //console.log('initComplete:', { evt1: evt1, that: that, data: elData, node: elNode });
+                                    if (elData.username == 'root') { //prevent delete root user!
+                                        //$(elNode).find('.editor-edit').css({ 'opacity': 0.4, 'pointer-events': 'none' });
+                                        $(elNode).find('.editor-delete').css({ 'opacity': 0.4, 'pointer-events': 'none' });
+                                    }
+                                    //$($(elNode).children('td')[8]).css({ 'max-width': '700px', 'max-height': '100px', 'overflow': 'hidden', 'display': 'inline-flex' });
+                                });
+                            }
+                        });
+
+                        // Edit record
+                        /*$('#adminListUsers-data').on('click', 'td.editor-edit', function(evt) {
+                            evt.stopImmediatePropagation();
+                            evt.preventDefault();
+                            let UsrElm = $app.adminListUsersDT.row(this).data();
+                            //if ($app.debug) console.log('@ult.main_view: adminListUsers-data.td.editor-edit', { evt: evt, this: this, UsrElm: UsrElm });
+                            app.ultiflow.editUser(UsrElm, function() {
+                                $('#btnSH_adminListUsers').click();
+                            });
+                            return false;
+                        });*/
+
+                        // Delete a record
+                        /*$('#adminListUsers-data').on('click', 'td.editor-delete', function(evt) {
+                            evt.stopImmediatePropagation();
+                            evt.preventDefault();
+                            let UsrElm = $app.adminListUsersDT.row(this).data();
+                            //if ($app.debug) console.log('@ult.main_view: adminListUsers-data.td.editor-delete', { evt: evt, this: this, UsrElm: UsrElm });
+                            if (UsrElm.username !== "root") { // enforce prevent delete root user!
+                                let dRes = confirm("Confirm deletion of user: " + UsrElm.username);
+                                if (dRes) {
+                                    app.ultiflow.deleteUser(UsrElm, function() { $('#btnSH_adminListUsers').click(); });
+                                }
+                            }
+                            return false;
+                        });*/
+                    }
+
                     return false;
                 });
             });

@@ -1,6 +1,6 @@
 import datetime
 import ultide.config as config
-from ultide.models import User
+from ultide.models import User, Log, db
 import json
 import sys
 import os
@@ -22,6 +22,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
+TZ = pytz.timezone(config.TIMEZONE)
 DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
@@ -45,6 +46,7 @@ ulog = logging.getLogger()
 ulog.addHandler(rotating_file_handler)
 ulog.setLevel(logging._nameToLevel[config.LOGLEVEL])
 
+dblog = Log()
 ## Logging Config End ###############################
 
 def decodeZlibString(_str):
@@ -855,7 +857,7 @@ def on_saveWorkflowProcess(data, response, session_data):
                     strCode += 'json.dumps(' + str(json.loads(_item)) + '),' + "\n"  # json.loads replaced := OLD {eval is to activate json.fix}
                 strCode += ']' + "\n"
                 strCode += 'response={}' + "\n"
-                strCode += 'UltideCore.execWorkflowProcess(lzstring.LZString().compressToBase64(json.dumps(processData)), response)' + "\n"
+                strCode += "UltideCore.execWorkflowProcess({'id': '" + data['id'] + "', 'name': '" + data['name'] + "', 'lz': lzstring.LZString().compressToBase64(json.dumps(processData))}, response)" + "\n"
 
                 f.write( strCode )
             except Exception as err:
@@ -864,13 +866,17 @@ def on_saveWorkflowProcess(data, response, session_data):
         f.close()
 
 def execWorkflowProcess(processData, response):
-    session_data={}
-    on_execWorkflowProcess({'lz': processData}, response, session_data)
+    UsrDomain = os.getenv('USERDOMAIN', '')
+    if (UsrDomain != ''): UsrDomain += '\\'
+    Username = UsrDomain + os.getenv('USERNAME', 'unknown') 
+    session_data={'user': {'username': Username}}
+    on_execWorkflowProcess(processData, response, session_data)
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
 
+    data['start_date'] = datetime.datetime.now(TZ)
     x = lzstring.LZString()
     finalProcessList = {}
     finalProcessList = json.loads(x.decompressFromBase64(data['lz']))
@@ -878,7 +884,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
     procIDs = []
     for jsonWfProcess in finalProcessList:
-        WfProcess = WfProcessList[WfProcess['id']] = json.loads( pystache.render( jsonWfProcess, globals(), **{ 'config': sterilize(config), 'VARS': VARS, 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() } ) )
+        WfProcess = WfProcessList[WfProcess['id']] = json.loads( pystache.render( jsonWfProcess, globals(), **{ 'config': mod_2_dict(config), 'VARS': VARS, 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() } ) )
         procIDs.append(WfProcess['id']) # Honor ProcessID Original Array sequence
 
     for procID in procIDs:
@@ -1007,7 +1013,11 @@ def on_execWorkflowProcess(data, response, session_data):
                 #_data['cmd'] = json.dumps(WfProcess['p']) # Perl Parameters to JSON
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
+                
+                RunCmd['start_date'] = datetime.datetime.now(TZ)
                 on_perl_CodeRun( RunCmd, response, session_data )
+                RunCmd['end_date'] = datetime.datetime.now(TZ)
+
                 #WfProcess[InputVar] = ''
                 #try: WfProcess[InputVar] = response['RetVal']
                 try:
@@ -1016,7 +1026,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1031,7 +1041,10 @@ def on_execWorkflowProcess(data, response, session_data):
                 #_data['cmd'] = json.dumps(WfProcess['p']) # Python Parameters to JSON
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
+
+                RunCmd['start_date'] = datetime.datetime.now(TZ)
                 on_python_CodeRun( RunCmd, response, session_data )
+                RunCmd['end_date'] = datetime.datetime.now(TZ)
                 
                 #WfProcess[OutputVar] = ''
                 #try: WfProcess[OutputVar] = response['RetVal']
@@ -1041,7 +1054,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1053,14 +1066,18 @@ def on_execWorkflowProcess(data, response, session_data):
                 OutputVar = _pflink['fromConnector']
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
-                on_expect_CodeRun( RunCmd, response, session_data )                
+                
+                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                on_expect_CodeRun( RunCmd, response, session_data )
+                RunCmd['end_date'] = datetime.datetime.now(TZ)
+
                 try:
                     # Preprocess vars for OUTPUT
                     WfProcess['p']['expect_init'] = parse.quote( WfProcess['p']['expect_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.expect_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1071,14 +1088,18 @@ def on_execWorkflowProcess(data, response, session_data):
                 OutputVar = _pflink['fromConnector']
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
-                on_tcl_CodeRun( RunCmd, response, session_data )                
+                
+                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                on_tcl_CodeRun( RunCmd, response, session_data )
+                RunCmd['end_date'] = datetime.datetime.now(TZ)
+
                 try:
                     # Preprocess vars for OUTPUT
                     WfProcess['p']['tcl_init'] = parse.quote( WfProcess['p']['tcl_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.tcl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1089,14 +1110,18 @@ def on_execWorkflowProcess(data, response, session_data):
                 OutputVar = _pflink['fromConnector']
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
-                on_node_CodeRun( RunCmd, response, session_data )                
+
+                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                on_node_CodeRun( RunCmd, response, session_data )
+                RunCmd['end_date'] = datetime.datetime.now(TZ)
+
                 try:
                     # Preprocess vars for OUTPUT
                     WfProcess['p']['node_init'] = parse.quote( WfProcess['p']['node_init'], safe='', encoding='utf-8')
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.node_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1126,14 +1151,17 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+            
+            RunCmd['start_date'] = datetime.datetime.now(TZ)
             on_perl_CodeRun( RunCmd, response, session_data )
+            RunCmd['end_date'] = datetime.datetime.now(TZ)
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.perl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1164,14 +1192,17 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+            
+            RunCmd['start_date'] = datetime.datetime.now(TZ)
             on_python_CodeRun( RunCmd, response, session_data )
+            RunCmd['end_date'] = datetime.datetime.now(TZ)
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.python_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1202,14 +1233,17 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+
+            RunCmd['start_date'] = datetime.datetime.now(TZ)
             on_expect_CodeRun( RunCmd, response, session_data )
+            RunCmd['end_date'] = datetime.datetime.now(TZ)
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.expect_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1240,14 +1274,17 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+
+            RunCmd['start_date'] = datetime.datetime.now(TZ)
             on_tcl_CodeRun( RunCmd, response, session_data )
+            RunCmd['end_date'] = datetime.datetime.now(TZ)
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.tcl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1278,36 +1315,47 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd = {}
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
+
+            RunCmd['start_date'] = datetime.datetime.now(TZ)
             on_node_CodeRun( RunCmd, response, session_data )
+            RunCmd['end_date'] = datetime.datetime.now(TZ)
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal'])})
+                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
-                    print('@on_execWorkflowProcess.node_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+                print('@on_execWorkflowProcess.node_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
 
             if (DEBUG): pprint(('node_script['+procID+']: SetVar:'+oType+'.'+InputVar+':='+WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar + ' '+ OutputVar + ' := '+ InputVar + ' vals:', OutputVals, ' lop['+parentOperID+']:' + _pflink['fromOperator'] + '==' +WfProcess['parents'][0]['id']))
 
         else:
             print('@on_execWorkflowProcess['+procID+']: Error: Undefined Workflow Process')
+    
+    data['end_date'] = datetime.datetime.now(TZ)
+    
+    logUsr = ''
+    if (isinstance(session_data['user'], User)): logUsr = '@web:' + session_data['user'].username
+    else:                                        logUsr = '@shell:' + session_data['user']['username']
 
+    dblog.write({'usr': logUsr,'name': data['name'], 'level': logging.INFO, 'msg': json.dumps(response), 'start_date': data['start_date'], 'end_date': data['end_date']})
+    if (DEBUG): pprint(('@core.execWorkflowProcess: ', {'data': data, 'response': response, 'session_data': session_data}))
 
 def on_getDefaultConfig(data, response, session_data):
     response['raw']=open('templates/new_config.json').read()
     response['json']=json.loads(response['raw'])
 
 def on_deleteProject(data, response, session_data):
-    if (DEBUG): print('@main: deleteProject: rmdir+file:', data['path'])
+    if (DEBUG): print('@core.deleteProject: rmdir+file:', data['path'])
     os.remove(data['path'])
     os.rmdir(os.path.dirname(data['path']))
 
 def on_saveNewProject(data, response, session_data):
     cfgPATH = os.path.dirname(data['cfg']['path'])
-    if (DEBUG): print('@main: saveNewProject: data.cfg.path:',os.getcwd(), cfgPATH)
+    if (DEBUG): print('@core.saveNewProject: data.cfg.path:',os.getcwd(), cfgPATH)
     #os.makedirs(os.getcwd() + "\\" + cfgPATH)
     if (not os.path.isdir(cfgPATH)):
         os.makedirs(cfgPATH)

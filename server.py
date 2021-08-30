@@ -59,6 +59,7 @@ import json
 from datetime import datetime
 import sys
 from pprint import pprint
+from flask_wtf.csrf import CSRFProtect
 
 # Check if Exists: ./data  and create it if not...
 data_dir = os.path.dirname('./data/')
@@ -279,6 +280,10 @@ def modules_static(path):
 def user_data():
     if ( current_user.is_admin ): return {'data': [user.to_dict() for user in User.query]}
 
+@app.route('/api/logs_data')
+def logs_data():
+    if ( current_user.is_admin ): return {'data': [eachLog.to_dict() for eachLog in core.dblog.query]}
+
 @socketio.on('connect', namespace='/uide')
 def test_connect():
     sessions_data[session['uuid']] = core.get_init_session_data(core)
@@ -298,6 +303,8 @@ def get_session():
     emit('refresh-session', session_info)   # Send session_info to upstream javascript
     print(('@server: Client get-session:', request.sid, session['uuid']));sys.stdout.flush();
 
+csrf = CSRFProtect()
+
 if __name__ == '__main__':
     if (DEBUG): pprint(('@server.main: app.config:', app.config)); sys.stdout.flush();
     LISTENHOST = app.config['IO_SERVER']['host']
@@ -307,4 +314,5 @@ if __name__ == '__main__':
     else:
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
+    csrf.init_app(app)
     socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG, log_output=DEBUG)

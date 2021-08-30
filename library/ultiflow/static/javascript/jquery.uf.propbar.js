@@ -192,7 +192,13 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                         }
                     }
 
-                    inst.setValue(value);
+                    if (typeof(value.undefined) !== 'undefined') delete value.undefined;
+
+                    try {
+                        inst.setValue(value);
+                    } catch (err) {
+                        console.error('@ultiflow.uf_propbar: Error: ' + String(propInfos.type), { inst: inst, value: value, module: module });
+                    }
                 };
 
                 var cbChange = function() {
@@ -200,7 +206,6 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                 };
 
                 self.paramKeyToModule[propKey] = new module(propKey, $divs, config, cbReady, cbChange, propInfos);
-
 
             });
 
