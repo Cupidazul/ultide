@@ -19,5 +19,7 @@ requirejs_paths = {
   'ace': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/ace',
   'ace/mode/json' : 'static/modules/ultiflow/plugins/ace/src-min-noconflict/mode-json',
   'ace/theme/terminal': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/theme-terminal',
+  'ace/theme/vibrant_ink': 'static/modules/ultiflow/plugins/ace/src-min-noconflict/theme-vibrant_ink',
   'datatables': 'static/modules/ultiflow/plugins/datatables/datatables.min',
+  'json-editor': 'static/modules/ultiflow/plugins/json-viewer-editor/dist/jquery.json-editor.min'
 }

@@ -446,7 +446,7 @@ define([
                 let NewPWD = String($('#new_new_pwd').val());
                 let CnfPWD = String($('#new_confirm_pwd').val());
                 let CnfGrp = String($('#new_group').val());
-                console.log('submit!', { 'this': this, 'evt': evt, 'NewPWD': NewPWD, 'CnfPWD': CnfPWD });
+                //console.log('submit!', { 'this': this, 'evt': evt, 'NewPWD': NewPWD, 'CnfPWD': CnfPWD });
                 if (String($('#new_username').val()) != '' &&
                     String($('#new_email').val()) != '' &&
                     String($('#new_avatar').val()) != '' &&
@@ -588,17 +588,17 @@ define([
                             autoWidth: true,
                             searching: true,
                             columns: [
-                                { data: 'id', className: "text-log-msg" },
-                                { data: 'usr', className: "text-log-msg" },
-                                { data: 'name', className: "text-log-msg" },
-                                { data: 'level', className: "text-log-msg" },
-                                { data: 'created_at', className: "text-log-msg" },
-                                { data: 'start_date', className: "text-log-msg" },
-                                { data: 'end_date', className: "text-log-msg" },
+                                { data: 'id', className: "text-log" },
+                                { data: 'usr', className: "text-log" },
+                                { data: 'name', className: "text-log" },
+                                { data: 'level', className: "text-log" },
+                                { data: 'created_at', className: "text-log-dt" },
+                                { data: 'start_date', className: "text-log-dt" },
+                                { data: 'end_date', className: "text-log-dt" },
                                 { data: 'trace', render: _fn_shortMsg },
                                 { data: 'msg', render: _fn_shortMsg },
-                                { data: null, className: "dt-center editor-edit", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-pen"/></button>', orderable: false },
-                                { data: null, className: "dt-center editor-delete", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-trash"/></button>', orderable: false }
+                                { data: null, className: "dt-center editor-edit", defaultContent: '<button class="btn btn-primary btn-sm"><i class="fa fa-eye"/></button>', orderable: false },
+                                { data: null, className: "dt-center editor-delete", defaultContent: '<button class="btn btn-primary btn-sm disabled"><i class="fa fa-trash"/></button>', orderable: false }
                             ],
                             initComplete: function() {
                                 this.api().rows().every(function(evt1) {
@@ -612,27 +612,111 @@ define([
                         });
 
                         // Edit record
-                        /*$('#adminListUsers-data').on('click', 'td.editor-edit', function(evt) {
-                            evt.stopImmediatePropagation();
-                            evt.preventDefault();
-                            let UsrElm = $app.adminListUsersDT.row(this).data();
-                            //if ($app.debug) console.log('@ult.main_view: adminListUsers-data.td.editor-edit', { evt: evt, this: this, UsrElm: UsrElm });
-                            app.ultiflow.editUser(UsrElm, function() {
-                                $('#btnSH_adminListUsers').click();
+                        $('#adminLogsList-data').on('click', 'td.editor-edit', function(evt2) {
+                            evt2.stopImmediatePropagation();
+                            evt2.preventDefault();
+                            var _self = this;
+                            let LogElm = $app.adminLogsListDT.row(this).data();
+
+                            //console.log('@adminLogsList-data.click:', { evt2: evt2, self: _self, LogElm: LogElm });
+
+                            var Title = 'Show CodeRun Info Results';
+                            var CodeStr = app.JSONSafeStringify(JSON.parse(LogElm.msg), null, 4);
+                            var str = `` +
+                                `   <div class="modal fade" id="addCodeInfoWksModal" tabindex="-1" role="dialog" aria-labelledby="myCodeModalLabel">` +
+                                `       <div class="modal-dialog" role="document">` +
+                                `           <div class="modal-content">` +
+                                `               <div class="modal-header">` +
+                                `                   <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>` +
+                                `                   <h4 class="modal-title" id="myCodeModalLabel">` +
+                                `                       <div class="col-sm-6">${Title}</div>` +
+                                `                       <div style="font-size: 13px;" class="col-sm-5">` +
+                                `                           Editor: <input id="switchAceJson" type="checkbox" data-toggle="switch" data-size="mini" data-on-text="Ace" data-off-text="Json">` +
+                                `                       </div>` +
+                                `                   </h4>` +
+                                `               </div>` +
+                                `               <div class="modal-body" style="height: 67vh;">` +
+                                `                   <pre id="code-editor"></pre>` +
+                                `                   <pre id="json-editor"></pre>` +
+                                `               </div>` +
+                                `               <div class="modal-footer" style="min-height: 60px;">` +
+                                `                   <div style="float: left;text-align: left;min-width: 400px;">` +
+                                `                   <label>&nbsp;<div style="float:right"></div></label>` +
+                                `               </div>` +
+                                `               <div style="float: right;position: fixed;bottom: 16px;right: -20px;">` +
+                                `                   <button type="button" class="btn btn-primary btn-close" data-dismiss="modal" style="width: 100px;">OK</button>` +
+                                `               </div>` +
+                                `               </div>` +
+                                `           </div>` +
+                                `       </div>` +
+                                `   </div>`;
+                            // FROM : <!-- <textarea style="width: 100%;height: 100%;font-family: consolas;font-size: 13px;">${CodeStr}</textarea> -->
+                            // TO   : ACE Editor!
+
+                            var $modal = $(str);
+                            var $title = $modal.find('.modal-title');
+                            var $body = $modal.find('.modal-body');
+                            var $cancelButton = $modal.find('.btn-close');
+                            var $operatorId = $modal.find('.operator-id');
+
+                            $cancelButton.click(function() {
+                                $modal.modal('hide');
                             });
-                            return false;
-                        });*/
+
+                            $modal.modal();
+                            $modal.on('hidden.bs.modal', function() {
+                                $modal.remove();
+                            });
+
+                            $modal.on('shown.bs.modal', function() {
+                                $('#switchAceJson').bootstrapSwitch('state', true);
+                                $('#switchAceJson').on('switchChange.bootstrapSwitch', function(evt, sstate) {
+                                    if (sstate) {
+                                        setTimeout(function() {
+                                            $("#code-editor").show();
+                                            $("#json-editor").hide();
+                                        }, 200);
+                                    } else {
+                                        setTimeout(function() {
+                                            $("#json-editor").show();
+                                            $("#code-editor").hide();
+                                            let __CodeStr = JSON.parse($app.ace._AceEditor.getValue());
+                                            $app.ace._JsonEditor = new JsonEditor('#json-editor', __CodeStr);
+                                        }, 200);
+                                    }
+                                });
+                                require(['ace/mode/json', 'ace/theme/vibrant_ink'], function() {
+                                    var editor = ace.edit("code-editor");
+                                    editor.setOptions({
+                                        //maxLines: Infinity, // this is going to be very slow on large documents
+                                        indentedSoftWrap: false,
+                                        behavioursEnabled: false, // disable autopairing of brackets and tags
+                                        showLineNumbers: true, // hide the gutter
+                                        wrap: true, // wrap text to view
+                                        mode: "ace/mode/json"
+                                    });
+                                    //editor.getSession().setMode("ace/mode/json");
+                                    editor.setTheme("ace/theme/vibrant_ink");
+                                    editor.setValue(CodeStr, -1);
+                                    //editor.clearSelection();
+                                    //editor.setValue(str, -1); // moves cursor to the start
+                                    //editor.setValue(str, 1); // moves cursor to the end
+                                    $app.ace = {...$app.ace || {}, ...ace, ... { _AceEditor: editor, _CodeStr: CodeStr } };
+                                });
+                            });
+
+                        });
 
                         // Delete a record
-                        /*$('#adminListUsers-data').on('click', 'td.editor-delete', function(evt) {
+                        /*$('#adminLogsList-data').on('click', 'td.editor-delete', function(evt) {
                             evt.stopImmediatePropagation();
                             evt.preventDefault();
-                            let UsrElm = $app.adminListUsersDT.row(this).data();
-                            //if ($app.debug) console.log('@ult.main_view: adminListUsers-data.td.editor-delete', { evt: evt, this: this, UsrElm: UsrElm });
+                            let UsrElm = $app.adminLogsList.row(this).data();
+                            //if ($app.debug) console.log('@ult.main_view: adminLogsList-data.td.editor-delete', { evt: evt, this: this, UsrElm: UsrElm });
                             if (UsrElm.username !== "root") { // enforce prevent delete root user!
                                 let dRes = confirm("Confirm deletion of user: " + UsrElm.username);
                                 if (dRes) {
-                                    app.ultiflow.deleteUser(UsrElm, function() { $('#btnSH_adminListUsers').click(); });
+                                    app.ultiflow.deleteUser(UsrElm, function() { $('#adminLogsList').click(); });
                                 }
                             }
                             return false;

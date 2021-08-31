@@ -1,4 +1,4 @@
-define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
+define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     var self = this;
     let ultiflow = { data: {}, versions: {}, ui: {} };
     if ($app.debug) console.log('@library/ultiflow: app:', { app: app, ultiflow: ultiflow, _: _ });
@@ -1198,10 +1198,16 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myCodeModalLabel">${Title}</h4>
+                <h4 class="modal-title" id="myCodeModalLabel">
+                    <div class="col-sm-6">${Title}</div>
+                    <div style="font-size: 13px;" class="col-sm-5">
+                        Editor: <input id="switchAceJson" type="checkbox" data-toggle="switch" data-size="mini" data-on-text="Ace" data-off-text="Json">
+                    </div>
+                </h4>
             </div>
             <div class="modal-body" style="height: 67vh;">
                 <pre id="code-editor"></pre>
+                <pre id="json-editor"></pre>
             </div>
             <div class="modal-footer" style="min-height: 60px;">
                 <div style="float: left;text-align: left;min-width: 400px;">
@@ -1233,7 +1239,23 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
         });
 
         $modal.on('shown.bs.modal', function() {
-            require(['ace/mode/json', 'ace/theme/terminal'], function() {
+            $('#switchAceJson').bootstrapSwitch('state', true);
+            $('#switchAceJson').on('switchChange.bootstrapSwitch', function(evt, sstate) {
+                if (sstate) {
+                    setTimeout(function() {
+                        $("#code-editor").show();
+                        $("#json-editor").hide();
+                    }, 200);
+                } else {
+                    setTimeout(function() {
+                        $("#json-editor").show();
+                        $("#code-editor").hide();
+                        let __CodeStr = JSON.parse($app.ace._AceEditor.getValue());
+                        $app.ace._JsonEditor = new JsonEditor('#json-editor', __CodeStr);
+                    }, 200);
+                }
+            });
+            require(['ace/mode/json', 'ace/theme/vibrant_ink'], function() {
                 var editor = ace.edit("code-editor");
                 editor.setOptions({
                     //maxLines: Infinity, // this is going to be very slow on large documents
@@ -1244,12 +1266,12 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
                     mode: "ace/mode/json"
                 });
                 //editor.getSession().setMode("ace/mode/json");
-                //editor.setTheme("ace/theme/terminal");
+                editor.setTheme("ace/theme/vibrant_ink");
                 editor.setValue(CodeStr, -1);
                 //editor.clearSelection();
                 //editor.setValue(str, -1); // moves cursor to the start
                 //editor.setValue(str, 1); // moves cursor to the end
-                $app.ace = {...$app.ace || {}, ...ace, ... { _editor: editor, _CodeStr: CodeStr } };
+                $app.ace = {...$app.ace || {}, ...ace, ... { _AceEditor: editor, _CodeStr: CodeStr } };
             });
         });
 

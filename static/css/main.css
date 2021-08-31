@@ -162,7 +162,7 @@
     border-left: 1px solid #ccc !important;
 }
 
-.paginate_button.previous {
+div a.paginate_button.previous {
     padding: 5px 10px;
     font-size: 12px;
     line-height: 1.5;
@@ -172,7 +172,7 @@
     border-color: #2e6da4;
 }
 
-.paginate_button.next {
+div a.paginate_button.next {
     padding: 5px 10px;
     font-size: 12px;
     line-height: 1.5;
@@ -182,14 +182,43 @@
     border-color: #2e6da4;
 }
 
-.paginate_button.previous.disabled,
-.paginate_button.next.disabled {
+div a.paginate_button.previous.disabled,
+div a.paginate_button.next.disabled {
     opacity: 0.4;
     pointer-events: none;
 }
 
-.paginate_button.current {
+div a.paginate_button.current {
     padding: 5px 10px;
+}
+
+div a.paginate_button:focus,
+div a.paginate_button:hover {
+    text-decoration: none;
+}
+
+span a.paginate_button {
+    padding: 3px 4px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 5px;
+    color: #000;
+    background-color: #eee;
+    border: 1px solid #aaa;
+    margin: 0px 1px;
+}
+
+span a.paginate_button.current {
+    padding: 3px 8px;
+    background-color: #337ab7;
+    color: white;
+}
+
+span a.paginate_button:focus,
+span a.paginate_button:hover {
+    color: #23527c;
+    text-decoration: none;
+    background-color: lightblue;
 }
 
 .dt-center {
@@ -204,10 +233,21 @@
     padding: 10px 5px !important;
 }
 
-td.text-log-msg {
-    font-size: 12px;
+td.text-log {
+    font-family: inherit;
     font-weight: bolder;
-    font-family: auto;
+    font-size: 12px;
+}
+
+td.text-log-dt {
+    font-family: inherit;
+    font-weight: bolder;
+    font-size: 0.8em;
+    word-break: break-all;
+    min-width: 115px;
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+    text-shadow: 0 0 black;
 }
 
 td div.short-log-msg {

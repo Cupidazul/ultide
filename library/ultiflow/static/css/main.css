@@ -449,3 +449,17 @@
 .border-left-0 {
     border-left: none;
 }
+
+.json-editor-blackbord {
+    font-size: 12px;
+    position: absolute;
+    padding: 0px 20px;
+    height: 100%;
+    width: 100%;
+    top: 0px;
+    left: 0px;
+}
+
+.json-editor-blackbord ul li {
+    margin: -5px auto;
+}
