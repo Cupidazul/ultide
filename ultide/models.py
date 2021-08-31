@@ -13,6 +13,7 @@ from pprint import pprint
 from datetime import datetime
 from pytz import timezone
 import re
+import logging
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
@@ -63,7 +64,7 @@ class User(db.Model, UserMixin):
             'group': self.group,
             'email': self.email,
             'avatar': self.avatar,
-            'create_date': self.confirmed_at,
+            'create_date': self.confirmed_at.isoformat(),
             'active': self.active,
             'is_admin': self.is_admin,
         }
@@ -363,10 +364,10 @@ class Log(db.Model):
             'id': self.id,
             'usr': self.usr,
             'name': self.name,
-            'level': self.level,
-            'created_at': self.created_at,
-            'start_date': self.start_date,
-            'end_date': self.end_date,
+            'level': logging._levelToName[self.level],
+            'created_at': self.created_at.isoformat(),
+            'start_date': self.start_date.isoformat(),
+            'end_date': self.end_date.isoformat(),
             'trace': self.trace,
             'msg': self.msg,
         }

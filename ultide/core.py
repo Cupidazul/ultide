@@ -18,7 +18,7 @@ import re
 import pytz
 from urllib import parse
 import logging
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
@@ -38,7 +38,7 @@ class ISOFormatter(logging.Formatter):
 
 def filer(default_name=''): return os.path.dirname(config.LOGFILE) + '/' + datetime.datetime.now().strftime("%Y%m%d") + '-' + os.path.basename(config.LOGFILE);
 
-rotating_file_handler = TimedRotatingFileHandler(filename=filer(), when='midnight', interval=2, encoding='utf-8')
+rotating_file_handler = RotatingFileHandler(filename=filer(), backupCount=5, encoding='utf-8')
 rotating_file_handler.rotation_filename = filer
 rotating_file_handler.setFormatter(ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
 
