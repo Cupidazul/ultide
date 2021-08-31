@@ -606,10 +606,6 @@ define([
                                         elData = that.data(),
                                         elNode = that.node();
                                     //console.log('initComplete:', { evt1: evt1, that: that, data: elData, node: elNode });
-                                    if (elData.username == 'root') { //prevent delete root user!
-                                        //$(elNode).find('.editor-edit').css({ 'opacity': 0.4, 'pointer-events': 'none' });
-                                        $(elNode).find('.editor-delete').css({ 'opacity': 0.4, 'pointer-events': 'none' });
-                                    }
                                     //$($(elNode).children('td')[8]).css({ 'max-width': '700px', 'max-height': '100px', 'overflow': 'hidden', 'display': 'inline-flex' });
                                 });
                             }
