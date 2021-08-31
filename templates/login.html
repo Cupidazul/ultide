@@ -32,18 +32,19 @@
                         <form method="POST" action="./login">
                             <div class="field">
                                 <div class="control">
-                                    <input class="input is-large" type="loginUSR" name="loginUSR" placeholder="Your User or Email" autofocus="">
+                                    {% if CSRF_ENABLED %} <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> {% endif %}
+                                    <input class="input is-large" type="loginUSR" name="loginUSR" placeholder="Your User or Email" autofocus=""/>
                                 </div>
                             </div>
 
                             <div class="field">
                                 <div class="control">
-                                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                                    <input class="input is-large" type="password" name="password" placeholder="Your Password"/>
                                 </div>
                             </div>
                             <div class="field">
                                 <label class="checkbox">
-                                    <input type="checkbox">Remember me
+                                    <input type="checkbox"/>Remember me
                                 </label>
                             </div>
                             <button class="button is-block is-info is-large is-fullwidth">Login</button>

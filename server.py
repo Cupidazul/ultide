@@ -211,7 +211,7 @@ def login():
         else:
             login_user(user, remember=remember)
             return redirect(WWWROOT)
-    return render_template('login.html', pkg=PKG)#, error=error)
+    return render_template('login.html', pkg=PKG, CSRF_ENABLED=config.CSRF_ENABLED)#, error=error)
 
 @app.route('/logout') # define logout path
 @login_required
@@ -303,7 +303,7 @@ def get_session():
     emit('refresh-session', session_info)   # Send session_info to upstream javascript
     print(('@server: Client get-session:', request.sid, session['uuid']));sys.stdout.flush();
 
-#csrf = CSRFProtect()
+if (config.CSRF_ENABLED): csrf = CSRFProtect(app)
 
 if __name__ == '__main__':
     if (DEBUG): pprint(('@server.main: app.config:', app.config)); sys.stdout.flush();
@@ -314,5 +314,5 @@ if __name__ == '__main__':
     else:
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
-    #csrf.init_app(app)
+    if (config.CSRF_ENABLED): csrf.init_app(app)
     socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG, log_output=DEBUG)

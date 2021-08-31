@@ -364,7 +364,7 @@ class Log(db.Model):
             'id': self.id,
             'usr': self.usr,
             'name': self.name,
-            'level': logging._levelToName[self.level],
+            'level': logging._levelToName[int(self.level)],
             'created_at': self.created_at.isoformat(),
             'start_date': self.start_date.isoformat(),
             'end_date': self.end_date.isoformat(),
