@@ -277,7 +277,7 @@ def datestr( _dtstr = '{:02}{:02}{:02}{:02}{:02}{:02}', _timezone = config.TIMEZ
     if ( _dtstr == None or _dtstr=='' ) : _dtstr = '{:02}{:02}{:02}{:02}{:02}{:02}'
     _tz = pytz.timezone(_timezone)
     now = datetime.datetime.now(_tz)
-    return _dtstr.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
+    return _dtstr.format(now.year, now.month, now.day, now.hour, now.minute, now.second, now.microsecond)
 
 def mod_2_dict2(Modobj,options={}):
     all_vars = {}
@@ -822,6 +822,12 @@ def on_node_CodeRun(data, response, session_data):
 
     data['RetVal'] = ret
 
+def LzDec64(data):
+    return lzstring.LZString().decompressFromBase64(data)
+
+def LzEnc64(data):
+    return lzstring.LZString().compressToBase64(data)
+
 def on_saveWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
     if (DEBUG): pprint(('@on_saveWorkflowProcess: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
@@ -829,11 +835,10 @@ def on_saveWorkflowProcess(data, response, session_data):
     if data.__contains__('cronFile'): cronFile = data['cronFile']
     if (cronFile !=''):
         with open(cronFile, 'w', encoding='utf-8', newline='') as f:
-            x = lzstring.LZString()
             strCode = ''
             try:
                 strCode += '#!' + config.PYTHON_BIN + "\n"
-                strCode += '# create_dt:'+ datestr('{:02}-{:02}-{:02}H{:02}:{:02}:{:02}') + ' uid:' + str(current_user.id) + ' username:' + str(current_user.username) + " \n"
+                strCode += '# create_dt:'+ datestr('{:02}-{:02}-{:02}H{:02}:{:02}:{:02}.{:1}') + ' uid:' + str(current_user.id) + ' username:' + str(current_user.username) + " \n"
                 strCode += "\n"
                 strCode += 'import sys; sys.dont_write_bytecode = True; # don\'t write __pycache__ DIR' + "\n"
                 strCode += "\n"
@@ -843,21 +848,18 @@ def on_saveWorkflowProcess(data, response, session_data):
                 strCode += 'import base64' + "\n"
                 strCode += 'import json' + "\n"
                 strCode += 'import os' + "\n"
-                strCode += 'import zlib' + "\n"
-                strCode += 'import base64' + "\n"
-                strCode += 'import lzstring' + "\n"
                 strCode += "\n"
                 strCode += "osSEP = '/' if ( not os.name == 'nt') else '\\\\';sys.path.insert(0,os.path.abspath(os.path.join(os.path.dirname(__file__),'..'+osSEP+'..'+osSEP+'..')))" + "\n"
                 strCode += 'import ultide.core as UltideCore' + "\n"
                 strCode += "\n"
                 strCode += 'processData = [' + "\n"
                 true=True;false=False;null=None; # json.fix: true/false/null => True/False/None
-                for _item in json.loads(x.decompressFromBase64(data['lz'])):
+                for _item in json.loads(LzDec64(data['lz'])):
                     #strCode += 'json.dumps(' + pformat(eval(_item)) + '),' + "\n"  # PrettyPrint
                     strCode += 'json.dumps(' + str(json.loads(_item)) + '),' + "\n"  # json.loads replaced := OLD {eval is to activate json.fix}
                 strCode += ']' + "\n"
                 strCode += 'response={}' + "\n"
-                strCode += "UltideCore.execWorkflowProcess({'id': '" + data['id'] + "', 'name': '" + data['name'] + "', 'lz': lzstring.LZString().compressToBase64(json.dumps(processData))}, response)" + "\n"
+                strCode += "UltideCore.execWorkflowProcess({'id': '" + data['id'] + "', 'name': '" + data['name'] + "', 'lz': UltideCore.LzEnc64(json.dumps(processData))}, response)" + "\n"
 
                 f.write( strCode )
             except Exception as err:
@@ -880,9 +882,8 @@ def on_execWorkflowProcess(data, response, session_data):
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
 
     data['start_date'] = datetime.datetime.now(TZ)
-    x = lzstring.LZString()
     finalProcessList = {}
-    finalProcessList = json.loads(x.decompressFromBase64(data['lz']))
+    finalProcessList = json.loads(LzDec64(data['lz']))
     WfProcessList = {}
 
     procIDs = []
