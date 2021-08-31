@@ -1249,6 +1249,7 @@ define(['app', '_', 'bootstrap', 'ace'], function(app, _) {
                 //editor.clearSelection();
                 //editor.setValue(str, -1); // moves cursor to the start
                 //editor.setValue(str, 1); // moves cursor to the end
+                $app.ace = {...$app.ace || {}, ...ace, ... { _editor: editor, _CodeStr: CodeStr } };
             });
         });
 

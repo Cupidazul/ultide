@@ -903,7 +903,7 @@ def on_execWorkflowProcess(data, response, session_data):
                         WfProcess[OutputVar] = ''
                         try:
                             WfProcess[OutputVar] = f.read() # 'Load File'.data = <file_data>
-                            response[procID].update({OutputVar:WfProcess[OutputVar]})
+                            response[procID].update({OutputVar: json.loads(WfProcess[OutputVar]) })
                         except Exception as err:
                             print('@on_execWorkflowProcess.load_file['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
                     
@@ -924,10 +924,10 @@ def on_execWorkflowProcess(data, response, session_data):
                         WfProcess[InputVar] = ''
                         try:
                             parentOperID = WfProcess['fl'][0]['fromOperator']
-                            OutputVal = str(WfProcessList[parentOperID][parentOutputVar])
+                            OutputVal = WfProcessList[parentOperID][parentOutputVar]
                             WfProcess[InputVar] = OutputVal
-                            response[procID].update({InputVar:WfProcess[InputVar]})
-                            f.write( WfProcess[InputVar] )
+                            response[procID].update({InputVar: WfProcess[InputVar] })
+                            f.write( json.dumps(WfProcess[InputVar]) )
 
                         except Exception as err:
                             print('@on_execWorkflowProcess.save_file['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -947,10 +947,11 @@ def on_execWorkflowProcess(data, response, session_data):
                 parentOperID = ''
                 try:
                     #pprint(('@on_execWorkflowProcess.multiple_inputs_outputs['+procID+']: Init:',dict( InputVar = InputVar, parentOutputVar = parentOutputVar, fromLinksParents = _pflink['fromOperator'], parentID= WfProcess['parents'][_pIdx]['id'])))
-                    OutputVals[InputVar] = ''
+                    #OutputVals[InputVar] = ''
                     parentOperID = WfProcess['fl'][_Idx]['fromOperator']
 
-                    OutputVals[InputVar] = str(WfProcessList[parentOperID][parentOutputVar])
+                    #OutputVals[InputVar] = str(WfProcessList[parentOperID][parentOutputVar])
+                    OutputVals[InputVar] = WfProcessList[parentOperID][parentOutputVar]
                     if (DEBUG): pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: In:', dict(InputVar=InputVar, parentOutputVar=parentOutputVar, parentOperID=parentOperID, OutputVals=OutputVals)))
                 except Exception as err:
                     pprint(('@on_execWorkflowProcess.fl.multiple_inputs_outputs['+procID+']: Error.In:', err, dict(_pflink= _pflink, fromLink= WfProcess['fl'], OutputVals=OutputVals ))) # To print out the exception message , print out the stdout messages up to the exception
@@ -969,7 +970,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({OutputVar:json.dumps(OutputVals)})
+                    WfProcess[OutputVar].update({OutputVar: OutputVals })
                     response[procID].update(WfProcess[OutputVar])
 
                     if (DEBUG): pprint(('@on_execWorkflowProcess.tl.multiple_inputs_outputs['+procID+']: Out:', dict(OutputVar=OutputVar, OutputVals=OutputVals, var=WfProcess[OutputVar])))
@@ -981,29 +982,52 @@ def on_execWorkflowProcess(data, response, session_data):
                     if (DEBUG): pprint(('tl.multiple_inputs_outputs: SetVar: WfProcessList['+procID+'].', OutputVar,' := ', WfProcessList[procID][OutputVar]))
                 except Exception as err:
                     pprint(('@on_execWorkflowProcess.tl.multiple_inputs_outputs['+procID+']: Error:', err, dict(toLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
-                                    
-        elif re.match(r".*::all_fields", oType):
 
+        elif re.match(r".*::all_fields", oType):
+            #pprint(('@on_execWorkflowProcess.all_fields['+procID+']: Init:',dict(fromLinks = WfProcess['tl'])))
+            OutputVals = {}
+            # Cycle parent.data -> inputVars => Push into {OutputVals}
             for (_Idx, _pflink) in enumerate(WfProcess['fl']): # Link is Array := List
                 InputVar = _pflink['toConnector']
                 parentOutputVar = _pflink['fromConnector']
-                OutputVals = ''
                 parentOperID = ''
                 try:
-                    if (_pflink['fromOperator'] == WfProcess['parents'][0]['id']):
-                        OutputVar = WfProcess['tl'][0]['fromConnector']
-                        WfProcess[OutputVar] = {}
-                        WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
-                        WfProcess[OutputVar].update(WfProcess['p'])
-                        parentOperID = WfProcess['fl'][0]['fromOperator']
-                        OutputVals = str(WfProcessList[parentOperID][parentOutputVar])
+                    #pprint(('@on_execWorkflowProcess.all_fields['+procID+']: Init:',dict( InputVar = InputVar, parentOutputVar = parentOutputVar, fromLinksParents = _pflink['fromOperator'], parentID= WfProcess['parents'][_pIdx]['id'])))
+                    #OutputVals[InputVar] = ''
+                    parentOperID = WfProcess['fl'][_Idx]['fromOperator']
 
-                    WfProcess[OutputVar].update({OutputVar:OutputVals})
-                    response[procID].update(WfProcess[OutputVar])
+                    #OutputVals[InputVar] = str(WfProcessList[parentOperID][parentOutputVar])
+                    OutputVals[InputVar] = WfProcessList[parentOperID][parentOutputVar]
+                    if (DEBUG): pprint(('@on_execWorkflowProcess.fl.all_fields['+procID+']: In:', dict(InputVar=InputVar, parentOutputVar=parentOutputVar, parentOperID=parentOperID, OutputVals=OutputVals)))
                 except Exception as err:
-                    print('@on_execWorkflowProcess.all_fields['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
+                    pprint(('@on_execWorkflowProcess.fl.all_fields['+procID+']: Error.In:', err, dict(_pflink= _pflink, fromLink= WfProcess['fl'], OutputVals=OutputVals ))) # To print out the exception message , print out the stdout messages up to the exception
 
-                if (DEBUG): pprint(('all_fields['+procID+']: SetVar:', oType, '.', InputVar, ':=', WfProcess['parents'][_Idx]['o']['type']+'.'+parentOutputVar, OutputVar + ' := '+ InputVar + ' vals:', OutputVals, ' lop['+parentOperID+']:'+ _pflink['fromOperator'] + '==' + WfProcess['parents'][0]['id']))
+                try:
+                    if (DEBUG): pprint(('fl.all_fields['+procID+']: In: SetVar: WfProcessList['+procID+'].', InputVar, ' := ', OutputVals[InputVar]))
+                except Exception as err:
+                    pprint(('@on_execWorkflowProcess.fl.all_fields['+procID+']: Error:', err, dict(fromLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
+
+            # Repeat Cycle to json both inputVars to outputVars
+            for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
+                OutputVar = _pflink['fromConnector']
+                try:
+                    #WfProcess[OutputVar] = ''
+                    #WfProcess[OutputVar] = json.dumps(OutputVals) # json (join all data)
+                    WfProcess[OutputVar] = {}
+                    WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
+                    WfProcess[OutputVar].update(WfProcess['p'])
+                    WfProcess[OutputVar].update({OutputVar: OutputVals })
+                    response[procID].update(WfProcess[OutputVar])
+
+                    if (DEBUG): pprint(('@on_execWorkflowProcess.tl.all_fields['+procID+']: Out:', dict(OutputVar=OutputVar, OutputVals=OutputVals, var=WfProcess[OutputVar])))
+
+                except Exception as err:
+                    pprint(('@on_execWorkflowProcess.tl.all_fields['+procID+']: Error.Out:', err, dict(_pflink= _pflink, toLink= WfProcess['tl'], OutputVar=OutputVar ))) # To print out the exception message , print out the stdout messages up to the exception
+
+                try:
+                    if (DEBUG): pprint(('tl.all_fields: SetVar: WfProcessList['+procID+'].', OutputVar,' := ', WfProcessList[procID][OutputVar]))
+                except Exception as err:
+                    pprint(('@on_execWorkflowProcess.tl.all_fields['+procID+']: Error:', err, dict(toLink= WfProcess['fl']) )) # To print out the exception message , print out the stdout messages up to the exception
 
         elif re.match(r".*::perl_init", oType):
             for (_Idx, _pflink) in enumerate(WfProcess['tl']): # Link is Array := List
@@ -1026,7 +1050,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                    WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.perl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1054,7 +1078,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                    WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.python_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1077,7 +1101,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                    WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.expect_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1099,7 +1123,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                    WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.tcl_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1121,7 +1145,7 @@ def on_execWorkflowProcess(data, response, session_data):
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
-                    WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                    WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                     response[procID].update(WfProcess[OutputVar])
                 except Exception as err:
                     print('@on_execWorkflowProcess.node_init['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1161,7 +1185,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.perl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1202,7 +1226,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.python_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1243,7 +1267,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.expect_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1284,7 +1308,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                     print('@on_execWorkflowProcess.tcl_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
@@ -1325,7 +1349,7 @@ def on_execWorkflowProcess(data, response, session_data):
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
-                WfProcess[OutputVar].update({'RetVal': str(RunCmd['RetVal']), 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
+                WfProcess[OutputVar].update({'RetVal': RunCmd['RetVal'], 'start_date': str(RunCmd['start_date']), 'end_date': str(RunCmd['end_date'])})
                 response[procID].update(WfProcess[OutputVar])
             except Exception as err:
                 print('@on_execWorkflowProcess.node_script['+procID+']: Error:', err ) # To print out the exception message , print out the stdout messages up to the exception
