@@ -516,7 +516,7 @@ define([
                     _fn_ShowCard(CurrCardName, (CurrCardName !== 'flowchart'));
                     if (user.is_admin && CurrCardName == 'adminListUsers') {
                         $app.adminListUsersDT = $('#adminListUsers-data').DataTable({
-                            ajax: '/api/user_data',
+                            ajax: $app.wwwroot + 'api/user_data',
                             destroy: true,
                             responsive: true,
                             autoWidth: true,
@@ -582,7 +582,7 @@ define([
                             return '<div class="short-log-msg">' + data + '</div>';
                         };
                         $app.adminLogsListDT = $('#adminLogsList-data').DataTable({
-                            ajax: '/api/logs_data',
+                            ajax: $app.wwwroot + 'api/logs_data',
                             destroy: true,
                             responsive: true,
                             autoWidth: true,
