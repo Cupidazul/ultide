@@ -868,7 +868,10 @@ def on_saveWorkflowProcess(data, response, session_data):
 def execWorkflowProcess(processData, response):
     UsrDomain = os.getenv('USERDOMAIN', '')
     if (UsrDomain != ''): UsrDomain += '\\'
-    Username = UsrDomain + os.getenv('USERNAME', 'unknown') 
+    Username = os.getenv('USERNAME', '')
+    if (Username == ''): Username = os.getenv('USER', '')
+    if (Username == ''): Username = 'unknown'
+    Username = UsrDomain + Username
     session_data={'user': {'username': Username}}
     on_execWorkflowProcess(processData, response, session_data)
 
