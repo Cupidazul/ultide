@@ -16,7 +16,7 @@ use UltideCore;
 UltideInitVARS();
 
 #print("\n\nOUTPUT:::",Dumper($UltideCore::OUTPUT));
-#print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
+print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
 
 #print("\n\ngetVAR:",
 #Dumper({
@@ -32,4 +32,5 @@ UltideInitVARS();
 #    )
 #);
 
-print("Internal: test_perl_script_01 + \n RAWOUTPUT:", $UltideCore::RAWOUTPUT||'', "\n OUTPUT:", Dumper($UltideCore::OUTPUT||'') );
+#print("Internal: test_perl_script_01 + \n RAWOUTPUT:", $UltideCore::RAWOUTPUT||'', "\n OUTPUT:", Dumper($UltideCore::OUTPUT||'') );
+print("Internal: test_perl_script_01 VAR.TTT: ", getVAR('TTT'));

@@ -53,7 +53,7 @@
                 },
                 "css": {
                     "font-size": "11px",
-                    "white-space": "nowrap",
+                    "white-space": "pre",
                     "width": "100%",
                     "font-family": "monospace"
                 },

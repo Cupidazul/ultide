@@ -18,7 +18,7 @@ import re
 import pytz
 from urllib import parse
 import logging
-from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
@@ -37,9 +37,12 @@ class ISOFormatter(logging.Formatter):
         return datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat()
 
 def filer(default_name=''): return os.path.dirname(config.LOGFILE) + '/' + datetime.datetime.now().strftime("%Y%m%d") + '-' + os.path.basename(config.LOGFILE);
+def fileRotator(source, dest): # replace original 'os.rename' with a simple create+close file
+    if (not os.path.exists(dest)): open(dest, 'a').close()
 
-rotating_file_handler = RotatingFileHandler(filename=filer(), backupCount=5, encoding='utf-8')
+rotating_file_handler = TimedRotatingFileHandler(filename=filer(), when='midnight', backupCount=7, encoding='utf-8')
 rotating_file_handler.rotation_filename = filer
+rotating_file_handler.rotator = fileRotator
 rotating_file_handler.setFormatter(ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
 
 ulog = logging.getLogger()
@@ -1050,7 +1053,8 @@ def on_execWorkflowProcess(data, response, session_data):
                 #try: WfProcess[InputVar] = response['RetVal']
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['perl_init'] = parse.quote( WfProcess['p']['perl_init'], safe='', encoding='utf-8')
+                    RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
+                    WfProcess['p']['perl_init'] = uri_escape(WfProcess['p']['perl_init'])
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1078,7 +1082,8 @@ def on_execWorkflowProcess(data, response, session_data):
                 #try: WfProcess[OutputVar] = response['RetVal']
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['python_init'] = parse.quote( WfProcess['p']['python_init'], safe='', encoding='utf-8')
+                    RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
+                    WfProcess['p']['python_init'] = uri_escape(WfProcess['p']['python_init'])
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1101,7 +1106,8 @@ def on_execWorkflowProcess(data, response, session_data):
 
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['expect_init'] = parse.quote( WfProcess['p']['expect_init'], safe='', encoding='utf-8')
+                    RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
+                    WfProcess['p']['expect_init'] = uri_escape(WfProcess['p']['expect_init'])
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1123,7 +1129,8 @@ def on_execWorkflowProcess(data, response, session_data):
 
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['tcl_init'] = parse.quote( WfProcess['p']['tcl_init'], safe='', encoding='utf-8')
+                    RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
+                    WfProcess['p']['tcl_init'] = uri_escape(WfProcess['p']['tcl_init'])
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1145,7 +1152,8 @@ def on_execWorkflowProcess(data, response, session_data):
 
                 try:
                     # Preprocess vars for OUTPUT
-                    WfProcess['p']['node_init'] = parse.quote( WfProcess['p']['node_init'], safe='', encoding='utf-8')
+                    RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
+                    WfProcess['p']['node_init'] = uri_escape(WfProcess['p']['node_init'])
                     WfProcess[OutputVar] = {}
                     WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                     WfProcess[OutputVar].update(WfProcess['p'])
@@ -1186,6 +1194,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
+                RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
@@ -1227,6 +1236,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
+                RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
@@ -1268,6 +1278,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
+                RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
@@ -1309,6 +1320,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
+                RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
@@ -1350,6 +1362,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
+                RunCmd['RetVal'] = explodeVARS(RunCmd['RetVal'])
                 WfProcess[OutputVar] = OutputVals
                 WfProcess[OutputVar].update({'name':WfProcess['o']['internal']['properties']['title']})
                 WfProcess[OutputVar].update(WfProcess['p'])
@@ -1447,6 +1460,14 @@ def escapeOnce(val):
         if (uri_unescape(val) == val): return uri_escape(val);   # key is not escaped. escape!
         else                         : return val;               # escape not needed!
 
+def explodeVARS(val):
+    if (re.match(r"^\{", val)):
+        val = json.loads(val)
+        for k1 in val:
+            v1 = val[k1]
+            setVAR(k1,v1)
+    return val
+
 def getVAR(key, dont_escape=False):
     global VARS
     val = ''
@@ -1456,6 +1477,12 @@ def getVAR(key, dont_escape=False):
         except: None
         try:  
             if (VARS[uri_escape(key)]): val = VARS[uri_escape(key)] 
+        except: None
+        try: 
+            if (val=='' and VARS['root.'+key]): val = VARS['root.'+key]
+        except: None
+        try: 
+            if (val=='' and VARS['root.'+uri_escape(key)]): val = VARS['root.'+uri_escape(key)] 
         except: None
     return unescapeOnce(val) if dont_escape else val
 
@@ -1507,6 +1534,7 @@ def _sub_readVARS(k,v):
     return not type(v) is dict
 
 def _readVARS(obj, root = None, depth = None):
+    if (obj == None): return ''
     if (root == None): root = ''
     if (depth == None): depth = -1
     depth += 1
@@ -1517,7 +1545,7 @@ def _readVARS(obj, root = None, depth = None):
             if ( type(v) is str and re.match(r"^\{\'", v) ): v = re.sub(r'\'', '"', v)
         except: None
 
-        #print("\n\nreadVARS: ->>", pformat((v, k)), ' <<-' )
+        #print("\n\nreadVARS [depth:"+ str(depth) +"]: "+ root +"."+ k +" "+ str(type(v)) +"->>", pformat((v, k)), ' <<-' )
 
         if ( _sub_readVARS(k,v) ):
             if (k != 'name'):
@@ -1526,7 +1554,7 @@ def _readVARS(obj, root = None, depth = None):
 
                 if ( type(v) is str and re.match(r"^\{", str(v)) ):
                     try:
-                        if (depth==0) :
+                        if (depth==0):
                             (_obj, _objNm) = setVAR( root + ('' if (root != '') else 'root')                  , json.loads(v))
                             _readVARS(_obj, _objNm, depth)
                         (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , json.loads(v))
@@ -1535,13 +1563,23 @@ def _readVARS(obj, root = None, depth = None):
                     except: None
                 else:
                     try:
-                        (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , v)
-                        _readVARS(_obj, _objNm, depth)
+                        if (k != 'start_date' and k != 'end_date' and k != 'RetVal'):
+                            (_obj, _objNm) = setVAR( root + ('.' if (root != '') else 'root.') + escapeOnce(k) , v)
+                            _readVARS(_obj, _objNm, depth)
                         #_readVARS(v, k);
                     except: None
+                
+                if (k != 'start_date' and k != 'end_date' and k != 'RetVal'):
+                    setVAR(escapeOnce(k) , v) # save all sub-vars as globals
 
-                try: v = json.loads(v)
+                try:
+                    v = json.loads(v)
+                    _sub_readVARS(k,v)
                 except: None
-                _sub_readVARS(k,v)
+        else:
+            if (not re.match(r"^output", str(k)) and not re.match(r"^input", str(k)) and not re.match(r"^RetVal", str(k))):
+                _readVARS(v, root + ('.' if (root != '') else 'root.') + escapeOnce(k) , depth)
+            else:
+                _readVARS(v, root + ('' if (root != '') else 'root') , depth)
 
     if (root == ''): setVAR( 'root', obj )

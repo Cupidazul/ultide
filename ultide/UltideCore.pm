@@ -63,6 +63,8 @@ sub getVAR {
     if ($key) {
         $val = $VARS->{$key} if ($VARS->{$key});
         $val = $VARS->{uri_escape($key)} if ($VARS->{uri_escape($key)});
+        $val = $VARS->{'root.'.$key} if ($val eq '' && $VARS->{'root.'.$key});
+        $val = $VARS->{'root.'.uri_escape($key)} if ($val eq '' && $VARS->{'root.'.uri_escape($key)});
     }
     return ($dont_escape)?$val:unescapeOnce($val);
 }
@@ -128,22 +130,23 @@ sub _sub_readVARS {
 
 sub _readVARS {
     my ($obj, $root, $depth) = @_;
+    return ''      if (!$obj);
     $root = ''     if (!$root);
     $depth = -1    if (!$depth); $depth++;
     
     while (my ($k, $v) = each (%$obj)) {
         $v =~ s/\'/"/g if ($v =~ /^\{\'/);
 
-        #print("\n\nreadVARS: ->>", Dumper( \($v, $k)),' <<-' );
+        #print("\n\nreadVARS: [depth:". $depth ."]: ". $root .".". $k ." ". ref($v) ."->>", Dumper( \($v, $k)),' <<-' );
 
         if ( _sub_readVARS($k,$v) ) {
             if ($k ne 'name') {
                 #if ($root ne '') { setVAR( $root.'.'.escapeOnce($k), $v );}
                 #else             { setVAR(   'root.'.escapeOnce($k), $v );}
+                my ($_obj, $_objNm) = ();
 
                 if ($v =~ /^\{/) {
                     eval {
-                        my ($_obj, $_objNm) = ();
                         if ($depth==0) {
                             ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'':'root')                  , JSON->new->utf8->allow_nonref(1)->decode($v));
                             _readVARS($_obj, $_objNm, \$depth);
@@ -154,14 +157,28 @@ sub _readVARS {
                     };
                 } else {
                     eval {
-                        my ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'.':'root.').escapeOnce($k) , $v);
-                        _readVARS($_obj, $_objNm, \$depth);
+                        if ($k ne 'start_date' && $k ne 'end_date' && $k ne 'RetVal') {
+                            ($_obj, $_objNm) = setVAR( $root.(($root ne '')?'.':'root.').escapeOnce($k) , $v);
+                            _readVARS($_obj, $_objNm, \$depth);
+                        }
                         #_readVARS($v, $k);
                     };
                 }
 
-                eval { $v = JSON->new->utf8->allow_nonref(1)->decode($v); };
-                _sub_readVARS($k,$v);
+                if ($k ne 'start_date' && $k ne 'end_date' && $k ne 'RetVal') {
+                    setVAR(escapeOnce($k) , $v) # save all sub-vars as globals
+                }
+
+                eval { 
+                    $v = JSON->new->utf8->allow_nonref(1)->decode($v);
+                    _sub_readVARS($k,$v);
+                };
+            }
+        } else {
+            if ($k !~ /^output/ && $k !~ /^input/ && $k !~ /^RetVal/) {
+                _readVARS($v, $root.(($root ne '')?'.':'root.').escapeOnce($k) , $depth)
+            } else {
+                _readVARS($v, $root.(($root ne '')?'':'root'), $depth)
             }
         }
     }
