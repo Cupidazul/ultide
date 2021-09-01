@@ -19,7 +19,8 @@ define([], function() {
             cbChange();
         });
 
-        var $btnCodeEditor = $('<button class="btn btn-primary btn-sm"><i class="fa fa-eye"></i> Code Editor</button>')
+        var $btnCodeEditor = $('<button class="btn btn-primary btn-sm"><i class="fa fa-eye"></i> Code Editor</button>');
+
         $btnCodeEditor.on('click', function(_evt) {
             var _self = this;
             let operatorId = $app.ultiflow.uf_propbar.operatorId;
