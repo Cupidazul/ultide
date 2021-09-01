@@ -906,8 +906,11 @@ def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
 
+    response['id'] = data['id'] 
+    response['name'] = data['name']
     response['uuid'] = VARS['uuid']
-    data['start_date'] = datetime.datetime.now(TZ)
+
+    data['start_date'] = datetime.datetime.now(TZ).isoformat()
     finalProcessList = {}
     finalProcessList = json.loads(LzDec64(data['lz']))
     WfProcessList = {}
@@ -1076,9 +1079,9 @@ def on_execWorkflowProcess(data, response, session_data):
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
                 
-                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
                 on_perl_CodeRun( RunCmd, response, session_data )
-                RunCmd['end_date'] = datetime.datetime.now(TZ)
+                RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
                 #WfProcess[InputVar] = ''
                 #try: WfProcess[InputVar] = response['RetVal']
@@ -1105,9 +1108,9 @@ def on_execWorkflowProcess(data, response, session_data):
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
 
-                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
                 on_python_CodeRun( RunCmd, response, session_data )
-                RunCmd['end_date'] = datetime.datetime.now(TZ)
+                RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
                 
                 #WfProcess[OutputVar] = ''
                 #try: WfProcess[OutputVar] = response['RetVal']
@@ -1131,9 +1134,9 @@ def on_execWorkflowProcess(data, response, session_data):
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
                 
-                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
                 on_expect_CodeRun( RunCmd, response, session_data )
-                RunCmd['end_date'] = datetime.datetime.now(TZ)
+                RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
                 try:
                     # Preprocess vars for OUTPUT
@@ -1154,9 +1157,9 @@ def on_execWorkflowProcess(data, response, session_data):
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
                 
-                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
                 on_tcl_CodeRun( RunCmd, response, session_data )
-                RunCmd['end_date'] = datetime.datetime.now(TZ)
+                RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
                 try:
                     # Preprocess vars for OUTPUT
@@ -1177,9 +1180,9 @@ def on_execWorkflowProcess(data, response, session_data):
                 RunCmd = {}
                 RunCmd['cmd'] = WfProcess['p']
 
-                RunCmd['start_date'] = datetime.datetime.now(TZ)
+                RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
                 on_node_CodeRun( RunCmd, response, session_data )
-                RunCmd['end_date'] = datetime.datetime.now(TZ)
+                RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
                 try:
                     # Preprocess vars for OUTPUT
@@ -1219,9 +1222,9 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
             
-            RunCmd['start_date'] = datetime.datetime.now(TZ)
+            RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
             on_perl_CodeRun( RunCmd, response, session_data )
-            RunCmd['end_date'] = datetime.datetime.now(TZ)
+            RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
@@ -1261,9 +1264,9 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
             
-            RunCmd['start_date'] = datetime.datetime.now(TZ)
+            RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
             on_python_CodeRun( RunCmd, response, session_data )
-            RunCmd['end_date'] = datetime.datetime.now(TZ)
+            RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
@@ -1303,9 +1306,9 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
 
-            RunCmd['start_date'] = datetime.datetime.now(TZ)
+            RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
             on_expect_CodeRun( RunCmd, response, session_data )
-            RunCmd['end_date'] = datetime.datetime.now(TZ)
+            RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
@@ -1345,9 +1348,9 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
 
-            RunCmd['start_date'] = datetime.datetime.now(TZ)
+            RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
             on_tcl_CodeRun( RunCmd, response, session_data )
-            RunCmd['end_date'] = datetime.datetime.now(TZ)
+            RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
@@ -1387,9 +1390,9 @@ def on_execWorkflowProcess(data, response, session_data):
             RunCmd['script'] = WfProcess['p']
             RunCmd['parm'] = encodeZlibString( json.dumps(OutputVals) )
 
-            RunCmd['start_date'] = datetime.datetime.now(TZ)
+            RunCmd['start_date'] = datetime.datetime.now(TZ).isoformat()
             on_node_CodeRun( RunCmd, response, session_data )
-            RunCmd['end_date'] = datetime.datetime.now(TZ)
+            RunCmd['end_date'] = datetime.datetime.now(TZ).isoformat()
 
             try:
                 #WfProcess[OutputVar] = response['RetVal']
@@ -1407,7 +1410,7 @@ def on_execWorkflowProcess(data, response, session_data):
         else:
             print('@on_execWorkflowProcess['+procID+']: Error: Undefined Workflow Process')
     
-    data['end_date'] = datetime.datetime.now(TZ)
+    data['end_date'] = datetime.datetime.now(TZ).isoformat()
     
     logUsr = ''
     if (isinstance(session_data['user'], User)): logUsr = '@web:' + session_data['user'].username

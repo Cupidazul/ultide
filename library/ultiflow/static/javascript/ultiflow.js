@@ -1201,7 +1201,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
                 <h4 class="modal-title" id="myCodeModalLabel">
                     <div class="col-sm-6">${Title}</div>
                     <div style="font-size: 13px;" class="col-sm-5">
-                        Editor: <input id="switchAceJson" type="checkbox" data-toggle="switch" data-size="mini" data-on-text="Ace" data-off-text="Json">
+                        Viewer: <input id="switchAceJson" type="checkbox" data-toggle="switch" data-size="mini" data-on-text="Ace" data-off-text="Json">
                     </div>
                 </h4>
             </div>

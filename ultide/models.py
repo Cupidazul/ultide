@@ -396,9 +396,9 @@ class Log(db.Model):
             trace=trace,
             msg=record['msg'],
         )
-        if record.__contains__('created_at'): log.created_at = record['created_at']
-        if record.__contains__('start_date'): log.start_date = record['start_date']
-        if record.__contains__('end_date'): log.end_date = record['end_date']
+        if record.__contains__('created_at'): log.created_at = datetime.fromisoformat(record['created_at'])
+        if record.__contains__('start_date'): log.start_date = datetime.fromisoformat(record['start_date'])
+        if record.__contains__('end_date'): log.end_date = datetime.fromisoformat (record['end_date'])
         if record.__contains__('usr'): log.usr = record['usr']
 
         if (db.app is None):
