@@ -195,14 +195,14 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                     try {
                         if (typeof(value.undefined) !== 'undefined') delete value.undefined;
                     } catch (err) {
-                        console.error('@ultiflow.uf_propbar: Error: ' + String(propInfos.type), { inst: inst, value: value, module: module });
+                        console.log('@ultiflow.uf_propbar: Error: ' + String(propInfos.type), { inst: inst, value: value, module: module });
                     }
 
                     if (value !== null) {
                         try {
                             inst.setValue(value);
                         } catch (err) {
-                            console.error('@ultiflow.uf_propbar: Error: ' + String(propInfos.type), { inst: inst, value: value, module: module });
+                            console.log('@ultiflow.uf_propbar: Error: ' + String(propInfos.type), { inst: inst, value: value, module: module });
                         }
                     }
                 };
