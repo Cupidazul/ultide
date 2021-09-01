@@ -107,7 +107,7 @@ define(['app'], function(app) {
                 $app.helper.fileChooser({
                     action: 'save',
                     onSelected: function(_fileName) {
-                        console.log('btn_cronsave:', { fileName: _fileName });
+                        //if ($app.debug) console.log('btn_cronsave:', { fileName: _fileName });
                         $app.ultiflow.anyCodeSaveCron(_fileName);
                     }
                 });
