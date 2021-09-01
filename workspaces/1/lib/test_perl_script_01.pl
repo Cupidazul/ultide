@@ -16,7 +16,7 @@ use UltideCore;
 UltideInitVARS();
 
 #print("\n\nOUTPUT:::",Dumper($UltideCore::OUTPUT));
-print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
+#print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
 
 #print("\n\ngetVAR:",
 #Dumper({
@@ -33,4 +33,9 @@ print("\n\nVARS:::"  ,Dumper($UltideCore::VARS  ));
 #);
 
 #print("Internal: test_perl_script_01 + \n RAWOUTPUT:", $UltideCore::RAWOUTPUT||'', "\n OUTPUT:", Dumper($UltideCore::OUTPUT||'') );
-print("Internal: test_perl_script_01 VAR.TTT: ", getVAR('TTT'));
+
+# VARS Usage Example: 
+# "Perl Init" : print( JSON->new->utf8->encode({'TTT1'=> 'TestVal_TTT1'}) );
+# "All fields" : text := "var: {{VARS.TTT0}} {{VARS.TTT1}}"
+
+print("Internal: test_perl_script_01 VAR.TTT1: ", getVAR('TTT1'));

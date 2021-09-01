@@ -7,7 +7,7 @@ no if $] >= 5.020, warnings => qw(experimental::smartmatch);
 #use 2.006 Socket qw(AF_INET AF_INET6 inet_pton);
 require(Exporter);
 our @ISA = qw(Exporter);
-our @EXPORT = qw(getVAR setVAR readVARS processOUTPUT UltideInitVARS);
+our @EXPORT = qw(getVAR setVAR readVARS processOUTPUT UltideInitVARS json_encode json_decode);
 
 use JSON;
 use Encode;
@@ -22,6 +22,17 @@ use IO::Uncompress::Inflate qw(inflate $InflateError);
 our $VARS={};
 our $RAWOUTPUT='';
 our $OUTPUT='';
+our $JSON=JSON->new->utf8->allow_nonref(1);
+
+sub json_encode{
+    my $_arg = shift;
+    return $JSON->encode($_arg);
+}
+
+sub json_decode{
+    my $_arg = shift;
+    return $JSON->decode($_arg);
+}
 
 sub UltideInitVARS{
     my $_arg = shift;

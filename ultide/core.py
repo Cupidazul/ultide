@@ -19,6 +19,7 @@ import pytz
 from urllib import parse
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import uuid
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
@@ -26,9 +27,10 @@ TZ = pytz.timezone(config.TIMEZONE)
 DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 sessions_data = {}
-VARS={}
-RAWOUTPUT=''
-OUTPUT= ''
+VARS = {'uuid': str(uuid.uuid4())}  # containerize vars per uuid
+VARS[VARS['uuid']] = {'RAWOUTPUT':'','OUTPUT':''}
+RAWOUTPUT = VARS[VARS['uuid']]['RAWOUTPUT']
+OUTPUT = VARS[VARS['uuid']]['OUTPUT']
 
 ## Logging Config Start ###############################
 
@@ -862,7 +864,7 @@ def on_saveWorkflowProcess(data, response, session_data):
                     strCode += 'json.dumps(' + str(json.loads(_item)) + '),' + "\n"  # json.loads replaced := OLD {eval is to activate json.fix}
                 strCode += ']' + "\n"
                 strCode += 'response={}' + "\n"
-                strCode += "UltideCore.execWorkflowProcess({'id': '" + data['id'] + "', 'name': '" + data['name'] + "', 'lz': UltideCore.LzEnc64(json.dumps(processData))}, response)" + "\n"
+                strCode += "UltideCore.execWorkflowProcess({'uuid': '" + VARS['uuid'] + "','id': '" + data['id'] + "', 'name': '" + data['name'] + "', 'lz': UltideCore.LzEnc64(json.dumps(processData))}, response)" + "\n"
 
                 f.write( strCode )
             except Exception as err:
@@ -871,6 +873,7 @@ def on_saveWorkflowProcess(data, response, session_data):
         f.close()
 
 def execWorkflowProcess(processData, response):
+    global RAWOUTPUT, OUTPUT, VARS
     UsrDomain = os.getenv('USERDOMAIN', '')
     if (UsrDomain != ''): UsrDomain += '\\'
     Username = os.getenv('USERNAME', '')
@@ -878,25 +881,53 @@ def execWorkflowProcess(processData, response):
     if (Username == ''): Username = 'unknown'
     Username = UsrDomain + Username
     session_data={'user': {'username': Username}}
+
+    try:    VARS['uuid'] = processData['uuid']
+    except:
+            VARS = {'uuid': str(uuid.uuid4())}
+
+    if (not VARS.__contains__(VARS['uuid']) or not type(VARS[VARS['uuid']]) is dict):
+        VARS[VARS['uuid']] = {'RAWOUTPUT':'','OUTPUT':''}
+
+    RAWOUTPUT = VARS[VARS['uuid']]['RAWOUTPUT']
+    OUTPUT = VARS[VARS['uuid']]['OUTPUT']
+    
     on_execWorkflowProcess(processData, response, session_data)
+
+def renderVars():
+    global RAWOUTPUT, OUTPUT, VARS
+    return { 'config': mod_2_dict(config), 'VARS': VARS[VARS['uuid']], 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() }
+
+def pystacheRender(template):
+    true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
+    return json.loads( pystache.render( template, globals(), **renderVars() ) )
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
 
+    response['uuid'] = VARS['uuid']
     data['start_date'] = datetime.datetime.now(TZ)
     finalProcessList = {}
     finalProcessList = json.loads(LzDec64(data['lz']))
     WfProcessList = {}
+    procRef={}
+    jID = 0
 
     procIDs = []
     for jsonWfProcess in finalProcessList:
-        WfProcess = WfProcessList[WfProcess['id']] = json.loads( pystache.render( jsonWfProcess, globals(), **{ 'config': mod_2_dict(config), 'VARS': VARS, 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() } ) )
+        WfProcess = WfProcessList[WfProcess['id']] = pystacheRender(jsonWfProcess)
         procIDs.append(WfProcess['id']) # Honor ProcessID Original Array sequence
+        procRef[WfProcess['id']] = jID
+        jID += 1
 
     for procID in procIDs:
         if (not response.__contains__(procID)): response[procID] = {}   # Polulate response[#procID: 0...99] = store results of scripts
-        WfProcess = WfProcessList[procID]
+        #WfProcess = WfProcessList[procID]
+        
+        # Reprocess pystache template for new variables that may appear during run...
+        WfProcess = WfProcessList[procID] = pystacheRender(finalProcessList[procRef[procID]])
+
         #pprint(('WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
         #print('Operator.type:',WfProcess['o']['type'])
         oType = WfProcess['o']['type']
@@ -1473,16 +1504,16 @@ def getVAR(key, dont_escape=False):
     val = ''
     if (key):
         try:  
-            if (VARS[key])            : val = VARS[key]
+            if (VARS[VARS['uuid']][key])            : val = VARS[VARS['uuid']][key]
         except: None
         try:  
-            if (VARS[uri_escape(key)]): val = VARS[uri_escape(key)] 
+            if (VARS[VARS['uuid']][uri_escape(key)]): val = VARS[VARS['uuid']][uri_escape(key)] 
         except: None
         try: 
-            if (val=='' and VARS['root.'+key]): val = VARS['root.'+key]
+            if (val=='' and VARS[VARS['uuid']]['root.'+key]): val = VARS[VARS['uuid']]['root.'+key]
         except: None
         try: 
-            if (val=='' and VARS['root.'+uri_escape(key)]): val = VARS['root.'+uri_escape(key)] 
+            if (val=='' and VARS[VARS['uuid']]['root.'+uri_escape(key)]): val = VARS[VARS['uuid']]['root.'+uri_escape(key)] 
         except: None
     return unescapeOnce(val) if dont_escape else val
 
@@ -1492,7 +1523,7 @@ def setVAR(key, val):
         _retObj = {}
         _retKey = {}
         _retKey = escapeOnce(key)
-        _retObj = VARS[_retKey] = val; # we could simply: unescapeOnce($val)
+        _retObj = VARS[VARS['uuid']][_retKey] = val; # we could simply: unescapeOnce($val)
         return ( _retObj, _retKey )
 
 def readVARS(obj = None,root = ''):

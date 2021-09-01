@@ -127,16 +127,18 @@ define([
                     $('#btn_play').prop('disabled', false);
                     var flowchartFullData = $app.ultiflow.flowchart.getFullData();
                     Object.keys(codeResult).forEach(function(elIdx) {
-                        $('#codeInfo' + String(elIdx)).remove();
-                        var codeInfo = $('<li id="codeInfo' + String(elIdx) + '" class="btn fa fa-info-circle code-info-btn-info"></li>');
-                        codeInfo.appendTo(flowchartFullData.operators[elIdx].internal.els.title);
-                        codeInfo.data('opID', elIdx);
-                        codeInfo.on('click', function(evt) {
-                            evt.stopImmediatePropagation();
-                            var evtToElement = (evt.toElement || evt.relatedTarget || evt.target);
-                            $app.ultiflow.showCodeRunInfo($(evtToElement).data('opID'));
-                            return false;
-                        });
+                        if (Number.isInteger(Number(elIdx))) {
+                            $('#codeInfo' + String(elIdx)).remove();
+                            var codeInfo = $('<li id="codeInfo' + String(elIdx) + '" class="btn fa fa-info-circle code-info-btn-info"></li>');
+                            codeInfo.appendTo(flowchartFullData.operators[elIdx].internal.els.title);
+                            codeInfo.data('opID', elIdx);
+                            codeInfo.on('click', function(evt) {
+                                evt.stopImmediatePropagation();
+                                var evtToElement = (evt.toElement || evt.relatedTarget || evt.target);
+                                $app.ultiflow.showCodeRunInfo($(evtToElement).data('opID'));
+                                return false;
+                            });
+                        }
                     });
                     $('#btn_play').children().removeClass('fa-cog fa-spin').addClass('fa-play');
                 };

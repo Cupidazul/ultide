@@ -16,7 +16,7 @@ import ultide.core as UltideCore
 UltideCore.UltideInitVARS()
 
 #print("\n\nOUTPUT:::",pformat(UltideCore.OUTPUT))
-print("\n\nVARS:::"  ,pformat(UltideCore.VARS  ))
+#print("\n\nVARS:::"  ,pformat(UltideCore.VARS  ))
 
 #print("\n\ngetVAR:",
 #pformat({
@@ -34,4 +34,8 @@ print("\n\nVARS:::"  ,pformat(UltideCore.VARS  ))
 
 #print("Internal: test_python_script_01 + \n RAWOUTPUT:", UltideCore.RAWOUTPUT, "\n OUTPUT:", pformat(UltideCore.OUTPUT), end = "")
 
-print("Internal: test_python_script_01 VAR.TTT: " + str(UltideCore.getVAR('TTT')), end = "")
+# VARS Usage Example: 
+# "Python Init" : print( json.dumps({'TTT0': 'TestVal_TTT0'}) )
+# "All fields"  : text := "var: {{VARS.TTT0}} {{VARS.TTT1}}"
+
+print("Internal: test_python_script_01 VAR.TTT0: " + str(UltideCore.getVAR('TTT0')), end = "")
