@@ -1235,7 +1235,13 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
             $modal.modal('hide');
         });
 
-        $fullscreenButton.click(function() { $app.ace._AceEditor.container.requestFullscreen(); });
+        $fullscreenButton.click(function() {
+            if ($('#code-editor').is(':visible')) {
+                $app.ace._AceEditor.container.requestFullscreen();
+            } else {
+                $app.ace._JsonEditor.$container[0].requestFullscreen();
+            }
+        });
 
         $modal.modal();
         $modal.on('hidden.bs.modal', function() {
