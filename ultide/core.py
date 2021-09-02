@@ -1,6 +1,6 @@
 import datetime
 import ultide.config as config
-from ultide.models import User, Log, db
+from ultide.models import User, uLog, uLogFile, db
 import json
 import sys
 import os
@@ -18,7 +18,6 @@ import re
 import pytz
 from urllib import parse
 import logging
-from logging.handlers import TimedRotatingFileHandler
 import uuid
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
@@ -33,25 +32,9 @@ RAWOUTPUT = VARS[VARS['uuid']]['RAWOUTPUT']
 OUTPUT = VARS[VARS['uuid']]['OUTPUT']
 
 ## Logging Config Start ###############################
-
-class ISOFormatter(logging.Formatter):
-    def formatTime(self, record, datefmt=None):
-        return datetime.datetime.fromtimestamp(record.created, datetime.timezone.utc).astimezone().isoformat()
-
-def filer(default_name=''): return os.path.dirname(config.LOGFILE) + '/' + datetime.datetime.now().strftime("%Y%m%d") + '-' + os.path.basename(config.LOGFILE);
-def fileRotator(source, dest): # replace original 'os.rename' with a simple create+close file
-    if (not os.path.exists(dest)): open(dest, 'a').close()
-
-rotating_file_handler = TimedRotatingFileHandler(filename=filer(), when='midnight', backupCount=7, encoding='utf-8')
-rotating_file_handler.rotation_filename = filer
-rotating_file_handler.rotator = fileRotator
-rotating_file_handler.setFormatter(ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
-
-ulog = logging.getLogger()
-ulog.addHandler(rotating_file_handler)
-ulog.setLevel(logging._nameToLevel[config.LOGLEVEL])
-
-dblog = Log()
+dblog = uLog()
+Uflog = uLogFile()
+uflog = Uflog.getLogger()
 ## Logging Config End ###############################
 
 def decodeZlibString(_str):

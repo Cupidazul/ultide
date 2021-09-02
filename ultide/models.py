@@ -14,6 +14,7 @@ from datetime import datetime
 from pytz import timezone
 import re
 import logging
+from logging.handlers import TimedRotatingFileHandler
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
@@ -347,7 +348,7 @@ class Library(db.Model):
     lib_oper = db.Column(db.String(255), nullable=False, server_default='', autoincrement=False)
     lib_code = db.Column(db.Text(),      nullable=False, server_default='')
 
-class Log(db.Model):
+class uLog(db.Model):
     __tablename__ = 'logs'
     id = db.Column(db.Integer, primary_key=True) # auto incrementing
     usr = db.Column(db.String(255), nullable=False)
@@ -390,7 +391,7 @@ class Log(db.Model):
         exc = sys.exc_info()
         if exc and (exc != (None, None, None)):
             trace = json.dumps(traceback.format_exc().split("\n"))
-        log = Log(
+        log = uLog(
             name=record['name'],
             level=record['level'],
             trace=trace,
@@ -412,3 +413,67 @@ class Log(db.Model):
 
         db.session.add(log)
         db.session.commit()
+
+class uLogFile():
+    import datetime as _datetime
+
+    def __init__(self):
+        self.logFileCount = 1
+        self.logBackupCount = 7
+        self.logmaxBytes = 2000 *1000 # 2Mb per logfile
+        self.logYMD = str(self._datetime.datetime.now().strftime("%Y%m%d"))
+        self.prevFile = ''
+        self.isNextday = False
+        self.fileSize = 0
+        self.hasLooped = False
+
+    class ISOFormatter(logging.Formatter):
+        def formatTime(self, record, datefmt=None):
+            import datetime as __datetime
+            return __datetime.datetime.fromtimestamp(record.created, __datetime.timezone.utc).astimezone().isoformat()
+
+    def logbaseFilename(self):
+        return str(os.path.dirname(config.LOGFILE) + '/' + self.logYMD + '-' + os.path.basename(config.LOGFILE) + '.' + str(self.logFileCount))
+
+    def filer(self, default_name=''):
+        _dt = str(self._datetime.datetime.now().strftime("%Y%m%d"))
+        self.isNextday = (self.logYMD != _dt)
+        self.logYMD = _dt
+        self.prevFile = self.logbaseFilename()
+
+        try: self.hasLooped = self.rotating_file_handler._haslooped
+        except: self.hasLooped = False
+        try: self.fileSize = os.stat(self.prevFile).st_size
+        except: self.fileSize = 0
+        
+        if (self.fileSize > self.logmaxBytes): self.logFileCount += 1
+        if (self.logFileCount > self.logBackupCount or self.isNextday):
+            self.logFileCount = 1
+            if (not self.isNextday):
+                try: self.rotating_file_handler._haslooped = True
+                except: None
+
+        if ('rotating_file_handler' in vars(self) and self.prevFile != self.logbaseFilename()):
+            self.rotating_file_handler.baseFilename = self.logbaseFilename()
+            self.rotating_file_handler.stream.close()                                   # force close current file
+            self.rotating_file_handler.stream = self.rotating_file_handler._open()      # force open new file
+            self.rotating_file_handler.stream.seek(0, 2)                                # goto end of file to append if file exists
+            if (self.hasLooped): self.rotating_file_handler.stream.truncate(0)          # clear file to zero-size if all logs have been filled to maxBytes: logBackupCount>7
+
+        #if (config.DEBUG): pprint(('@core.logfile: filer:', {'hasLooped': self.hasLooped, 'logFileCount': self.logFileCount, 'logYMD': self.logYMD, 'default_name': default_name, 'prevFile': self.prevFile, 'newFile': self.logbaseFilename, 'fileSize': self.fileSize}))
+        return self.logbaseFilename()
+
+    def fileRotator(self, source, dest): # replace original 'os.rename' with a simple create+close file
+        if (not os.path.exists(dest)): open(dest, 'a').close()
+
+    def getLogger(self):
+        self.rotating_file_handler = TimedRotatingFileHandler(filename=self.filer(), when='M', backupCount=self.logBackupCount, encoding='utf-8') # when='M' :: check each minute
+        self.rotating_file_handler.rotation_filename = self.filer
+        self.rotating_file_handler.doRollover = self.filer # replace doRollover to avoid renaming file errors
+        self.rotating_file_handler.rotator = self.fileRotator
+        self.rotating_file_handler.setFormatter(self.ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
+
+        ulog = logging.getLogger()
+        ulog.addHandler(self.rotating_file_handler)
+        ulog.setLevel(logging._nameToLevel[config.LOGLEVEL])
+        return ulog
