@@ -828,6 +828,7 @@ def preprocessUUID(data):
 
 def on_saveWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
+    data['uuid'] = UUID(True) # we generate a new UUID for safety otherwise web VARS and Cronvars could be changed in case of parallel runtime
     preprocessUUID(data)
     if (DEBUG): pprint(('@on_saveWorkflowProcess: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
     cronFile = ''
@@ -857,7 +858,7 @@ def on_saveWorkflowProcess(data, response, session_data):
                     #strCode += 'json.dumps(' + pformat(eval(_item)) + '),' + "\n"  # PrettyPrint
                     strCode += 'json.dumps(' + str(json.loads(_item)) + '),' + "\n"  # json.loads replaced := OLD {eval is to activate json.fix}
                 strCode += ']' + "\n"
-                strCode += 'response={}' + "\n"
+                strCode += "response={}              # use: 'uuid': UltideCore.UUID(True) if you run this script in parallel jobs and don't want to share VARS" + "\n"
                 strCode += "UltideCore.execWorkflowProcess({'uuid': '" + VARS['uuid'] + "','id': '" + data['id'] + "', 'name': '" + data['name'] + "', 'lz': UltideCore.LzEnc64(json.dumps(processData))}, response)" + "\n"
 
                 f.write( strCode )
