@@ -656,14 +656,14 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
             if ($app.debug) console.log('CompileCode finalProcessListJSON Sizes: JSONstr:' + _J.length + ' Lz:' + _Jlz.length + ' CompressRate:' + parseInt(((_J.length - _Jlz.length) / _J.length) * 100) + '%');
 
             if (_runCodeNow) {
-                app.sendRequest('execWorkflowProcess', { 'id': _processData.id, 'name': _processData.title, 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
+                app.sendRequest('execWorkflowProcess', { 'uuid': _processData.uuid, 'id': _processData.id, 'name': _processData.title, 'lz': _Jlz /*, 'opts': { del_script: 0 } */ }, function(response) {
                     if ($app.debug) console.log('execWorkflowProcess: ', { response: response });
                     $app.ultiflow.CodeRes = response;
                     $app.ultiflow.CodeFinished(response);
                 });
             } else {
                 // **1 - Savefile to Python! for Cron offline workflow execution to be possible...
-                app.sendRequest('saveWorkflowProcess', { 'id': _processData.id, 'name': _processData.title, 'lz': _Jlz, 'cronFile': _cronFile /*, 'opts': { del_script: 0 } */ }, function(response) {
+                app.sendRequest('saveWorkflowProcess', { 'uuid': _processData.uuid, 'id': _processData.id, 'name': _processData.title, 'lz': _Jlz, 'cronFile': _cronFile /*, 'opts': { del_script: 0 } */ }, function(response) {
                     if ($app.debug) console.log('saveWorkflowProcess: ', { response: response });
                 });
             }
@@ -711,7 +711,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     ultiflow.anyCodeSaveCron = function(_filename) {
         var _self = this;
         var _data = null;
-        try { _data = ultiflow.processData; } catch (er) {}
+        try { _data = $.extend({ uuid: $app.config.io.initial_session_data.uuid }, ultiflow.processData); } catch (er) {}
         if ($app.debug) console.log('jsonCodeRun: processData:', _data);
         if (_data !== null) {
             ultiflow.CompileCode(_data, false, _filename);
@@ -721,7 +721,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     ultiflow.anyCodeRun = function() {
         var _self = this;
         var _data = null;
-        try { _data = ultiflow.processData; } catch (er) {}
+        try { _data = $.extend({ uuid: $app.config.io.initial_session_data.uuid }, ultiflow.processData); } catch (er) {}
         if ($app.debug) console.log('jsonCodeRun: processData:', _data);
         if (_data !== null) {
             ultiflow.CompileCode(_data);

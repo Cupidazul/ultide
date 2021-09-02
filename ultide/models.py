@@ -15,6 +15,7 @@ from pytz import timezone
 import re
 import logging
 from logging.handlers import TimedRotatingFileHandler
+import uuid
 
 # Initialize Flask extensions
 db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
@@ -22,6 +23,13 @@ db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
 TZ = timezone(config.TIMEZONE)
 def time_now():
     return datetime.now(TZ)
+
+def genUUID(regen=False):
+    global UUID
+    if (not 'UUID' in globals() or UUID == None or regen): UUID = str(uuid.uuid4())
+    return UUID
+
+UUID = genUUID()
 
 # Define the User data model. Make sure to add flask.ext.user UserMixin !!!
 class User(db.Model, UserMixin):

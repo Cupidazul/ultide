@@ -44,18 +44,15 @@ import ultide.config as config
 DEBUG   = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
 
-import time
 from flask import Flask, render_template, session, request, send_from_directory, make_response, redirect, flash
 from functools import wraps, update_wrapper
 from flask_socketio import SocketIO, emit, disconnect
-from flask_user import login_required, UserManager, UserMixin, SQLAlchemyAdapter
+from flask_user import login_required, UserManager, SQLAlchemyAdapter
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from ultide.models import db, User, DevLang, Library
-from ultide.core import PKG, mod_2_dict, sessions_data
+from ultide.models import db, User, DevLang
+from ultide.core import PKG, sessions_data
 import ultide.core as core
-import uuid
 import ultide.common as common
-import json
 from datetime import datetime
 import sys
 from pprint import pprint
@@ -221,10 +218,11 @@ def logout(): #define the logout function
     return redirect(WWWROOT+'login')
 
 @app.route('/')
+@nocache
 def index():
-    session['uuid'] = str(uuid.uuid4())
+    session['uuid'] = str(core.UUID(True)) # generate new UUID on each login
     #pprint(('@server: current_user:', vars(current_user), 'login_manager:', vars(login_manager)));sys.stdout.flush();
-    if ( current_user.is_active and current_user.is_authenticated):
+    if (current_user.is_active and current_user.is_authenticated):
         return render_template('index.html', AppInitScript=core.AppInitScript(), pkg=PKG)
     else:
         return redirect(WWWROOT+'login')

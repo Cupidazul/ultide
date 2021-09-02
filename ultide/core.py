@@ -1,6 +1,6 @@
 import datetime
 import ultide.config as config
-from ultide.models import User, uLog, uLogFile, db
+from ultide.models import User, uLog, uLogFile, genUUID
 import json
 import sys
 import os
@@ -18,15 +18,15 @@ import re
 import pytz
 from urllib import parse
 import logging
-import uuid
 
 osSEP = '/' if ( not os.name == 'nt') else '\\';
 PKG = json.loads(open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..'+osSEP+'package.json'))).read())
 TZ = pytz.timezone(config.TIMEZONE)
 DEBUG = config.DEBUG
 WWWROOT = config.IO_SERVER['wwwroot']
+UUID = genUUID
 sessions_data = {}
-VARS = {'uuid': str(uuid.uuid4())}  # containerize vars per uuid
+VARS = {'uuid': UUID()}  # containerize vars per uuid
 VARS[VARS['uuid']] = {'RAWOUTPUT':'','OUTPUT':''}
 RAWOUTPUT = VARS[VARS['uuid']]['RAWOUTPUT']
 OUTPUT = VARS[VARS['uuid']]['OUTPUT']
@@ -816,8 +816,19 @@ def LzDec64(data):
 def LzEnc64(data):
     return lzstring.LZString().compressToBase64(data)
 
+def preprocessUUID(data):
+    global RAWOUTPUT, OUTPUT, VARS
+    try:    VARS['uuid'] = data['uuid']
+    except:
+            VARS = {'uuid': UUID()}
+    if (not VARS.__contains__(VARS['uuid']) or not type(VARS[VARS['uuid']]) is dict):
+        VARS[VARS['uuid']] = {'RAWOUTPUT':'','OUTPUT':''}
+    RAWOUTPUT = VARS[VARS['uuid']]['RAWOUTPUT']
+    OUTPUT = VARS[VARS['uuid']]['OUTPUT']
+
 def on_saveWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
+    preprocessUUID(data)
     if (DEBUG): pprint(('@on_saveWorkflowProcess: data:', data, 'session_data:', session_data, 'response:', response, 'workspace:'))
     cronFile = ''
     if data.__contains__('cronFile'): cronFile = data['cronFile']
@@ -864,16 +875,6 @@ def execWorkflowProcess(processData, response):
     if (Username == ''): Username = 'unknown'
     Username = UsrDomain + Username
     session_data={'user': {'username': Username}}
-
-    try:    VARS['uuid'] = processData['uuid']
-    except:
-            VARS = {'uuid': str(uuid.uuid4())}
-
-    if (not VARS.__contains__(VARS['uuid']) or not type(VARS[VARS['uuid']]) is dict):
-        VARS[VARS['uuid']] = {'RAWOUTPUT':'','OUTPUT':''}
-
-    RAWOUTPUT = VARS[VARS['uuid']]['RAWOUTPUT']
-    OUTPUT = VARS[VARS['uuid']]['OUTPUT']
     
     on_execWorkflowProcess(processData, response, session_data)
 
@@ -888,6 +889,8 @@ def pystacheRender(template):
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
+
+    preprocessUUID(data)
 
     response['id'] = data['id'] 
     response['name'] = data['name']
