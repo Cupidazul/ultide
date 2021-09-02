@@ -1197,7 +1197,8 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close pr-3" data-dismiss="modal" aria-label="Close"><i class="fas fa-times fa-xs"></i></button>
+                <button type="button" class="close pr-3" aria-label="Fullscreen"><i class="fas fa-expand-alt fa-xs"></i></button>
                 <h4 class="modal-title" id="myCodeModalLabel">
                     <div class="col-sm-6">${Title}</div>
                     <div style="font-size: 13px;" class="col-sm-5">
@@ -1228,10 +1229,13 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         var $body = $modal.find('.modal-body');
         var $cancelButton = $modal.find('.btn-close');
         var $operatorId = $modal.find('.operator-id');
+        var $fullscreenButton = $modal.find('[aria-label="Fullscreen"]');
 
         $cancelButton.click(function() {
             $modal.modal('hide');
         });
+
+        $fullscreenButton.click(function() { $app.ace._AceEditor.container.requestFullscreen(); });
 
         $modal.modal();
         $modal.on('hidden.bs.modal', function() {
