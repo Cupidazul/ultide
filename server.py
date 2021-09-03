@@ -71,6 +71,8 @@ else: socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_log
 
 db.app = app
 db.init_app(app)
+# Create Schemas for tables if needed
+db.create_schemas()
 # Create all database tables
 db.create_all()
     

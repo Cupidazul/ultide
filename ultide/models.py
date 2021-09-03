@@ -17,8 +17,21 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import uuid
 
+# Extend SQLAlchemy with: create_schemas
+class uSQLAlchemy(SQLAlchemy):
+    def __init__(self) -> None:
+        super(uSQLAlchemy, self).__init__()
+        
+    def create_schemas():
+        try:
+            if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
+                db.session.execute('CREATE SCHEMA IF NOT EXISTS ' + config.SQLALCHEMY_DATABASE_SCHEMA)
+                db.session.commit()
+        except:
+            None
+
 # Initialize Flask extensions
-db = SQLAlchemy()                            # Initialize Flask-SQLAlchemy
+db = uSQLAlchemy()                            # Initialize Flask-SQLAlchemy
 
 TZ = timezone(config.TIMEZONE)
 def time_now():
@@ -31,9 +44,16 @@ def genUUID(regen=False):
 
 UUID = genUUID()
 
+
 # Define the User data model. Make sure to add flask.ext.user UserMixin !!!
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
+
+    # Define SCHEMA if not sqlite
+    try:
+        if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
+            __table_args__ = {'schema' : config.SQLALCHEMY_DATABASE_SCHEMA}
+    except: None
 
     id = db.Column(db.Integer, primary_key=True)
 
@@ -152,11 +172,27 @@ class User(db.Model, UserMixin):
         db.session.commit()
 
 class UserProperties(db.Model):
+    __tablename__ = 'user_properties'
+
+    # Define SCHEMA if not sqlite
+    try:
+        if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
+            __table_args__ = {'schema' : config.SQLALCHEMY_DATABASE_SCHEMA}
+    except: None
+
     user_id = db.Column(db.Integer,     primary_key=True, autoincrement=False)
     name    = db.Column(db.String(255), primary_key=True, autoincrement=False, nullable=False, server_default='')
     value   = db.Column(db.Text(),      nullable=True)
 
 class DevLang(db.Model):
+    __tablename__ = 'dev_lang'
+
+    # Define SCHEMA if not sqlite
+    try:
+        if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
+            __table_args__ = {'schema' : config.SQLALCHEMY_DATABASE_SCHEMA}
+    except: None
+
     id = db.Column(db.Integer, primary_key=True)
 
     lang_name    = db.Column(db.String(50),  nullable=False, unique=True)
@@ -349,6 +385,14 @@ class DevLang(db.Model):
         return json.dumps(json.loads(ret.replace("\r\n","").replace("'","\"")))
 
 class Library(db.Model):
+    __tablename__ = 'library'
+
+    # Define SCHEMA if not sqlite
+    try:
+        if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
+            __table_args__ = {'schema' : config.SQLALCHEMY_DATABASE_SCHEMA}
+    except: None
+
     id = db.Column(db.Integer, primary_key=True)
 
     uid = db.Column(db.Integer, nullable=False)
@@ -358,6 +402,13 @@ class Library(db.Model):
 
 class uLog(db.Model):
     __tablename__ = 'logs'
+
+    # Define SCHEMA if not sqlite
+    try:
+        if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
+            __table_args__ = {'schema' : config.SQLALCHEMY_DATABASE_SCHEMA}
+    except: None
+
     id = db.Column(db.Integer, primary_key=True) # auto incrementing
     usr = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(100)) # the name of the logger. (e.g. myapp.views)
