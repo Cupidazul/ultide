@@ -17,7 +17,7 @@ LOGLEVEL = 'ERROR'              # CRITICAL=FATAL=50, ERROR=40, WARN=WARNING=30, 
 SECRET_KEY                      =     os.getenv('SECRET_KEY',       'THIS IS AN INSECURE SECRET')
 SQLALCHEMY_DATABASE_URI         =     os.getenv('DATABASE_URL',     'sqlite:///data/db.sqlite')
 #SQLALCHEMY_DATABASE_URI         =     os.getenv('DATABASE_URL',     'postgresql://username:password@host:port/db_name')
-SQLALCHEMY_DATABASE_SCHEMA      =     os.getenv('DATABASE_SCHEMA',  'ultide2')
+#SQLALCHEMY_DATABASE_SCHEMA      =     os.getenv('DATABASE_SCHEMA',  'ultide2')
 CSRF_ENABLED                    = True
 SQLALCHEMY_TRACK_MODIFICATIONS  = False
 
