@@ -22,11 +22,11 @@ class uSQLAlchemy(SQLAlchemy):
     def __init__(self) -> None:
         super(uSQLAlchemy, self).__init__()
         
-    def create_schemas():
+    def create_schemas(self) -> None:
         try:
             if (config.SQLALCHEMY_DATABASE_SCHEMA != '' and not re.match(r"^sqlite", config.SQLALCHEMY_DATABASE_URI) ):
-                db.session.execute('CREATE SCHEMA IF NOT EXISTS ' + config.SQLALCHEMY_DATABASE_SCHEMA)
-                db.session.commit()
+                self.session.execute('CREATE SCHEMA IF NOT EXISTS ' + config.SQLALCHEMY_DATABASE_SCHEMA)
+                self.session.commit()
         except:
             None
 
