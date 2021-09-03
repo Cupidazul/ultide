@@ -453,7 +453,7 @@ class uLogFile():
         try: self.fileSize = os.stat(self.prevFile).st_size
         except: self.fileSize = 0
         
-        if (self.fileSize > self.logmaxBytes): self.logFileCount += 1
+        if (self.fileSize >= self.logmaxBytes): self.logFileCount += 1
         if (self.logFileCount > self.logBackupCount or self.isNextday):
             self.logFileCount = 1
             if (not self.isNextday):
