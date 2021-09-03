@@ -428,7 +428,7 @@ class uLogFile():
     def __init__(self):
         self.logFileCount = 1
         self.logBackupCount = 7
-        self.logmaxBytes = 2000 *1000 # 2Mb per logfile
+        self.logmaxBytes = 2000 *1024 # aprox. 2MB per logfile
         self.logYMD = str(self._datetime.datetime.now().strftime("%Y%m%d"))
         self.prevFile = ''
         self.isNextday = False
@@ -437,8 +437,7 @@ class uLogFile():
 
     class ISOFormatter(logging.Formatter):
         def formatTime(self, record, datefmt=None):
-            import datetime as __datetime
-            return __datetime.datetime.fromtimestamp(record.created, __datetime.timezone.utc).astimezone().isoformat()
+            return uLogFile._datetime.datetime.fromtimestamp(record.created, uLogFile._datetime.timezone.utc).astimezone().isoformat()
 
     def logbaseFilename(self):
         return str(os.path.dirname(config.LOGFILE) + '/' + self.logYMD + '-' + os.path.basename(config.LOGFILE) + '.' + str(self.logFileCount))
