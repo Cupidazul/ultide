@@ -35,7 +35,19 @@ OUTPUT = VARS[VARS['uuid']]['OUTPUT']
 dblog = uLog()
 Uflog = uLogFile()
 uflog = Uflog.getLogger()
-## Logging Config End ###############################
+## Logging Config End #################################
+
+## ADD Internal Libs as needed/defined in config.py ###
+if ( hasattr(config, 'ADITIONAL_LIBS') ):
+    for module in config.ADITIONAL_LIBS:
+        _pip_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config.ADITIONAL_LIBS[module]))
+        if (config.ADITIONAL_LIBS[module]!='' and _pip_path not in sys.path): sys.path.insert(0,_pip_path)
+        try:
+            globals()[module] = __import__(module)
+            if (DEBUG): print('Loaded Adicional Lib: '+ _pip_path + osSEP + module + '.py')
+        except ImportError:
+            sys.stderr.write("ERROR: missing python module: " + module + "\n")
+## ADD Internal Libs End ##############################
 
 def decodeZlibString(_str):
     return zlib.decompress(base64.b64decode(_str),0).decode("utf-8")

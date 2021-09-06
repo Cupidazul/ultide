@@ -70,3 +70,5 @@ PRJ = {
     'OPERATOR_DIR'  : 'custom_operator',
     'CONFIG_FILE'   : 'config.json',
 }
+
+ADITIONAL_LIBS = {}   #  { 'Libname': './../sub/directory', ... }
