@@ -1287,6 +1287,21 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
 
     };
 
+    ultiflow.stopWebServer = function() {
+        if (app.user.is_admin) {
+            if (confirm('Are you sure you want to Stop WebServer ?\nRestart is Manual from command-line...')) {
+                document.location = './stop_webserver';
+            }
+        }
+    };
+    ultiflow.restartWebServer = function() {
+        if (app.user.is_admin) {
+            if (confirm('Are you sure you want to Restart WebServer ?\nRestart will cause unavaillability of 1-10secs...')) {
+                document.location = './restart_webserver';
+            }
+        }
+    };
+
     //window.$ultiflow = Object.assign(window.$ultiflow || {}, ultiflow);
     window.$app = Object.assign(window.$app || {}, app);
 

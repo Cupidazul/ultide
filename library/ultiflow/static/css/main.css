@@ -376,6 +376,7 @@
     color: black;
     text-shadow: 1px 1px white;
     border: outset 3px rgb(100, 255, 100);
+    top: 0px;
 }
 
 #btn_ioStatus.SrvKO {

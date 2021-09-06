@@ -44,9 +44,9 @@ if ( hasattr(config, 'ADITIONAL_LIBS') ):
         if (config.ADITIONAL_LIBS[module]!='' and _pip_path not in sys.path): sys.path.insert(0,_pip_path)
         try:
             globals()[module] = __import__(module)
-            if (DEBUG): print('Loaded Adicional Lib: '+ _pip_path + osSEP + module + '.py')
+            if (DEBUG): print('@core: Loaded Adicional Lib: '+ _pip_path + osSEP + module + '.py')
         except ImportError:
-            sys.stderr.write("ERROR: missing python module: " + module + "\n")
+            sys.stderr.write("@core: ERROR: missing python module: " + module + "\n")
 ## ADD Internal Libs End ##############################
 
 def decodeZlibString(_str):

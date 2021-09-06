@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import sys; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
+import sys
+
+from gevent.hub import sleep; sys.dont_write_bytecode = True; # don't write __pycache__ DIR
 
 # Set this variable to "threading", "eventlet" or "gevent" to test the
 # different async modes, or leave it set to None for the application to choose
@@ -66,8 +68,8 @@ app = Flask(__name__)
 app.config.from_object(config)
 
 if (config.IO_SERVER.__contains__('cors') and config.IO_SERVER['cors']!='') :
-      socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_logger=DEBUG, cors_allowed_origins=config.IO_SERVER['cors'])
-else: socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_logger=DEBUG)
+      socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_logger=core.uflog, cors_allowed_origins=config.IO_SERVER['cors'])
+else: socketio = SocketIO(app, async_mode=async_mode, logger=DEBUG, engineio_logger=core.uflog)
 
 db.app = app
 db.init_app(app)
@@ -284,6 +286,21 @@ def user_data():
 def logs_data():
     if ( current_user.is_admin ): return {'data': [eachLog.to_dict() for eachLog in core.dblog.query]}
 
+@app.route('/stop_webserver')
+def stop_webserver():
+    if ( current_user.is_admin ):
+        sleep(4)
+        os._exit(0)
+    return redirect(WWWROOT)
+
+@app.route('/restart_webserver')
+def restart_webserver():
+    if ( current_user.is_admin ):
+        _fname = os.path.abspath(os.path.join(os.path.dirname(__file__),'./ultide/config.py'))
+        sleep(4)
+        os.utime(_fname, None)
+    return redirect(WWWROOT)
+
 @socketio.on('connect', namespace='/uide')
 def test_connect():
     sessions_data[session['uuid']] = core.get_init_session_data(core)
@@ -315,4 +332,4 @@ if __name__ == '__main__':
         print('@server: Listening host:',LISTENHOST,' port:', LISTENPORT, ' try: http://'+LISTENHOST+':'+LISTENPORT );sys.stdout.flush();
     sys.stdout.flush()
     if (config.CSRF_ENABLED): csrf.init_app(app)
-    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG, log_output=DEBUG)
+    socketio.run(app, host=LISTENHOST, port=int(LISTENPORT), debug=DEBUG, log_output=DEBUG, use_reloader=True)

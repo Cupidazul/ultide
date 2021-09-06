@@ -468,6 +468,7 @@ class uLog(db.Model):
             app.config.from_object(config)
             db.app = app
             db.init_app(app)
+            db.create_schemas()
             db.create_all()
 
         db.session.add(log)
