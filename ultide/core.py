@@ -40,11 +40,11 @@ uflog = Uflog.getLogger()
 ## ADD Internal Libs as needed/defined in config.py ###
 if ( hasattr(config, 'ADITIONAL_LIBS') ):
     for module in config.ADITIONAL_LIBS:
-        _pip_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config.ADITIONAL_LIBS[module]))
-        if (config.ADITIONAL_LIBS[module]!='' and _pip_path not in sys.path): sys.path.insert(0,_pip_path)
+        ADLIB_pip_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config.ADITIONAL_LIBS[module]))
+        if (config.ADITIONAL_LIBS[module]!='' and ADLIB_pip_path not in sys.path): sys.path.insert(0,ADLIB_pip_path)
         try:
             globals()[module] = __import__(module)
-            if (DEBUG): print('@core: Loaded Adicional Lib: '+ _pip_path + osSEP + module + '.py')
+            if (DEBUG): print('@core: Loaded Adicional Lib: '+ ADLIB_pip_path + osSEP + module + '.py')
         except ImportError:
             sys.stderr.write("@core: ERROR: missing python module: " + module + "\n")
 ## ADD Internal Libs End ##############################
