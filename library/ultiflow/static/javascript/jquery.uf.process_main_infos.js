@@ -28,7 +28,7 @@ define(['app'], function(app) {
             var BtnStatus = '<button id="btn_ioStatus" class="btn">PyServer</button>';
             if (app.user.is_admin) {
                 BtnStatus += '<button id="btn_ioStopServer" title="Stop Web Server"    type="button" style="width: 15px;height: 10px;top: 20px;position: absolute;left: 24px;"><li class="fa fa-stop" style="font-size: 7px;top: 0px;right: 3px;position: absolute;"></li></button>';
-                BtnStatus += '<button id="btn_ioRestartSrv" title="Restart Web Server" type="button" style="width: 15px;height: 10px;top: 20px;position: absolute;left: 41px;"><li class="fa fa-sync" style="font-size: 7px;top: 0px;right: 3px;position: absolute;"></li></button>';
+                BtnStatus += '<button id="btn_ioRestartSrv" title="Restart Web Server" type="button" style="width: 15px;height: 10px;top: 20px;position: absolute;left: 41px;"><li class="fa fa-sync" style="font-size: 7px;top: 0px;right: 2.5px;position: absolute;"></li></button>';
             }
 
             var Btns = $(`` +
