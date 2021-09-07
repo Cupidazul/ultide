@@ -101,7 +101,7 @@ define([], function() {
                         indentedSoftWrap: false,
                         behavioursEnabled: false, // disable autopairing of brackets and tags
                         showLineNumbers: true, // hide the gutter
-                        wrap: true, // wrap text to view
+                        wrap: false, // wrap text to view
                         mode: "ace/mode/" + codeType.toLowerCase()
                     });
                     //editor.getSession().setMode("ace/mode/json");

@@ -465,3 +465,7 @@
 .json-editor-blackbord ul li {
     margin: -5px auto;
 }
+
+.json-editor-blackbord:focus-visible {
+    outline: none;
+}

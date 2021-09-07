@@ -1201,8 +1201,9 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
                 <button type="button" class="close pr-3" aria-label="Fullscreen"><i class="fas fa-expand-alt fa-xs"></i></button>
                 <h4 class="modal-title" id="myCodeModalLabel">
                     <div class="col-sm-6">${Title}</div>
-                    <div style="font-size: 13px;" class="col-sm-5">
+                    <div style="font-size: 13px;" class="col-sm-5 pl-0">
                         Viewer: <input id="switchAceJson" type="checkbox" data-toggle="switch" data-size="mini" data-on-text="Ace" data-off-text="Json">
+                        WordWrap: <input id="switchWordWrap" type="checkbox" data-toggle="switch" data-size="mini" data-on-text="l" data-off-text="O">                        
                     </div>
                 </h4>
             </div>
@@ -1249,12 +1250,20 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         });
 
         $modal.on('shown.bs.modal', function() {
+            var WordWrapAceJson = function(sstate) {
+                if ($('#code-editor').is(':visible')) {
+                    $app.ace._AceEditor.getSession().setUseWrapMode(sstate);
+                } else {
+                    $($app.ace._JsonEditor.$container[0]).css('white-space', (sstate) ? 'pre-wrap' : '');
+                }
+            };
             $('#switchAceJson').bootstrapSwitch('state', true);
             $('#switchAceJson').on('switchChange.bootstrapSwitch', function(evt, sstate) {
                 if (sstate) {
                     setTimeout(function() {
                         $("#code-editor").show();
                         $("#json-editor").hide();
+                        WordWrapAceJson($('#switchWordWrap').bootstrapSwitch('state'));
                     }, 200);
                 } else {
                     setTimeout(function() {
@@ -1262,9 +1271,15 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
                         $("#code-editor").hide();
                         let __CodeStr = JSON.parse($app.ace._AceEditor.getValue());
                         $app.ace._JsonEditor = new JsonEditor('#json-editor', __CodeStr);
+                        WordWrapAceJson($('#switchWordWrap').bootstrapSwitch('state'));
                     }, 200);
                 }
             });
+            $('#switchWordWrap').bootstrapSwitch('state', false);
+            $('#switchWordWrap').on('switchChange.bootstrapSwitch', function(evt, sstate) {
+                WordWrapAceJson(sstate);
+            });
+
             require(['ace/mode/json', 'ace/theme/vibrant_ink'], function() {
                 var editor = ace.edit("code-editor");
                 editor.setOptions({
@@ -1272,7 +1287,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
                     indentedSoftWrap: false,
                     behavioursEnabled: false, // disable autopairing of brackets and tags
                     showLineNumbers: true, // hide the gutter
-                    wrap: true, // wrap text to view
+                    wrap: false, // wrap text to view
                     mode: "ace/mode/json"
                 });
                 //editor.getSession().setMode("ace/mode/json");
