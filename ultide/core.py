@@ -38,15 +38,15 @@ uflog = Uflog.getLogger()
 ## Logging Config End #################################
 
 ## ADD Internal Libs as needed/defined in config.py ###
-if ( hasattr(config, 'ADITIONAL_LIBS') ):
-    for module in config.ADITIONAL_LIBS:
-        ADLIB_pip_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config.ADITIONAL_LIBS[module]))
-        if (config.ADITIONAL_LIBS[module]!='' and ADLIB_pip_path not in sys.path): sys.path.insert(0,ADLIB_pip_path)
+if ( hasattr(config, 'ADDITIONAL_LIBS') ):
+    for module in config.ADDITIONAL_LIBS:
+        ADLIB_pip_path = os.path.abspath(os.path.join(os.path.dirname(__file__), config.ADDITIONAL_LIBS[module]))
+        if (config.ADDITIONAL_LIBS[module]!='' and ADLIB_pip_path not in sys.path): sys.path.insert(0,ADLIB_pip_path)
         try:
             globals()[module] = __import__(module)
-            if (DEBUG): print('@core: Loaded Adicional Lib: '+ ADLIB_pip_path + osSEP + module + '.py')
-        except ImportError:
-            sys.stderr.write("@core: ERROR: missing python module: " + module + "\n")
+            if (DEBUG): print('@core: Loaded Additional Lib: '+ ADLIB_pip_path + osSEP + module + '.py')
+        except ImportError as err:
+            sys.stderr.write("@core: ERROR: " + pformat(err) + ": " + ADLIB_pip_path + osSEP + module + ".py\n")
 ## ADD Internal Libs End ##############################
 
 def decodeZlibString(_str):

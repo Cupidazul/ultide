@@ -71,4 +71,4 @@ PRJ = {
     'CONFIG_FILE'   : 'config.json',
 }
 
-ADITIONAL_LIBS = {}   #  { 'Libname': './../sub/directory', ... }
+ADDITIONAL_LIBS = {}   #  { 'Libname': './../sub/directory', ... }
