@@ -385,6 +385,7 @@
     text-shadow: 1px 1px black;
     border: outset 3px rgb(255, 100, 100);
     animation: blinker 1s infinite;
+    top: 0px;
 }
 
 @keyframes blinker {
