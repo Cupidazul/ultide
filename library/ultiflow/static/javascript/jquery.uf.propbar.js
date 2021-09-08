@@ -83,7 +83,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
 
             this.els.content.empty();
             var $parametersList = $('<div class="uf-parameters-list"></div>');
-            var $mainPanel = helper.createPanel('Main parameters', $parametersList);
+            var $mainPanel = app.helper.createPanel('Main parameters (Link)', $parametersList, this.linkId);
             $mainPanel.appendTo(this.els.content);
 
             var $colorInput = $('<input type="color" class="form-control"/>');
@@ -120,7 +120,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
 
             this.els.content.empty();
             var $parametersList = $('<div class="uf-parameters-list"></div>');
-            var $mainPanel = helper.createPanel('Main parameters', $parametersList);
+            var $mainPanel = app.helper.createPanel('Main parameters', $parametersList, this.operatorId);
             $mainPanel.appendTo(this.els.content);
 
             var $titleInput = $('<input type="text" class="form-control"/>');
@@ -150,7 +150,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                     for (var i = 0; i < operatorTypeParameters.length; i++) {
                         var panelInfos = operatorTypeParameters[i];
                         var $parametersList1 = $('<div class="uf-parameters-list"></div>');
-                        var $panel = helper.createPanel(panelInfos.title, $parametersList1);
+                        var $panel = app.helper.createPanel(panelInfos.title, $parametersList1, i);
 
                         for (var j = 0; j < panelInfos.fields.length; j++) {
                             var propInfos = panelInfos.fields[j];

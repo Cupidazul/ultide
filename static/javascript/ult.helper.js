@@ -135,5 +135,70 @@ define(['app', 'file_chooser'], function(app, file_chooser) {
 
     };
 
+    helper.createPanel = function(title, content, objID) {
+        var self = this;
+        //console.log('@library/ultiflow/main: createPanel:', { title: title, content: content });
+
+        var $panel = $('<div class="panel panel-default"></div>');
+
+        var AddButton = '';
+
+        if (title == 'Library') {
+            // WIP // AddButton = `<button id="btn_add_library" class="fas fa-plus" style="float: right;"></button>`;
+        }
+
+        if (title == 'Workspace') {
+            AddButton = `<button id="btn_add_workspace" class="fas fa-plus" style="float: right;"></button>`;
+        }
+
+        if (title == 'Main parameters') {
+            // WIP // AddButton = `<button id="btn_edit_main_parameters" class="fas fa-pen" style="float: right;"></button>`;
+        }
+
+        if (title == 'Parameters') {
+            // WIP // AddButton = `<button id="btn_edit_parameters" class="fas fa-pen" style="float: right;"></button>`;
+        }
+
+        var $heading = $('<div class="panel-heading">' + AddButton + '<div>');
+        $heading.appendTo($panel);
+
+        var $title = $('<h3 class="panel-title"></h3>');
+        $title.text(title);
+        $title.appendTo($heading);
+
+        var $content = $('<div class="panel-content"></div>');
+        $content.append(content);
+        $content.appendTo($panel);
+
+        $app.ultiflow.panel = [...$app.ultiflow.panel || []];
+        $app.ultiflow.panel.push(this);
+        $app.ultiflow.$panel = [...$app.ultiflow.$panel || []];
+        $app.ultiflow.$panel.push($panel);
+        return $panel;
+    };
+
+    helper.treeDataFromOperatorData = function(tree, operators, path) {
+        var res = [];
+        for (var key in tree) {
+            if (tree[key] == true) {
+                res.push({
+                    id: key,
+                    text: operators[key].title,
+                    type: operators[key].type
+                });
+            } else {
+                var newPath = path + '-' + key;
+                res.push({
+                    id: newPath,
+                    text: key,
+                    children: this.treeDataFromOperatorData(tree[key], operators, newPath),
+                    type: 'root'
+                });
+            }
+        }
+        $app.ultiflow.$treeData = [...[], ...$app.ultiflow.$treeData || [], ...res];
+        return res;
+    };
+
     return helper;
 });

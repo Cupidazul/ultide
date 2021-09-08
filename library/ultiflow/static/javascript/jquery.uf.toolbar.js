@@ -20,11 +20,11 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
             //console.log('ultiflow.uf_toolbar._create:', self);
 
             this.els.trees.library = $('<div></div>');
-            this.element.append(helper.createPanel('Library', this.els.trees.library));
+            this.element.append(app.helper.createPanel('Library', this.els.trees.library, -1));
             this.els.trees.library.uf_tree();
 
             this.els.trees.workspace = $('<div></div>');
-            this.element.append(helper.createPanel('Workspace', this.els.trees.workspace));
+            this.element.append(app.helper.createPanel('Workspace', this.els.trees.workspace, -1));
             this.els.trees.workspace.uf_tree();
 
             this.els.trees.workspace.on('select_node.jstree', function(node, selectedInfos, event) {
@@ -53,7 +53,7 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
                 for (var i = 0; i < keys.length; i++) {
                     var key = keys[i];
 
-                    var treeData = helper.treeDataFromOperatorData(data.tree[key], data.list, key);
+                    var treeData = app.helper.treeDataFromOperatorData(data.tree[key], data.list, key);
 
                     self.els.trees[key].jstree(true).settings.core.data = treeData;
                     self.els.trees[key].jstree(true).refresh(true);
