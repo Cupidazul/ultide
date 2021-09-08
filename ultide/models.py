@@ -531,8 +531,10 @@ class uLogFile():
         self.rotating_file_handler.doRollover = self.filer # replace doRollover to avoid renaming file errors
         self.rotating_file_handler.rotator = self.fileRotator
         self.rotating_file_handler.setFormatter(self.ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
-
+        self.filer()
+        
         ulog = logging.getLogger()
         ulog.addHandler(self.rotating_file_handler)
         ulog.setLevel(logging._nameToLevel[config.LOGLEVEL])
+
         return ulog

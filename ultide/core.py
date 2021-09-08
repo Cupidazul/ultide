@@ -44,7 +44,7 @@ if ( hasattr(config, 'ADDITIONAL_LIBS') ):
         if (config.ADDITIONAL_LIBS[module]!='' and ADLIB_pip_path not in sys.path): sys.path.insert(0,ADLIB_pip_path)
         try:
             globals()[module] = __import__(module)
-            if (DEBUG): print('@core: Loaded Additional Lib: '+ ADLIB_pip_path + osSEP + module + '.py')
+            if (DEBUG): uflog.log(logging.INFO, '@core: Loaded Additional Lib: '+ ADLIB_pip_path + osSEP + module + '.py')
         except ImportError as err:
             sys.stderr.write("@core: ERROR: " + pformat(err) + ": " + ADLIB_pip_path + osSEP + module + ".py\n")
 ## ADD Internal Libs End ##############################
