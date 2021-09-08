@@ -492,7 +492,9 @@ class uLogFile():
             return uLogFile._datetime.datetime.fromtimestamp(record.created, uLogFile._datetime.timezone.utc).astimezone().isoformat()
 
     def logbaseFilename(self):
-        return str(os.path.dirname(config.LOGFILE) + '/' + self.logYMD + '-' + os.path.basename(config.LOGFILE) + '.' + str(self.logFileCount))
+        newFile = str(os.path.dirname(config.LOGFILE) + '/' + self.logYMD + '-' + os.path.basename(config.LOGFILE) + '.' + str(self.logFileCount))
+        self.fileRotator('',newFile)
+        return newFile
 
     def filer(self, default_name=''):
         _dt = str(self._datetime.datetime.now().strftime("%Y%m%d"))
@@ -505,21 +507,30 @@ class uLogFile():
         try: self.fileSize = os.stat(self.prevFile).st_size
         except: self.fileSize = 0
         
-        if (self.fileSize >= self.logmaxBytes): self.logFileCount += 1
-        if (self.logFileCount > self.logBackupCount or self.isNextday):
-            self.logFileCount = 1
-            if (not self.isNextday):
-                try: self.rotating_file_handler._haslooped = True
-                except: None
+        rotate = True
+        if (self.fileSize >= self.logmaxBytes):
+            while rotate:
+                self.logFileCount += 1
+                if (self.logFileCount > self.logBackupCount or self.isNextday):
+                    self.logFileCount = 1
+                    if (not self.isNextday):
+                        try: self.rotating_file_handler._haslooped = True
+                        except: None
+                    rotate = False
+                if (os.stat(self.logbaseFilename()).st_size < self.logmaxBytes):
+                    rotate = False
 
-        if ('rotating_file_handler' in vars(self) and self.prevFile != self.logbaseFilename()):
+        if ('rotating_file_handler' in vars(self) and self.prevFile != self.logbaseFilename() or self.hasLooped):
             self.rotating_file_handler.baseFilename = self.logbaseFilename()
             self.rotating_file_handler.stream.close()                                   # force close current file
             self.rotating_file_handler.stream = self.rotating_file_handler._open()      # force open new file
             self.rotating_file_handler.stream.seek(0, 2)                                # goto end of file to append if file exists
-            if (self.hasLooped): self.rotating_file_handler.stream.truncate(0)          # clear file to zero-size if all logs have been filled to maxBytes: logBackupCount>7
+            if (self.hasLooped and os.stat(self.rotating_file_handler.baseFilename).st_size >= self.logmaxBytes): 
+                self.rotating_file_handler.stream.truncate(0)          # clear file to zero-size if all logs have been filled to maxBytes: logBackupCount>7
+                # pprint(('File truncated!', self.rotating_file_handler.baseFilename))
+                self.rotating_file_handler._haslooped = False
 
-        #if (config.DEBUG): pprint(('@core.logfile: filer:', {'hasLooped': self.hasLooped, 'logFileCount': self.logFileCount, 'logYMD': self.logYMD, 'default_name': default_name, 'prevFile': self.prevFile, 'newFile': self.logbaseFilename, 'fileSize': self.fileSize}))
+        # if (config.DEBUG): pprint(('@core.logfile: filer:', {'hasLooped': self.hasLooped, 'logFileCount': self.logFileCount, 'logYMD': self.logYMD, 'default_name': default_name, 'prevFile': self.prevFile, 'newFile': self.logbaseFilename(), 'fileSize': self.fileSize}))
         return self.logbaseFilename()
 
     def fileRotator(self, source, dest): # replace original 'os.rename' with a simple create+close file
@@ -531,7 +542,6 @@ class uLogFile():
         self.rotating_file_handler.doRollover = self.filer # replace doRollover to avoid renaming file errors
         self.rotating_file_handler.rotator = self.fileRotator
         self.rotating_file_handler.setFormatter(self.ISOFormatter(fmt='%(levelname)s:%(asctime)s:%(process)05d.%(thread)05d:%(name)s:%(module)s:%(message)s'))
-        self.filer()
         
         ulog = logging.getLogger()
         ulog.addHandler(self.rotating_file_handler)
