@@ -227,7 +227,7 @@ def index():
     session['uuid'] = str(core.UUID(True)) # generate new UUID on each login
     #pprint(('@server: current_user:', vars(current_user), 'login_manager:', vars(login_manager)));sys.stdout.flush();
     if (current_user.is_active and current_user.is_authenticated):
-        return render_template('index.html', AppInitScript=core.AppInitScript(), pkg=PKG)
+        return render_template('index.html', AppInitScript=core.AppInitScript(), pkg=PKG, nocache='?nocache='+core.datestr())
     else:
         return redirect(WWWROOT+'login')
 
