@@ -301,3 +301,7 @@ td div.short-log-msg::-webkit-scrollbar-thumb {
 .top3 {
     top: 3px !important;
 }
+
+.po-ev-n {
+    pointer-events: none;
+}

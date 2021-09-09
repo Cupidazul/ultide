@@ -48,7 +48,7 @@ define([], function() {
             if (config.type == 'checkbox') {
                 $label.addClass('el-switch el-switch-sm pl-0 mr-2');
                 $elswitch.appendTo($label);
-                $label.append($('<label class="pl-3 h6">' + option.label + '</label>'));
+                $label.append($('<label class="pl-3 h6 po-ev-n">' + option.label + '</label>'));
             } else {
                 $label.append(option.label);
             }
