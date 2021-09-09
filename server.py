@@ -318,12 +318,12 @@ def get_session():
     #pprint(('@server: io: get-session!', sessions_data, current_user, dir(current_user)));sys.stdout.flush();
     session_info = core.get_session_info( sessions_data, session['uuid'] )
     emit('refresh-session', session_info)   # Send session_info to upstream javascript
-    print(('@server: Client get-session:', request.sid, session['uuid']));sys.stdout.flush();
+    if (DEBUG): print(('@server: Client get-session:', request.sid, session['uuid']));sys.stdout.flush();
 
 if (config.CSRF_ENABLED): csrf = CSRFProtect(app)
 
 if __name__ == '__main__':
-    if (DEBUG): pprint(('@server.main: app.config:', app.config)); sys.stdout.flush();
+    if (DEBUG): pprint(('@server.main: app.config:', app.config));sys.stdout.flush();
     LISTENHOST = app.config['IO_SERVER']['host']
     LISTENPORT = app.config['IO_SERVER']['port']
     if (LISTENHOST == '0.0.0.0'):
