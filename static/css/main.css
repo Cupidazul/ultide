@@ -281,3 +281,19 @@ td div.short-log-msg::-webkit-scrollbar-thumb {
 .uf-parameter-content div div.radio {
     margin-left: 0px;
 }
+
+.top0 {
+    top: 0px !important;
+}
+
+.top1 {
+    top: 1px !important;
+}
+
+.top2 {
+    top: 2px !important;
+}
+
+.top3 {
+    top: 3px !important;
+}

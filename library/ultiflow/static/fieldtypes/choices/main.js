@@ -33,15 +33,26 @@ define([], function() {
             var option = config.options[i];
 
             var $option = $('<div></div>');
-            $option.addClass(config.type);
             var $label = $('<label></label>');
             var $choice = $('<input/>');
+            var $elswitch = $('<span class="el-switch-style top3"></span>');
+
+            $option.addClass(config.type);
             $choice.attr('type', config.type);
             if (config.type == 'radio') {
                 $choice.attr('name', commonName);
             }
+
             $label.append($choice);
-            $label.append(option.label);
+
+            if (config.type == 'checkbox') {
+                $label.addClass('el-switch el-switch-sm pl-0 mr-2');
+                $elswitch.appendTo($label);
+                $label.append($('<label class="pl-3 h6">' + option.label + '</label>'));
+            } else {
+                $label.append(option.label);
+            }
+
             $label.appendTo($option);
             $option.appendTo($container);
 

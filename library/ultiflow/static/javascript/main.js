@@ -4,6 +4,7 @@ define([
     'datatables',
     'json-editor',
     'css!static/modules/ultiflow/css/main',
+    'css!static/modules/ultiflow/css/checkbox.min',
     'css!static/modules/ultiflow/plugins/jstree/dist/themes/default/style.min',
     'css!static/modules/ultiflow/plugins/jquery.flowchart/jquery.flowchart.min.css',
     'css!static/modules/ultiflow/plugins/datatables/datatables.min.css',
