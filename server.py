@@ -276,7 +276,11 @@ def modules_static(path):
     module = splitted_path.pop(0)
     module_path = session_data['modules_infos'][module]['path'] + os.path.sep + 'static'
     if (DEBUG): print('@server: module load:', "./" + module_path.replace("\\","/") + '/' + '/'.join(splitted_path));sys.stdout.flush();
-    return send_from_directory(module_path, '/'.join(splitted_path))
+    response = send_from_directory(module_path, '/'.join(splitted_path))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    response.cache_control.max_age = 0
+    response.cache_control.public = True
+    return response
 
 @app.route('/api/user_data')
 def user_data():
