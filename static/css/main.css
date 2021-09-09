@@ -282,8 +282,8 @@ td div.short-log-msg::-webkit-scrollbar-thumb {
     margin-left: 0px;
 }
 
-.uf-parameter-content div input[type=radio] {
-    margin-left: 5px;
+.uf-parameter-content div div.radio input[type=radio] {
+    margin-left: -18px;
 }
 
 .top0 {
