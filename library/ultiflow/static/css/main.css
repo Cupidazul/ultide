@@ -470,3 +470,17 @@
 .json-editor-blackbord:focus-visible {
     outline: none;
 }
+
+.vars-box {
+    border: 1px dashed lightgray;
+    padding: 5px;
+    margin: 3px -6px;
+    background-color: #eec;
+}
+
+.vars-item {
+    font-size: 14px;
+    max-height: 20px;
+    font-family: system-ui;
+    font-size: 12px;
+}

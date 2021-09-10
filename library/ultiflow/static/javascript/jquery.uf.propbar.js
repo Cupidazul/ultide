@@ -108,33 +108,85 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
         },
 
         displayOperatorParameters: function(operatorId) {
-            this.operatorId = operatorId;
-            this.linkId = null;
-            this.paramKeyToModule = {};
-            this.els.nothing.Hide(this.els);
+            var self = this;
+            self.operatorId = operatorId;
+            self.linkId = null;
+            self.paramKeyToModule = {};
+            self.els.nothing.Hide(self.els);
             var processData = ultiflow.getOpenedProcessData();
             var operatorData = processData.process.operators[operatorId];
             var operatorType = operatorData.type;
             var operatorProperties = $app.ultiflow.flowchart.flowchartMethod('getOperatorFullProperties', operatorData);
             var operatorTypeData = ultiflow.getOperatorInfos(operatorType);
 
-            this.els.content.empty();
+            if ($app.debug) console.log('@ultiflow.uf_propbar.displayOperatorParameters:', { operatorId: operatorId, processData: processData, operatorData: operatorData, operatorType: operatorType, operatorTypeData: operatorTypeData });
+
+            self.els.content.empty();
             var $parametersList = $('<div class="uf-parameters-list"></div>');
-            var $mainPanel = app.helper.createPanel('Main parameters', $parametersList, this.operatorId);
-            $mainPanel.appendTo(this.els.content);
+            var $mainPanel = app.helper.createPanel('Main parameters', $parametersList, self.operatorId);
+            $mainPanel.appendTo(self.els.content);
 
             var $titleInput = $('<input type="text" class="form-control"/>');
             $titleInput.val($app.ultiflow.flowchart.flowchartMethod('getOperatorTitle', operatorId));
-            var $titleParameter = this.generateParameterField('Title:', $titleInput);
+            var $titleParameter = self.generateParameterField('Title:', $titleInput);
             $titleParameter.appendTo($parametersList);
 
-            var $typeParameter = this.generateParameterField('Type:', operatorTypeData.title);
+            var $typeParameter = self.generateParameterField('Type:', operatorTypeData.title);
             $typeParameter.appendTo($parametersList);
 
             var $deleteButton = $('<button type="button" class="btn btn-danger">Delete operator</button>');
-            var $actionsParameter = this.generateParameterField('Actions:', $deleteButton);
+            var $actionsParameter = self.generateParameterField('Actions:', $deleteButton);
 
             $actionsParameter.appendTo($parametersList);
+
+            if ($app.user.is_admin) {
+
+                var addInOutList = function(obj) {
+                    $htmlStr = '';
+                    for (var keyStr in obj) {
+                        lblStr = obj[keyStr].label;
+                        $htmlStr +=
+                            `<div class="uf-parameter row vars-box">` +
+                            `   VAR [ ]` +
+                            `   <input type="text" class="form-control vars-item" value="${keyStr}">` +
+                            `   Label ` +
+                            `   <input type="text" class="form-control vars-item" value="${lblStr}">` +
+                            `</div>`;
+                    }
+                    return $htmlStr;
+                };
+
+                $('#btn_edit_main_parameters').on('click', function() {
+                    if ($('#uf_op_settings').length > 0) {
+                        $('#uf_op_settings').remove();
+                    } else {
+                        var InputsNr = Object.keys(operatorData.internal.properties.inputs).length;
+                        var OutputsNr = Object.keys(operatorData.internal.properties.outputs).length;
+                        var $Settings = $(
+                            `<div class="uf-parameter">` +
+                            `    <div class="col-md-6">` +
+                            `        <label>Inputs:</label>` +
+                            `        <div class="uf-parameter-content">` +
+                            `            <input type="number" class="form-control" style="max-width: 60px;" value="${InputsNr}">` +
+                            addInOutList(operatorData.internal.properties.inputs) +
+                            `        </div>` +
+                            `    </div>` +
+                            `    <div class="col-md-6">` +
+                            `    <label>Outputs</label>` +
+                            `    <div class="uf-parameter-content">` +
+                            `        <input type="number" class="form-control" style="max-width: 60px;" value="${OutputsNr}">` +
+                            addInOutList(operatorData.internal.properties.outputs) +
+                            `    </div>` +
+                            `</div>`);
+
+                        var $settingsParameter = self.generateParameterField('Settings:', $Settings);
+                        $($settingsParameter).attr('id', 'uf_op_settings');
+                        $($settingsParameter).addClass('WiP');
+
+                        $settingsParameter.appendTo($parametersList);
+                    }
+                });
+            }
 
             $deleteButton.click(function() {
                 app.triggerEvent('ultiflow::delete_selected');
@@ -146,7 +198,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
 
             if ($app.user.is_admin) // #SecurityRoles: Avoid non Admins from viewing/editing parameters
                 if (typeof operatorTypeData.parameters != 'undefined') {
-                    var operatorTypeParameters = this.processParameters(operatorTypeData.parameters);
+                    var operatorTypeParameters = self.processParameters(operatorTypeData.parameters);
                     for (var i = 0; i < operatorTypeParameters.length; i++) {
                         var panelInfos = operatorTypeParameters[i];
                         var $parametersList1 = $('<div class="uf-parameters-list"></div>');
@@ -156,12 +208,12 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                             var propInfos = panelInfos.fields[j];
                             var propKey = propInfos.id;
 
-                            var $divs = this.generateEmptyParameterField(propInfos.label);
+                            var $divs = self.generateEmptyParameterField(propInfos.label);
                             $parametersList1.append($divs.parameter);
-                            this.fillPropertyContent(operatorId, propKey, propInfos, $divs);
+                            self.fillPropertyContent(operatorId, propKey, propInfos, $divs);
                         }
 
-                        $panel.appendTo(this.els.content);
+                        $panel.appendTo(self.els.content);
                     }
                 }
 

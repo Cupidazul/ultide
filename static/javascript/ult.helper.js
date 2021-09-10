@@ -152,7 +152,9 @@ define(['app', 'file_chooser'], function(app, file_chooser) {
         }
 
         if (title == 'Main parameters') {
-            // WIP // AddButton = `<button id="btn_edit_main_parameters" class="fas fa-pen" style="float: right;"></button>`;
+            if ($app.user.is_admin) {
+                AddButton = `<button id="btn_edit_main_parameters" class="fas fa-pen" style="float: right;"></button>`;
+            }
         }
 
         if (title == 'Parameters') {

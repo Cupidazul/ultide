@@ -305,3 +305,21 @@ td div.short-log-msg::-webkit-scrollbar-thumb {
 .po-ev-n {
     pointer-events: none;
 }
+
+.WiP:after {
+    content: "\f071 Work in Progress";
+    position: absolute;
+    margin-top: 13%;
+    left: 2%;
+    color: #044f;
+    background-color: #e001;
+    font-size: 24px;
+    font-weight: bold;
+    mix-blend-mode: difference;
+    transform: rotate(35deg);
+    border-radius: 23px;
+    border: 1px solid;
+    font-family: 'Font Awesome 5 Free';
+    padding: 0px 10px;
+    text-align: center;
+}
