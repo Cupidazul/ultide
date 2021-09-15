@@ -139,8 +139,8 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             var $actionsParameter = self.generateParameterField('Actions:', $deleteButton);
 
             $actionsParameter.appendTo($parametersList);
-
-            if ($app.user.is_admin) {
+            if (operatorType !== 'demo::multiple_inputs_outputs') $('#btn_edit_main_parameters').hide();
+            if ($app.user.is_admin && operatorType == 'demo::multiple_inputs_outputs') {
 
                 var addInOutList = function(obj) {
                     $htmlStr = '';
@@ -289,7 +289,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                 $app.ultiflow.flowchart.els.flowchart.flowchart('setOperatorTitle', operatorId, $titleInput.val());
             });
 
-            if ($app.user.is_admin) // #SecurityRoles: Avoid non Admins from viewing/editing parameters
+            if ($app.user.is_admin && operatorType == 'demo::multiple_inputs_outputs') // #SecurityRoles: Avoid non Admins from viewing/editing parameters
                 if (typeof operatorTypeData.parameters != 'undefined') {
                     var operatorTypeParameters = self.processParameters(operatorTypeData.parameters);
                     for (var i = 0; i < operatorTypeParameters.length; i++) {
