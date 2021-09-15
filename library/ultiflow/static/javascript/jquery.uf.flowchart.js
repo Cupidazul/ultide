@@ -4,7 +4,7 @@ define([
     'ultiflow-lib-mousewheel',
     'ultiflow-lib-panzoom',
     'ultiflow-lib-flowchart'
-], function(app, ultiflow) {
+], function(app) {
     $.widget("ultiflow.uf_flowchart", {
         options: {
 
@@ -27,34 +27,53 @@ define([
         $ufPanzoom: null,
         menuState: 1,
         isStarted: false,
-
+        data: {},
+        VARS: { inputs: [], outputs: [] },
+        operatorsPositions: {},
+        menuShow: function(evt) {
+            // Show
+            this.menuState = 1;
+            $('.main-view').css('left', '100px');
+            $('.navbar-fixed-left').css('z-index', '1');
+            setTimeout(function() { $('.navbar-fixed-left').css('left', ''); }, 400);
+            $('.navbar-fixed-left').css('left', '-100px');
+            $('.navbar-fixed-left').animate({ left: "+=100" }, 300);
+        },
+        menuHide: function(evt) {
+            // Hide
+            this.menuState = 0;
+            $('.navbar-fixed-left').css('z-index', '');
+            $('.main-view').css('left', '0px');
+            setTimeout(function() { $('.navbar-fixed-left').css('left', '-245px'); }, 400);
+            $('.navbar-fixed-left').css('left', '');
+            $('.navbar-fixed-left').animate({ left: "-=100" }, 300);
+        },
         _isStarted: function(val) {
-            if (typeof(val)) this.isStarted = val;
+            if (typeof(val) !== 'undefined') this.isStarted = val;
             return this.isStarted;
         },
         // the constructor
         _create: function() {
-            var self = this;
-            $app.flowchart = self;
+            let self = this;
 
             if ($app.debug) console.log('@ultiflow.uf_flowchart: create! readyState:', document.readyState);
 
-            var $flowchart = $('<div class="uf-flowchart"></div>');
+            let $flowchart = $('<div class="uf-flowchart"></div>');
             this.els.flowchart = $flowchart;
             this.element.append(this.els.flowchart);
 
-            var $flowchartMiniView = $('<div class="uf-flowchart-mini-view"></div>');
+            let $flowchartMiniView = $('<div class="uf-flowchart-mini-view"></div>');
             this.els.flowchartMiniView = $flowchartMiniView;
             this.element.append(this.els.flowchartMiniView);
 
             this.els.flowchartMiniViewContent = $('<svg class="uf-flowchart-mini-view-content"></svg>');
             this.els.flowchartMiniViewContent.appendTo(this.els.flowchartMiniView);
 
-            var $flowchartMiniViewFocus = $('<div class="uf-flowchart-mini-view-focus"></div>');
+            let $flowchartMiniViewFocus = $('<div class="uf-flowchart-mini-view-focus"></div>');
             this.els.flowchartMiniViewFocus = $flowchartMiniViewFocus;
             this.els.flowchartMiniView.append(this.els.flowchartMiniViewFocus);
 
-            var $container = this.element;
+            let $container = this.element;
 
             // Panzoom initialization...
             //$flowchart.panzoom({
@@ -78,9 +97,6 @@ define([
                 }
             });
 
-            //$flowchart.$ufPanzoom = $ufPanzoom;
-            $app.ultiflow.flowchart = self;
-            $app.ultiflow.ufPanzoom = self.$ufPanzoom;
             $(".zoom-range").val(self.currentZoomRatio);
 
             // Centering panzoom
@@ -89,8 +105,8 @@ define([
             // Panzoom zoom handling...
             $container.on('mousewheel.focal', function(evt) {
                 evt.preventDefault();
-                var delta = (evt.delta || evt.originalEvent.wheelDelta) || evt.originalEvent.detail;
-                var zoomOut = !(delta ? delta < 0 : evt.originalEvent.deltaY > 0);
+                let delta = (evt.delta || evt.originalEvent.wheelDelta) || evt.originalEvent.detail;
+                let zoomOut = !(delta ? delta < 0 : evt.originalEvent.deltaY > 0);
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
@@ -103,7 +119,7 @@ define([
 
             $(".zoom-out").on('click', function(evt) {
                 evt.preventDefault();
-                var zoomInOut = false;
+                let zoomInOut = false;
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 self.centerView();
@@ -117,7 +133,7 @@ define([
 
             $(".zoom-in").on('click', function(evt) {
                 evt.preventDefault();
-                var zoomInOut = true;
+                let zoomInOut = true;
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 self.centerView();
@@ -131,8 +147,8 @@ define([
 
             $(".zoom-range").on('change', function(evt) {
                 evt.preventDefault();
-                var delta = parseInt(self.possibleZooms.indexOf(parseFloat(this.value)));
-                //var zoomInOut = delta < self.currentZoom;
+                let delta = parseInt(self.possibleZooms.indexOf(parseFloat(this.value)));
+                //let zoomInOut = delta < self.currentZoom;
                 if (delta !== -1 && self.currentZoom !== delta) {
                     self.currentZoom = delta;
                     self.currentZoomRatio = self.possibleZooms[self.currentZoom];
@@ -149,8 +165,8 @@ define([
 
             $(".zoom-reset").on('click', function(evt) {
                 evt.preventDefault();
-                var delta = self.defaultZoom;
-                //var zoomInOut = delta < self.currentZoom;
+                let delta = self.defaultZoom;
+                //let zoomInOut = delta < self.currentZoom;
                 self.centerView();
                 if (delta !== -1 && self.currentZoom !== delta) {
                     self.currentZoom = delta;
@@ -165,24 +181,6 @@ define([
                 }
             });
 
-            self.menuShow = function(evt) {
-                // Show
-                self.menuState = 1;
-                $('.main-view').css('left', '100px');
-                $('.navbar-fixed-left').css('z-index', '1');
-                setTimeout(function() { $('.navbar-fixed-left').css('left', ''); }, 400);
-                $('.navbar-fixed-left').css('left', '-100px');
-                $('.navbar-fixed-left').animate({ left: "+=100" }, 300);
-            };
-            self.menuHide = function(evt) {
-                // Hide
-                self.menuState = 0;
-                $('.navbar-fixed-left').css('z-index', '');
-                $('.main-view').css('left', '0px');
-                setTimeout(function() { $('.navbar-fixed-left').css('left', '-245px'); }, 400);
-                $('.navbar-fixed-left').css('left', '');
-                $('.navbar-fixed-left').animate({ left: "-=100" }, 300);
-            };
             $("#menu_btn").on('click', function(evt) {
                 //console.log('menuState:', self.menuState, evt);
                 if (!self.menuState) {
@@ -192,9 +190,7 @@ define([
                 }
             });
 
-            this.data = {};
-
-            var options = self.options;
+            let options = self.options;
             options.linkVerticalDecal = 1;
             options.data = this.data;
             options.onAfterChange = function() {
@@ -220,7 +216,7 @@ define([
             //window.ultiflow = ultiflow.ui.flowchart = self;
 
             // Apply the plugin on a standard, empty div...
-            $flowchart.flowchart(options);
+            $app.ultiflow.$flowchart = $flowchart.flowchart(options);
             //$flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
             //window.$ufPanzoom.zoom(self.currentZoomRatio);
 
@@ -239,6 +235,11 @@ define([
                 self.els.flowchart.flowchart('deleteSelected');
             });
 
+            //$flowchart.$ufPanzoom = $ufPanzoom;
+            //ultiflow.flowchart = self;
+
+            $app.ultiflow.flowchart = Object.assign(self, $app.ultiflow.flowchart || {});
+            $app.ultiflow.ufPanzoom = Object.assign(self.$ufPanzoom, $app.ultiflow.ufPanzoom || {});
         },
 
         reset: function() {
@@ -257,16 +258,16 @@ define([
         },
 
         _refreshMiniViewPosition: function() {
-            var elementOffset = this.element.offset();
-            var flowchartOffset = this.els.flowchart.offset();
-            var flowchartWidth = this.els.flowchart.width();
-            var flowchartHeight = this.els.flowchart.height();
-            var rTop = (elementOffset.top - flowchartOffset.top) / (flowchartHeight * this.currentZoomRatio);
-            var rLeft = (elementOffset.left - flowchartOffset.left) / (flowchartWidth * this.currentZoomRatio);
-            var rWidth = this.element.width() / (flowchartWidth * this.currentZoomRatio);
-            var rHeight = this.element.height() / (flowchartHeight * this.currentZoomRatio);
-            var miniViewWidth = this.els.flowchartMiniView.width();
-            var miniViewHeight = this.els.flowchartMiniView.height();
+            let elementOffset = this.element.offset();
+            let flowchartOffset = this.els.flowchart.offset();
+            let flowchartWidth = this.els.flowchart.width();
+            let flowchartHeight = this.els.flowchart.height();
+            let rTop = (elementOffset.top - flowchartOffset.top) / (flowchartHeight * this.currentZoomRatio);
+            let rLeft = (elementOffset.left - flowchartOffset.left) / (flowchartWidth * this.currentZoomRatio);
+            let rWidth = this.element.width() / (flowchartWidth * this.currentZoomRatio);
+            let rHeight = this.element.height() / (flowchartHeight * this.currentZoomRatio);
+            let miniViewWidth = this.els.flowchartMiniView.width();
+            let miniViewHeight = this.els.flowchartMiniView.height();
             this.els.flowchartMiniViewFocus.css({
                 left: rLeft * miniViewWidth,
                 top: rTop * miniViewHeight,
@@ -275,52 +276,72 @@ define([
             });
         },
 
-        _refreshMiniViewContent: function(data) {
-            //console.log('refreshMiniViewContent:', { this: this, data: data });
+        _refreshMiniViewContent: function(__data, forcexy = false) {
+            //console.log('refreshMiniViewContent:', { this: this, data: __data });
             this.els.flowchartMiniViewContent.empty();
 
-            var flowchartWidth = this.els.flowchart.width();
-            var flowchartHeight = this.els.flowchart.height();
+            let flowchartWidth = this.els.flowchart.width();
+            let flowchartHeight = this.els.flowchart.height();
 
-            var miniViewWidth = this.els.flowchartMiniView.width();
-            var miniViewHeight = this.els.flowchartMiniView.height();
+            let miniViewWidth = this.els.flowchartMiniView.width();
+            let miniViewHeight = this.els.flowchartMiniView.height();
 
-            var operatorsPositions = {};
-            //var numOp = 0;
+            let operatorsPositions = this.operatorsPositions;
 
-            if (typeof data != 'undefined') {
-                if (typeof data.operators != 'undefined') {
-                    for (var operatorId in data.operators) {
-                        //console.log('numOp:', numOp);
-                        var operator = data.operators[operatorId];
-                        var operatorElement = this.getOperatorElement(operator); // $app.ultiflow.flowchart.data.operators[operatorId].internal.els.operator;
+            if (typeof __data != 'undefined') {
+                if (typeof __data.operators != 'undefined') {
+                    for (let operatorId in __data.operators) {
+
+                        // Save Inputs and Outputs in VARS
+                        let _inputs = this.VARS.inputs;
+                        let _outputs = this.VARS.outputs;
+
+                        let operator = __data.operators[operatorId];
+                        try { _inputs[operatorId] = operator.internal.properties.inputs; } catch (err) {}
+                        try { _outputs[operatorId] = operator.internal.properties.outputs; } catch (err) {}
+
+                        if (typeof(operatorsPositions[operatorId]) == 'undefined') operatorsPositions[operatorId] = { opLeft: 0, opTop: 0, left: 0, top: 0 };
+                        let operatorPosition = operatorsPositions[operatorId];
+                        operatorPosition.opLeft = operator.left;
+                        operatorPosition.opTop = operator.top;
+
+                        let operatorElement = this.els.flowchart.flowchart('getOperatorElement', operator); // $app.ultiflow.flowchart.data.operators[operatorId].internal.els.operator;
+
+                        // Restore Inputs and Outputs from VARS
+                        operator.internal.properties.inputs = {..._inputs[operatorId], ...operator.internal.properties.inputs };
+                        operator.internal.properties.outputs = {..._outputs[operatorId], ...operator.internal.properties.outputs };
+                        operator.left = operatorPosition.opLeft;
+                        operator.top = operatorPosition.opTop;
+
                         //if (operator.top > miniViewHeight) { return; } // BugFix: miniview wrong postition
-                        var rLeft = (operator.left + this.cx + operatorElement.width() / 2) / flowchartHeight;
-                        var rTop = (operator.top + this.cy + operatorElement.height() / 2) / flowchartWidth;
+                        //let rLeft = (operator.left + this.cx + operatorElement.width() / 2) / flowchartHeight;
+                        //let rTop = (operator.top + this.cy + operatorElement.height() / 2) / flowchartWidth;
 
-                        operatorPosition = { left: rLeft * miniViewWidth, top: rTop * miniViewHeight };
-                        operatorsPositions[operatorId] = operatorPosition;
+                        let rLeft = (operator.left + ((forcexy || !app.ultiflow.flowchart._isStarted()) ? this.cx : 0) + operatorElement.width() / 2) / flowchartHeight;
+                        let rTop = (operator.top + ((forcexy || !app.ultiflow.flowchart._isStarted()) ? this.cy : 0) + operatorElement.height() / 2) / flowchartWidth;
 
-                        var shapeR = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                        operatorPosition.left = rLeft * miniViewWidth;
+                        operatorPosition.top = rTop * miniViewHeight;
+
+                        let shapeR = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                         shapeR.setAttribute("stroke", "none");
                         shapeR.setAttribute("x", operatorPosition.left - 1);
                         shapeR.setAttribute("y", operatorPosition.top - 1);
                         shapeR.setAttribute("width", 3);
                         shapeR.setAttribute("height", 3);
                         this.els.flowchartMiniViewContent[0].appendChild(shapeR);
-                        //numOp++;
                     }
                 }
 
-                if (typeof data.links != 'undefined') {
-                    for (var linkId in data.links) {
-                        var link = data.links[linkId];
+                if (typeof __data.links != 'undefined') {
+                    for (let linkId in __data.links) {
+                        let link = __data.links[linkId];
 
-                        var fromPosition = operatorsPositions[link.fromOperator];
-                        var toPosition = operatorsPositions[link.toOperator];
+                        let fromPosition = operatorsPositions[link.fromOperator];
+                        let toPosition = operatorsPositions[link.toOperator];
 
                         if (typeof(fromPosition) !== 'undefined' && typeof(toPosition) !== 'undefined') {
-                            var shapeL = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                            let shapeL = document.createElementNS("http://www.w3.org/2000/svg", "line");
                             shapeL.setAttribute("x1", fromPosition.left);
                             shapeL.setAttribute("y1", fromPosition.top);
                             shapeL.setAttribute("x2", toPosition.left);
@@ -338,19 +359,19 @@ define([
 
         setData: function(originalData) {
             this.isSettingData = true;
-            var self = this;
+            let self = this;
             self.data = $.extend(true, {}, originalData);
             //self.data.links = ultiflow.data.modulesInfos.operators.list[ultiflow.openedProcess].process.links;
 
-            if (typeof self.data.operators != 'undefined') {
-                for (var operatorId in self.data.operators) {
-                    var operator = self.data.operators[operatorId];
+            if (typeof self.data.operators !== 'undefined') {
+                for (let operatorId in self.data.operators) {
+                    let operator = self.data.operators[operatorId];
                     operator.left += self.cx;
                     operator.top += self.cy;
                     //this.postProcessOperatorData(operator);
                 }
             }
-            ultiflow.getOperators(function(operators) {
+            app.ultiflow.getOperators(function(operators) {
                 self.data.operatorTypes = operators.list;
                 self.els.flowchart.flowchart('setData', self.data);
             });
@@ -364,11 +385,11 @@ define([
             return this.els.flowchart.flowchart('getFullData');
         },
         getData: function() {
-            var data = this.els.flowchart.flowchart('getData');
+            let data = $.extend(true, {}, this.els.flowchart.flowchart('getData'));
             delete data.operatorTypes;
             if (typeof data.operators != 'undefined') {
-                for (var operatorId in data.operators) {
-                    var operator = data.operators[operatorId];
+                for (let operatorId in data.operators) {
+                    let operator = data.operators[operatorId];
                     operator.left -= this.cx;
                     operator.top -= this.cy;
                 }
@@ -386,33 +407,33 @@ define([
             // todo: check same ids ?
 
             this.els.flowchart.flowchart('addOperator', operatorData);
-            var elm = operatorData.internal.els.operator[0].children[0];
+            let elm = operatorData.internal.els.operator[0].children[0];
 
-            var currentProcessData = $app.ultiflow.getOpenedProcessData();
-            //var flowchartData = this.getData();
-            var flowchartData = this.getFullData();
+            let currentProcessData = $app.ultiflow.getOpenedProcessData();
+            //let flowchartData = this.getData();
+            let flowchartData = this.getFullData();
 
             //console.log('@ultiflow.uf_flowchart.addOperator: currentProcessData:', JSON.stringify(currentProcessData));
             //console.log('@ultiflow.uf_flowchart.addOperator: flowchartData:', JSON.stringify(flowchartData));
 
-            var operatorObjs = Object.assign(Object.keys(flowchartData.operators), Object.keys(currentProcessData.process.parameters));
+            let operatorObjs = Object.assign(Object.keys(flowchartData.operators), Object.keys(currentProcessData.process.parameters));
 
-            for (var operatorId in operatorObjs) {
+            for (let operatorId in operatorObjs) {
                 //console.log('operatorId:', operatorId);
-                var iOperator = flowchartData.operators;
-                var iParameter = currentProcessData.process.parameters || [];
+                let iOperator = flowchartData.operators;
+                let iParameter = currentProcessData.process.parameters || [];
                 if (typeof iParameter[operatorId] == 'undefined') {
-                    var operatorProperties = '';
+                    let operatorProperties = '';
                     try {
-                        if (typeof(iOperator[operatorId]) !== 'undefined') operatorProperties = ultiflow.getOperatorInfos(iOperator[operatorId].type);
+                        if (typeof(iOperator[operatorId]) !== 'undefined') operatorProperties = $app.ultiflow.getOperatorInfos(iOperator[operatorId].type);
                     } catch (err) {
                         console.error('err:', { err: err, iOperator: iOperator, operatorId: operatorId });
                     }
                     currentProcessData.process.parameters[operatorId] = {};
-                    var operatorParameters = operatorProperties.parameters;
+                    let operatorParameters = operatorProperties.parameters;
                     if (typeof(operatorParameters) !== 'undefined') {
-                        var propKeys = Object.keys(operatorParameters);
-                        for (var propId in propKeys) {
+                        let propKeys = Object.keys(operatorParameters);
+                        for (let propId in propKeys) {
                             //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
                             currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
                         }
@@ -464,34 +485,34 @@ define([
             this.els.flowchartMiniViewContent.hide();
         },
         changeDetected: function() {
-            var self = this;
-            var currentProcessData = ultiflow.getOpenedProcessData();
+            let self = this;
+            let currentProcessData = app.ultiflow.getOpenedProcessData();
 
             if (this.isSettingData || typeof(currentProcessData) == 'undefined') {
                 return;
             }
 
-            var flowchartData = this.getData();
-            var flowchartFullData = this.getFullData();
-            //var flowchartProcess = $.extend(true, {}, flowchartData);
+            let flowchartData = this.getData();
+            let flowchartFullData = this.getFullData();
+            //let flowchartProcess = $.extend(true, {}, flowchartData);
 
             currentProcessData.process.operators = flowchartData.operators;
             currentProcessData.process.links = flowchartData.links;
 
-            var operatorObjs = Object.assign(Object.keys(flowchartData.operators), Object.keys(currentProcessData.process.parameters));
+            let operatorObjs = Object.assign(Object.keys(flowchartData.operators), Object.keys(currentProcessData.process.parameters));
 
-            for (var operatorId in operatorObjs) {
-                var iOperator = currentProcessData.process.operators;
+            for (let operatorId in operatorObjs) {
+                let iOperator = currentProcessData.process.operators;
                 if (typeof iOperator[operatorId] == 'undefined') {
                     delete currentProcessData.process.parameters[operatorId];
                 } else {
-                    var iParameter = currentProcessData.process.parameters;
+                    let iParameter = currentProcessData.process.parameters;
                     if (typeof iParameter[operatorId] == 'undefined') {
-                        var operatorProperties = ultiflow.getOperatorInfos(iOperator[operatorId].type);
+                        let operatorProperties = this.getOperatorInfos(iOperator[operatorId].type);
                         currentProcessData.process.parameters[operatorId] = {};
-                        var operatorParameters = operatorProperties.parameters;
-                        var propKeys = Object.keys(operatorParameters);
-                        for (var propId in propKeys) {
+                        let operatorParameters = operatorProperties.parameters;
+                        let propKeys = Object.keys(operatorParameters);
+                        for (let propId in propKeys) {
                             //console.log('addOperator:' + operatorId, operatorParameters[propId].id + " := " + operatorParameters[propId].config.default);
                             currentProcessData.process.parameters[operatorId][operatorParameters[propId].id] = (operatorParameters[propId].config) ? (operatorParameters[propId].config.default || '') : '';
                         }
@@ -508,7 +529,7 @@ define([
             // console.log('changeDetected!', currentProcessData);
             app.triggerEvent('ultiflow::process_change_detected');
 
-            this._refreshMiniViewContent(flowchartData);
+            this._refreshMiniViewContent(flowchartData, true);
         },
 
         flowchartMethod: function(methodName, data) {

@@ -89,9 +89,10 @@ define(['app'], function(app) {
             //self.els.path = $('<span class="uf-process-path"></span>');
             //self.els.path.appendTo(self.element);
 
+            /*  Duplicate on: jquery.uf.flowchart
             app.onEvent('ultiflow::process_open', function(evt, operatorData) {
                 self.setProcess(operatorData);
-            });
+            });*/
 
             app.onEvent('ultiflow::process_change_detected', function(evt) {
                 self.setState('saving');

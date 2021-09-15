@@ -2,7 +2,7 @@ define(['socket-io'], function(io) {
     //console.log(this);
     var self = this;
 
-    var app = Object.assign(app || {}, app, $app || {});
+    var app = Object.assign(app || {}, $app || {});
 
     app.config = {
         io: {},
@@ -19,6 +19,8 @@ define(['socket-io'], function(io) {
 
     //app.user = app.config.user;
     //app.debug = app.config.io.debug;
+    app.socketIO = io;
+    app.io = Object.assign({...io } || {}, $app.io || {});
     app.socket = null;
     self.session = null;
     app.request_id = 0;

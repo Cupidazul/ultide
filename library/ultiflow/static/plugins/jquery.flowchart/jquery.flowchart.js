@@ -394,19 +394,27 @@ $(function() {
         },
 
         getOperatorCompleteData: function(operatorData) {
+            let _inputs = {};
+            let _outputs = {};
+            try { _inputs = operatorData.internal.properties.inputs; } catch (err) {}
+            try { _outputs = operatorData.internal.properties.outputs; } catch (err) {}
+
             if (typeof operatorData.internal == 'undefined') {
                 operatorData.internal = {};
             }
             this._refreshInternalProperties(operatorData);
             infos = $.extend(true, {}, operatorData.internal.properties);
 
-            for (var connectorId0 in infos.inputs) {
+            infos.inputs = {..._inputs, ...infos.inputs };
+            infos.outputs = {..._outputs, ...infos.outputs };
+
+            for (let connectorId0 in infos.inputs) {
                 if (infos.inputs[connectorId0] == null) {
                     delete infos.inputs[connectorId0];
                 }
             }
 
-            for (var connectorId1 in infos.outputs) {
+            for (let connectorId1 in infos.outputs) {
                 if (infos.outputs[connectorId1] == null) {
                     delete infos.outputs[connectorId1];
                 }
@@ -419,7 +427,15 @@ $(function() {
         },
 
         _getOperatorFullElement: function(operatorData)  {
+            let _inputs = {};
+            let _outputs = {};
+            try { _inputs = operatorData.internal.properties.inputs; } catch (err) {}
+            try { _outputs = operatorData.internal.properties.outputs; } catch (err) {}
+
             var infos = this.getOperatorCompleteData(operatorData);
+
+            infos.inputs = {..._inputs, ...infos.inputs };
+            infos.outputs = {..._outputs, ...infos.outputs };
 
             var $operator = $('<div class="flowchart-operator"></div>');
             $operator.addClass(infos.class);
@@ -491,10 +507,19 @@ $(function() {
         },
 
         createOperator: function(operatorId, operatorData) {
+            var _inputs = (typeof(operatorData.internal) !== 'undefined') ? operatorData.internal.properties.inputs : {};
+            var _outputs = (typeof(operatorData.internal) !== 'undefined') ? operatorData.internal.properties.outputs : {};
+
             operatorData.internal = {};
             this._refreshInternalProperties(operatorData);
 
+            if (typeof(operatorData.internal) !== 'undefined') {
+                operatorData.internal.properties.inputs = {..._inputs, ...operatorData.internal.properties.inputs };
+                operatorData.internal.properties.outputs = {..._outputs, ...operatorData.internal.properties.outputs };
+            }
+
             var fullElement = this._getOperatorFullElement(operatorData);
+
             if (!this.options.onOperatorCreate(String(operatorId), operatorData, fullElement)) {
                 return false;
             }
@@ -510,6 +535,9 @@ $(function() {
 
             this.data.operators[String(operatorId)] = operatorData;
             this.data.operators[String(operatorId)].internal.els = fullElement;
+
+            this.data.operators[String(operatorId)].internal.properties.inputs = {..._inputs, ...this.data.operators[String(operatorId)].internal.properties.inputs };
+            this.data.operators[String(operatorId)].internal.properties.outputs = {..._outputs, ...this.data.operators[String(operatorId)].internal.properties.outputs };
 
             if (operatorId == this.selectedOperatorId) {
                 this._addSelectedClass(String(operatorId));

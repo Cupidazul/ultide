@@ -78,7 +78,7 @@ define([
             $userMenuBtn.appendTo(this.element.children()[0]);
 
             $('#userSubMenuBtn1').on('click', function(evt) {
-                if (!$app.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
+                if (!$app.ultiflow.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
                 $('#main_navBar_welcome').click();
                 return false;
             });
@@ -89,7 +89,7 @@ define([
             });
 
             $('#userSubMenuBtn5').on('click', function(evt) {
-                if (!$app.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
+                if (!$app.ultiflow.flowchart.menuState) $('.navbar.navbar-fixed-left').css('left', '-100px');
                 $('#main_navBar_welcome').click();
                 $('#btnSH_userSettings').click();
                 return false;

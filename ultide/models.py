@@ -530,6 +530,13 @@ class uLogFile():
                 # pprint(('File truncated!', self.rotating_file_handler.baseFilename))
                 self.rotating_file_handler._haslooped = False
 
+        if (self.isNextday):
+            self.logFileCount = 1
+            self.rotating_file_handler._haslooped = False
+            self.rotating_file_handler.baseFilename = self.logbaseFilename()
+            self.rotating_file_handler.stream.close()                                   # force close current file
+            self.rotating_file_handler.stream = self.rotating_file_handler._open()      # force open new file
+
         # if (config.DEBUG): pprint(('@core.logfile: filer:', {'hasLooped': self.hasLooped, 'logFileCount': self.logFileCount, 'logYMD': self.logYMD, 'default_name': default_name, 'prevFile': self.prevFile, 'newFile': self.logbaseFilename(), 'fileSize': self.fileSize}))
         return self.logbaseFilename()
 

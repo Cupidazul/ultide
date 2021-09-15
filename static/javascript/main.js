@@ -30,10 +30,6 @@ document.onreadystatechange = function($) {
         //require(['text', 'json!package.json', 'jquery', 'app', 'main-nav-bar', 'main-view'], function(undefined, pkg, $, app) {
         //    console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, pkg: pkg, readyState: document.readyState });
         require(['jquery', 'app', 'JSONSafeStringify', 'lzString', 'main-nav-bar', 'main-view', 'helper'], function($, app, JSONSafeStringify, lzString) {
-            app = Object.assign(app || {}, app, $app || {}, {
-                JSONSafeStringify: JSONSafeStringify,
-                lzString: lzString
-            });
 
             if ($app.debug) console.log('@static/main: init[' + app.request_id + ']:', { $: $, app: app, /*pkg: pkg,*/ readyState: document.readyState });
 
@@ -132,6 +128,11 @@ document.onreadystatechange = function($) {
                     });
                 }
             };
+
+            $app = Object.assign(app || {}, $app || {}, {
+                JSONSafeStringify: JSONSafeStringify,
+                lzString: lzString
+            });
 
         }, function(err) {
             console.log('@static/main: fn.error:', { error: err });

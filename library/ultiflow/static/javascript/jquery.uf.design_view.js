@@ -46,7 +46,7 @@ define([
 
                 this.changeState('unopened');
 
-                app.onEvent('ultiflow::process_open', function(e, processData) {
+                app.onEvent('ultiflow::process_open', function(_evt, _processData) {
                     self.changeState('opened');
                     //$('.ui-draggable-handle').on('mousemove',  function(evt) { evt.stopPropagation(); $app.ultiflow.ufPanzoom.disable(); })
                     //                        .on('mouseleave', function(evt) { evt.stopPropagation(); $app.ultiflow.ufPanzoom.enable();  });
@@ -99,7 +99,7 @@ define([
                     //if (whatCode == 'Python') $app.ultiflow.PythonCodeRun();
 
                     // Clear: codeInfo previous Results.
-                    Object.keys($app.flowchart.data.operators).forEach(function(elIdx) { $('#codeInfo' + String(elIdx)).remove(); });
+                    Object.keys($app.ultiflow.flowchart.data.operators).forEach(function(elIdx) { $('#codeInfo' + String(elIdx)).remove(); });
                     $app.ultiflow.CodeRunning(); // Rotate cog
                     $app.ultiflow.anyCodeRun(); // RUN !
 

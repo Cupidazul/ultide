@@ -118,8 +118,9 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             var operatorType = operatorData.type;
             var operatorProperties = $app.ultiflow.flowchart.flowchartMethod('getOperatorFullProperties', operatorData);
             var operatorTypeData = ultiflow.getOperatorInfos(operatorType);
+            var operatorFullData = ultiflow.flowchart.getFullData();
 
-            if ($app.debug) console.log('@ultiflow.uf_propbar.displayOperatorParameters:', { operatorId: operatorId, processData: processData, operatorData: operatorData, operatorType: operatorType, operatorTypeData: operatorTypeData });
+            //if ($app.debug) console.log('@ultiflow.uf_propbar.displayOperatorParameters:', { operatorId: operatorId, processData: processData, operatorData: operatorData, operatorType: operatorType, operatorTypeData: operatorTypeData });
 
             self.els.content.empty();
             var $parametersList = $('<div class="uf-parameters-list"></div>');
@@ -158,32 +159,124 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
 
                 $('#btn_edit_main_parameters').on('click', function() {
                     if ($('#uf_op_settings').length > 0) {
+                        // Hide
                         $('#uf_op_settings').remove();
                     } else {
-                        var InputsNr = Object.keys(operatorData.internal.properties.inputs).length;
-                        var OutputsNr = Object.keys(operatorData.internal.properties.outputs).length;
+                        // Show
+                        var InputsNr = function(opData) { return Object.keys((opData || operatorData).internal.properties.inputs).length; };
+                        var OutputsNr = function(opData) { return Object.keys((opData || operatorData).internal.properties.outputs).length; };
                         var $Settings = $(
                             `<div class="uf-parameter">` +
                             `    <div class="col-md-6">` +
                             `        <label>Inputs:</label>` +
                             `        <div class="uf-parameter-content">` +
-                            `            <input type="number" class="form-control" style="max-width: 60px;" value="${InputsNr}">` +
-                            addInOutList(operatorData.internal.properties.inputs) +
+                            `        <input id="uf_op_sIn" type="number" min="0" max="999" class="form-control" style="max-width: 60px;" value="${InputsNr()}">` +
+                            `        ` + addInOutList(operatorData.internal.properties.inputs) +
                             `        </div>` +
                             `    </div>` +
                             `    <div class="col-md-6">` +
                             `    <label>Outputs</label>` +
                             `    <div class="uf-parameter-content">` +
-                            `        <input type="number" class="form-control" style="max-width: 60px;" value="${OutputsNr}">` +
-                            addInOutList(operatorData.internal.properties.outputs) +
+                            `        <input id="uf_op_sOut" type="number" min="0" max="999" class="form-control" style="max-width: 60px;" value="${OutputsNr()}">` +
+                            `        ` + addInOutList(operatorData.internal.properties.outputs) +
                             `    </div>` +
                             `</div>`);
 
                         var $settingsParameter = self.generateParameterField('Settings:', $Settings);
                         $($settingsParameter).attr('id', 'uf_op_settings');
-                        $($settingsParameter).addClass('WiP');
+                        //$($settingsParameter).addClass('WiP');
 
                         $settingsParameter.appendTo($parametersList);
+
+                        var hasInputLink = function(obj, currVal) {
+                            for (let lnk0 in Object.keys($app.ultiflow.processData.process.links)) {
+                                let currLnk = $app.ultiflow.processData.process.links[lnk0];
+                                // 0: {fromOperator: '1', fromConnector: 'data', toOperator: '0', toConnector: 'input_1'}
+                                if (typeof(currLnk) !== 'undefined' && String(currLnk.toOperator) == String(operatorId) && String(currLnk.toConnector) == String(obj)) {
+                                    // console.log('hasInputLink', { tf: true, currVal: currVal, obj: obj, currLnk: JSON.stringify(currLnk) });
+                                    return true;
+                                }
+                            }
+                            return false;
+                        };
+                        var hasOutputLink = function(obj, currVal) {
+                            for (let lnk0 in Object.keys($app.ultiflow.processData.process.links)) {
+                                let currLnk = $app.ultiflow.processData.process.links[lnk0];
+                                // 0: {fromOperator: '1', fromConnector: 'data', toOperator: '0', toConnector: 'input_1'}
+                                if (typeof(currLnk) !== 'undefined' && String(currLnk.fromOperator) == String(operatorId) && String(currLnk.fromConnector) == String(obj)) {
+                                    // console.log('hasOutputLink', { tf: true, currVal: currVal, obj: obj, currLnk: JSON.stringify(currLnk) });
+                                    return true;
+                                }
+                            }
+                            return false;
+                        };
+
+                        var delLastObj = function(obj, maxSize, isInput) {
+                            if (maxSize == -1) maxSize = Object.keys(obj).length;
+                            while (Object.keys(obj).length > maxSize) {
+                                delete obj[Object.keys(obj)[Object.keys(obj).length - 1]];
+                            }
+                        };
+
+                        $('#uf_op_sIn').on('input', function(evt) {
+                            let currVal = parseInt(evt.currentTarget.value);
+                            //console.log('uf_op_sIn', { InputsNr: InputsNr(operatorData), value: currVal, evt: evt.currentTarget });
+                            //$app.ultiflow.flowchart.getOperatorElement(data1);
+                            if (currVal > InputsNr(operatorData)) {
+                                // ADD VAR
+                                operatorData.internal.properties.inputs['input_' + String(currVal)] = { 'label': 'Input ' + String(currVal) };
+                                operatorFullData.operators[self.operatorId].internal.properties.inputs['input_' + String(currVal)] = { 'label': 'Input ' + String(currVal) };
+                            } else {
+                                // DEL VAR
+                                let _obj = $app.ultiflow.flowchart.VARS.inputs[self.operatorId];
+                                if (!hasInputLink(Object.keys(_obj)[currVal], currVal)) {
+                                    delLastObj($app.ultiflow.flowchart.VARS.inputs[self.operatorId], currVal, true);
+                                    delLastObj(operatorData.internal.properties.inputs, currVal, true);
+                                    delLastObj(operatorFullData.operators[self.operatorId].internal.properties.inputs, currVal, true);
+                                } else {
+                                    alert('You cannot delete Operators with Links connected!!!');
+                                    this.value = String(currVal + 1);
+                                    return false;
+                                }
+                            }
+
+                            let $html = addInOutList(operatorData.internal.properties.inputs);
+                            $('#uf_op_sIn').parent().find('.uf-parameter').remove();
+                            $($html).appendTo($('#uf_op_sIn').parent());
+
+                            app.triggerEvent('ultiflow::process_change_detected');
+                            app.ultiflow.openProcess(ultiflow.openedProcess);
+                            //console.log('uf_op_sIn.oninput:', { operatorId: self.operatorId, evt: evt, value: currVal, operatorData: operatorData, operatorFullData: operatorFullData, $html: $html });
+                        });
+                        $('#uf_op_sOut').on('input', function(evt) {
+                            let currVal = parseInt(evt.currentTarget.value);
+                            //console.log('uf_op_sOut', { OutputsNr: OutputsNr(operatorData), value: currVal, evt: evt.currentTarget });
+                            if (currVal > OutputsNr(operatorData)) {
+                                // ADD VAR
+                                operatorData.internal.properties.outputs['output_' + String(currVal)] = { 'label': 'Output ' + String(currVal) };
+                                operatorFullData.operators[self.operatorId].internal.properties.outputs['output_' + String(currVal)] = { 'label': 'Output ' + String(currVal) };
+                            } else {
+                                // DEL VAR
+                                let _obj = $app.ultiflow.flowchart.VARS.outputs[self.operatorId];
+                                if (!hasOutputLink(Object.keys(_obj)[currVal], currVal)) {
+                                    delLastObj($app.ultiflow.flowchart.VARS.outputs[self.operatorId], currVal, false);
+                                    delLastObj(operatorData.internal.properties.outputs, currVal, false);
+                                    delLastObj(operatorFullData.operators[self.operatorId].internal.properties.outputs, currVal, false);
+                                } else {
+                                    alert('You cannot delete Operators with Links connected!!!');
+                                    this.value = String(currVal + 1);
+                                    return false;
+                                }
+                            }
+
+                            let $html = addInOutList(operatorData.internal.properties.outputs);
+                            $('#uf_op_sOut').parent().find('.uf-parameter').remove();
+                            $($html).appendTo($('#uf_op_sOut').parent());
+
+                            app.triggerEvent('ultiflow::process_change_detected');
+                            app.ultiflow.openProcess(ultiflow.openedProcess);
+                            //console.log('uf_op_sOut.oninput:', { operatorId: self.operatorId, evt: evt, value: currVal, operatorData: operatorData, operatorFullData: operatorFullData, $html: $html });
+                        });
                     }
                 });
             }

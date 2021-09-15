@@ -16,20 +16,22 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         if (!LastProject || LastProject == '') LastProject = 'custom::custom_process';
         if (typeof($app.ultiflow.data.modulesInfos.operators.list[LastProject]) === 'undefined') LastProject = 'custom::custom_process';
 
-        if (String(ElVal_id) === String(LastProject)) {
-            _.debounce(function(oElVal) {
-                //$('#userMenuBtn1').parent().show();
+        _.debounce(function(oElVal) {
+            //$('#userMenuBtn1').parent().show();
+            if (String(ElVal_id) === String(LastProject)) {
                 if (typeof(oElVal) !== 'undefined') oElVal.click(); // Click on Last Opened Project (LastProject)
-                $app.ultiflow.flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
+            }
+            $app.ultiflow.flowchart.changeDetected(); // BugFix: uf-flowchart-mini-view-focus: update!
+
+            $app.ultiflow.flowchart.menuHide();
+            $("#loadingDiv").fadeOut(500, function() {
+                // fadeOut complete. Remove the loading div
+                //$("#loadingDiv").remove(); //makes page more lightweight 
+                $('body').removeAttr("style");
                 $app.ultiflow.flowchart._isStarted(true);
-                $app.flowchart.menuHide();
-                $("#loadingDiv").fadeOut(500, function() {
-                    // fadeOut complete. Remove the loading div
-                    //$("#loadingDiv").remove(); //makes page more lightweight 
-                    $('body').removeAttr("style");
-                });
-            }, 1000, { trailing: true })(ElVal);
-        }
+                $app.ultiflow.flowchart._refreshMiniViewPosition(true);
+            });
+        }, 1000, { trailing: true })(ElVal);
 
     };
     // get_os_config : #Security: Avoid exposing ServerConfig for Security Reasons !
@@ -83,7 +85,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
                 }
                 if ($app.debug) console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
                 ultiflow.versions = app.versions;
-                ultiflow.app = app;
+                //ultiflow.app = app;
                 //window.$app.config = Object.assign(window.$app.config, app.versions.os.config);
                 return app;
             }, 10);
@@ -91,25 +93,22 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     };
     ultiflow.getAppVersions();
 
-    ultiflow.getModulesInfos = async function(cb) {
+    ultiflow.getModulesInfos = function(cb) {
         var _self = this;
         //console.log('@library/ultiflow.getModulesInfos:', _self);
         if (typeof this.data.modulesInfos == 'undefined') {
-            await app.sendRequest('modules_infos', {}, async function(response) {
+            app.sendRequest('modules_infos', {}, function(response) {
                 if ($app.debug) console.log('@library/ultiflow.getModulesInfos: res:', response);
                 _self.data.modulesInfos = response;
-                await cb(_self.data.modulesInfos);
+                cb(_self.data.modulesInfos);
             });
         } else {
-            await cb(_self.data.modulesInfos);
+            cb(_self.data.modulesInfos);
         }
     };
 
     ultiflow.getOperators = function(cb) {
-        var _self = this;
-        this.getModulesInfos(function() {
-            cb(_self.data.modulesInfos.operators);
-        });
+        this.getModulesInfos(() => { cb(this.data.modulesInfos.operators); });
     };
 
     ultiflow.isOperatorDefined = function(operator) {
@@ -120,10 +119,10 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         //if ($app.debug) console.log('@library/ultiflow: openProcess:', { processId: processId });
 
         /* RESET flowchart 
-        $app.flowchart.flowchartMethod('setData', { operators: {}, links: {}, operatorTypes: {} });
-        $app.flowchart.flowchartMethod('destroyLinks');
-        $app.flowchart._refreshMiniViewContent();*/
-        //$app.flowchart.reset();
+        $app.ultiflow.flowchart.flowchartMethod('setData', { operators: {}, links: {}, operatorTypes: {} });
+        $app.ultiflow.flowchart.flowchartMethod('destroyLinks');
+        $app.ultiflow.flowchart._refreshMiniViewContent();*/
+        //$app.ultiflow.flowchart.reset();
 
         this.setOpenedProcess(processId);
         this.processData = this.getOpenedProcessData();
@@ -138,7 +137,11 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     };
 
     ultiflow.getOpenedProcessData = function() {
-        if (ultiflow.data.modulesInfos) return ultiflow.data.modulesInfos.operators.list[this.openedProcess];
+        //if ($app.debug) console.log('@library/ultiflow: getOpenedProcessData:', { this: $app.JSONSafeStringify(this.data) });
+        if (this.data.modulesInfos) {
+            return this.data.modulesInfos.operators.list[this.openedProcess];
+            //return ultiflow.data.modulesInfos.operators.list[this.openedProcess];
+        }
     };
 
     ultiflow.getOperatorInfos = function(operator) {
@@ -205,7 +208,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     ultiflow.showCurrentProcess = function() {
         var processId = ultiflow.openedProcess;
         var operatorData = ultiflow.data.modulesInfos.operators.list[processId];
-        if ($app.debug && operatorData) console.log('operatorData:', operatorData);
+        //if ($app.debug && operatorData) console.log('operatorData:', operatorData);
     };
 
     ultiflow.renameTitle = function(NewTitle, processId) {
