@@ -198,7 +198,8 @@ define(['app', 'file_chooser'], function(app, file_chooser) {
             } else {
                 var newPath = path + '-' + key;
                 // ensure we show Lib only for the ones installed in os
-                if (typeof(matchLib[newPath]) == 'undefined' || (typeof($app.versions.os[matchLib[newPath]]) !== 'undefined' && $app.versions.os[matchLib[newPath]].length > 0))
+                let osLib = matchLib[newPath];
+                if (typeof(osLib) == 'undefined' || (typeof($app.versions.os[osLib]) != 'undefined' && $app.versions.os[osLib].length > 0))
                     res.push({
                         id: newPath,
                         text: key,
