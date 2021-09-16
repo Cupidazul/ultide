@@ -122,12 +122,12 @@ define([
                 let zoomInOut = false;
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
-                self.centerView();
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
                 $flowchart.panzoom('zoom', self.currentZoomRatio, {
                     animate: false,
                     focal: evt
                 });
+                self.centerView();
                 $(".zoom-range").val(self.currentZoomRatio);
             });
 
@@ -136,12 +136,12 @@ define([
                 let zoomInOut = true;
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
-                self.centerView();
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
                 $flowchart.panzoom('zoom', self.currentZoomRatio, {
                     animate: false,
                     focal: evt
                 });
+                self.centerView();
                 $(".zoom-range").val(self.currentZoomRatio);
             });
 
@@ -152,7 +152,6 @@ define([
                 if (delta !== -1 && self.currentZoom !== delta) {
                     self.currentZoom = delta;
                     self.currentZoomRatio = self.possibleZooms[self.currentZoom];
-                    self.centerView();
                     $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
                     /*$flowchart.panzoom('zoom', self.currentZoomRatio, {
                         animate: false,
@@ -160,6 +159,7 @@ define([
                     });*/
                     $app.ultiflow.ufPanzoom.zoom(self.currentZoomRatio);
                 }
+                self.centerView();
                 self._refreshMiniViewPosition();
             });
 
@@ -167,7 +167,6 @@ define([
                 evt.preventDefault();
                 let delta = self.defaultZoom;
                 //let zoomInOut = delta < self.currentZoom;
-                self.centerView();
                 if (delta !== -1 && self.currentZoom !== delta) {
                     self.currentZoom = delta;
                     self.currentZoomRatio = self.possibleZooms[self.currentZoom];
@@ -179,6 +178,7 @@ define([
                     $app.ultiflow.ufPanzoom.zoom(self.currentZoomRatio);
                     $(".zoom-range").val(self.currentZoomRatio);
                 }
+                self.centerView();
             });
 
             $("#menu_btn").on('click', function(evt) {
