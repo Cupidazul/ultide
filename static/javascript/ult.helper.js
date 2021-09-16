@@ -181,6 +181,13 @@ define(['app', 'file_chooser'], function(app, file_chooser) {
 
     helper.treeDataFromOperatorData = function(tree, operators, path) {
         var res = [];
+        var matchLib = {
+            'library-Python: Procs': 'python',
+            'library-Expect: Procs': 'expect',
+            'library-NodeJS: Procs': 'node',
+            'library-Perl: Procs': 'perl',
+            'library-TclSh: Procs': 'tcl',
+        };
         for (var key in tree) {
             if (tree[key] == true) {
                 res.push({
@@ -190,12 +197,14 @@ define(['app', 'file_chooser'], function(app, file_chooser) {
                 });
             } else {
                 var newPath = path + '-' + key;
-                res.push({
-                    id: newPath,
-                    text: key,
-                    children: this.treeDataFromOperatorData(tree[key], operators, newPath),
-                    type: 'root'
-                });
+                // ensure we show Lib only for the ones installed in os
+                if (typeof(matchLib[newPath]) == 'undefined' || (typeof($app.versions.os[matchLib[newPath]]) !== 'undefined' && $app.versions.os[matchLib[newPath]].length > 0))
+                    res.push({
+                        id: newPath,
+                        text: key,
+                        children: this.treeDataFromOperatorData(tree[key], operators, newPath),
+                        type: 'root'
+                    });
             }
         }
         $app.ultiflow.$treeData = [...[], ...$app.ultiflow.$treeData || [], ...res];

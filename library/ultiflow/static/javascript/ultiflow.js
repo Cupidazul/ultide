@@ -67,6 +67,9 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
 
                 try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
                 try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }
+                try { app.versions.os['tcl-Modules'] = app.versions.os['tcl-Modules'] || ''; } catch (err) { console.log('err:', err); }
+                try { app.versions.os['expect-Modules'] = app.versions.os['expect-Modules'] || ''; } catch (err) { console.log('err:', err); }
+                try { app.versions.os['node-Modules'] = app.versions.os['node-Modules'] || ''; } catch (err) { console.log('err:', err); }
 
                 if (app.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
                     app.versions.os['perl-Modules'] = JSON.parse(app.versions.os['perl-Modules']);
