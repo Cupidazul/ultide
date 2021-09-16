@@ -120,10 +120,6 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
             var operatorTypeData = ultiflow.getOperatorInfos(operatorType);
             var operatorFullData = ultiflow.flowchart.getFullData();
 
-            // Init VARS
-            $app.ultiflow.flowchart.VARS.inputs[operatorId] = {};
-            $app.ultiflow.flowchart.VARS.outputs[operatorId] = {};
-
             //if ($app.debug) console.log('@ultiflow.uf_propbar.displayOperatorParameters:', { operatorId: operatorId, processData: processData, operatorData: operatorData, operatorType: operatorType, operatorTypeData: operatorTypeData });
 
             self.els.content.empty();

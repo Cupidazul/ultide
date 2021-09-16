@@ -221,6 +221,12 @@
     width: 100%;
 }
 
+.uf-process-main-infos .zoom-in:focus,
+.uf-process-main-infos .zoom-out:focus,
+.uf-process-main-infos .zoom-reset:focus {
+    outline: none;
+}
+
 .uf-process-state {
     margin-left: 10px;
     display: none;
