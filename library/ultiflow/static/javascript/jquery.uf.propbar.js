@@ -286,6 +286,7 @@ define(['app', 'ultiflow'], function(app, ultiflow) {
                 // Cleanup VARS
                 delete $app.ultiflow.flowchart.VARS.inputs[operatorId];
                 delete $app.ultiflow.flowchart.VARS.outputs[operatorId];
+                delete $app.ultiflow.flowchart.operatorsPositions[operatorId];
             });
 
             $titleInput.keyup(function() {
