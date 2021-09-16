@@ -274,8 +274,7 @@ define([
                     width: rWidth * miniViewWidth,
                     height: rHeight * miniViewHeight
                 });
-                console.log(this.isMousewheel, this.deltaMousewheel, this.els.flowchartMiniViewFocus.offset());
-            }, 100)();
+            }, 50)();
         },
 
         _refreshMiniViewContent: function(__data, forcexy = false) {
