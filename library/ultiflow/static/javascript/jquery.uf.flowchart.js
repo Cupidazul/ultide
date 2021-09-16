@@ -76,10 +76,9 @@ define([
             this.els.flowchartMiniView.append(this.els.flowchartMiniViewFocus);
 
             let $container = this.element;
+            //self.$ufMousewheel = this.element.mousewheel;
 
             // Panzoom initialization...
-            //$flowchart.panzoom({
-
             self.$ufPanzoom = $.Panzoom($('.uf-flowchart')[0], {
                 minScale: 0.5,
                 maxScale: 3,
