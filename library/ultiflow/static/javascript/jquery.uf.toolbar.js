@@ -43,7 +43,7 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
             });
 
             this._refresh();
-            this.refreshTrees();
+            setTimeout(() => { this.refreshTrees(); }, 10);
         },
 
         refreshTrees: function() {

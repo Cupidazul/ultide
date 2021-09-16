@@ -27,6 +27,8 @@ define([
         $ufPanzoom: null,
         menuState: 1,
         isStarted: false,
+        isMousewheel: false,
+        deltaMousewheel: 0,
         data: {},
         VARS: { inputs: [], outputs: [] },
         operatorsPositions: {},
@@ -105,13 +107,24 @@ define([
 
             // Panzoom zoom handling...
             $container.on('mousewheel.focal', function(evt) {
+                self.isMousewheel = true;
                 evt.preventDefault();
-                let delta = (evt.delta || evt.originalEvent.wheelDelta) || evt.originalEvent.detail;
+                var rcnt = 0;
+                var repeatr = setInterval(() => {
+                    if (++rcnt < 5) {
+                        self._refreshMiniViewPosition();
+                    } else {
+                        self.isMousewheel = false;
+                        self._refreshMiniViewPosition();
+                        clearInterval(repeatr);
+                    }
+                }, 50);
+                let delta = self.deltaMousewheel = (evt.delta || evt.originalEvent.wheelDelta) || evt.originalEvent.detail;
                 let zoomOut = !(delta ? delta < 0 : evt.originalEvent.deltaY > 0);
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
-                $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
                 $flowchart.panzoom('zoom', self.currentZoomRatio, { animate: true, focal: evt });
+                $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
                 $(".zoom-range").val(self.currentZoomRatio);
             });
 
@@ -242,22 +255,27 @@ define([
         },
 
         _refreshMiniViewPosition: function() {
-            let elementOffset = this.element.offset();
-            let flowchartOffset = this.els.flowchart.offset();
-            let flowchartWidth = this.els.flowchart.width();
-            let flowchartHeight = this.els.flowchart.height();
-            let rTop = (elementOffset.top - flowchartOffset.top) / (flowchartHeight * this.currentZoomRatio);
-            let rLeft = (elementOffset.left - flowchartOffset.left) / (flowchartWidth * this.currentZoomRatio);
-            let rWidth = this.element.width() / (flowchartWidth * this.currentZoomRatio);
-            let rHeight = this.element.height() / (flowchartHeight * this.currentZoomRatio);
-            let miniViewWidth = this.els.flowchartMiniView.width();
-            let miniViewHeight = this.els.flowchartMiniView.height();
-            this.els.flowchartMiniViewFocus.css({
-                left: rLeft * miniViewWidth,
-                top: rTop * miniViewHeight,
-                width: rWidth * miniViewWidth,
-                height: rHeight * miniViewHeight
-            });
+            _.debounce(() => {
+                let elementOffset = this.element.offset();
+                let flowchartOffset = this.els.flowchart.offset();
+                let flowchartWidth = this.els.flowchart.width();
+                let flowchartHeight = this.els.flowchart.height();
+                let rTop = (elementOffset.top - flowchartOffset.top) / (flowchartHeight * this.currentZoomRatio);
+                let rLeft = (elementOffset.left - flowchartOffset.left) / (flowchartWidth * this.currentZoomRatio);
+                let rWidth = this.element.width() / (flowchartWidth * this.currentZoomRatio);
+                let rHeight = this.element.height() / (flowchartHeight * this.currentZoomRatio);
+                let miniViewWidth = this.els.flowchartMiniView.width();
+                let miniViewHeight = this.els.flowchartMiniView.height();
+                let _left = ((this.isMousewheel === true) ? ((rLeft * miniViewWidth) + (this.deltaMousewheel * 2)) : (rLeft * miniViewWidth));
+                let _top = ((this.isMousewheel === true) ? ((rTop * miniViewHeight) + (this.deltaMousewheel * 2)) : (rTop * miniViewHeight));
+                this.els.flowchartMiniViewFocus.css({
+                    left: _left,
+                    top: _top,
+                    width: rWidth * miniViewWidth,
+                    height: rHeight * miniViewHeight
+                });
+                console.log(this.isMousewheel, this.deltaMousewheel, this.els.flowchartMiniViewFocus.offset());
+            }, 100)();
         },
 
         _refreshMiniViewContent: function(__data, forcexy = false) {

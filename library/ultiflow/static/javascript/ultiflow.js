@@ -6,7 +6,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
 
     ultiflow.timeoutChangeLength = 200;
 
-    ultiflow.endLoading = async function(ElVal) {
+    ultiflow.endLoading = function(ElVal) {
         let ElVal_id = $(ElVal).parent().prop('id');
         let LastProject = app.user.last_op;
         if (LastProject == null) LastProject = '';
@@ -48,53 +48,52 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         });
     };*/
 
-    ultiflow.getAppVersions = async function() {
-        await app.sendRequest('get_os_versions', {}, function(response) {
+    ultiflow.getAppVersions = function() {
+        app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
-            return setTimeout(function() {
-                window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
-                try { app.versions.Browser = ((typeof(uaData.brands) !== 'undefined') ? (uaData.brands[2].brand + ' ' + uaData.highEntropyValues.uaFullVersion) : navigator.userAgent); } catch (err) { console.log('err:', err); }
-                try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
-                try { app.versions.jquery = jQuery.fn.jquery; } catch (err) { console.log('err:', err); }
-                try { app.versions['jquery-ui'] = jQuery.ui.version; } catch (err) { console.log('err:', err); }
-                try { app.versions.requirejs = requirejs.version; } catch (err) { console.log('err:', err); }
-                try { app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION; } catch (err) { console.log('err:', err); }
-                try { app.versions.lodash = _.VERSION; } catch (err) { console.log('err:', err); }
-                try { app.versions.mousewheel = $.event.special.mousewheel.version; } catch (err) { console.log('err:', err); }
-                try { app.versions.JSONSafeStringify = app.JSONSafeStringify.version; } catch (err) { console.log('err:', err); }
-                try { app.versions.lzString = app.lzString.version; } catch (err) { console.log('err:', err); }
-                try { app.versions.DataTable = jQuery.fn.DataTable.version; } catch (err) { console.log('err:', err); }
 
-                try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
-                try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }
-                try { app.versions.os['tcl-Modules'] = app.versions.os['tcl-Modules'] || ''; } catch (err) { console.log('err:', err); }
-                try { app.versions.os['expect-Modules'] = app.versions.os['expect-Modules'] || ''; } catch (err) { console.log('err:', err); }
-                try { app.versions.os['node-Modules'] = app.versions.os['node-Modules'] || ''; } catch (err) { console.log('err:', err); }
+            window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
+            try { app.versions.Browser = ((typeof(uaData.brands) !== 'undefined') ? (uaData.brands[2].brand + ' ' + uaData.highEntropyValues.uaFullVersion) : navigator.userAgent); } catch (err) { console.log('err:', err); }
+            try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
+            try { app.versions.jquery = jQuery.fn.jquery; } catch (err) { console.log('err:', err); }
+            try { app.versions['jquery-ui'] = jQuery.ui.version; } catch (err) { console.log('err:', err); }
+            try { app.versions.requirejs = requirejs.version; } catch (err) { console.log('err:', err); }
+            try { app.versions.bootstrap = jQuery.fn.tooltip.Constructor.VERSION; } catch (err) { console.log('err:', err); }
+            try { app.versions.lodash = _.VERSION; } catch (err) { console.log('err:', err); }
+            try { app.versions.mousewheel = $.event.special.mousewheel.version; } catch (err) { console.log('err:', err); }
+            try { app.versions.JSONSafeStringify = app.JSONSafeStringify.version; } catch (err) { console.log('err:', err); }
+            try { app.versions.lzString = app.lzString.version; } catch (err) { console.log('err:', err); }
+            try { app.versions.DataTable = jQuery.fn.DataTable.version; } catch (err) { console.log('err:', err); }
 
-                if (app.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
-                    app.versions.os['perl-Modules'] = JSON.parse(app.versions.os['perl-Modules']);
-                }
-                if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
-                    app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
-                }
-                if (app.versions.os['tcl-Modules'].charAt(0) === '{') { // if is json
-                    app.versions.os['tcl-Modules'] = JSON.parse(app.versions.os['tcl-Modules']);
-                }
-                if (app.versions.os['expect-Modules'].charAt(0) === '{') { // if is json
-                    app.versions.os['expect-Modules'] = JSON.parse(app.versions.os['expect-Modules']);
-                }
-                if (app.versions.os['node-Modules'].charAt(0) === '{') { // if is json
-                    app.versions.os['node-Modules'] = JSON.parse(app.versions.os['node-Modules']);
-                }
-                if ($app.debug) console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
-                ultiflow.versions = app.versions;
-                //ultiflow.app = app;
-                //window.$app.config = Object.assign(window.$app.config, app.versions.os.config);
-                return app;
-            }, 10);
+            try { app.versions.os['perl-Modules'] = app.versions.os['perl-Modules'] || ''; } catch (err) { console.log('err:', err); }
+            try { app.versions.os['python-Modules'] = app.versions.os['python-Modules'] || ''; } catch (err) { console.log('err:', err); }
+            try { app.versions.os['tcl-Modules'] = app.versions.os['tcl-Modules'] || ''; } catch (err) { console.log('err:', err); }
+            try { app.versions.os['expect-Modules'] = app.versions.os['expect-Modules'] || ''; } catch (err) { console.log('err:', err); }
+            try { app.versions.os['node-Modules'] = app.versions.os['node-Modules'] || ''; } catch (err) { console.log('err:', err); }
+
+            if (app.versions.os['perl-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['perl-Modules'] = JSON.parse(app.versions.os['perl-Modules']);
+            }
+            if (app.versions.os['python-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['python-Modules'] = JSON.parse(app.versions.os['python-Modules']);
+            }
+            if (app.versions.os['tcl-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['tcl-Modules'] = JSON.parse(app.versions.os['tcl-Modules']);
+            }
+            if (app.versions.os['expect-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['expect-Modules'] = JSON.parse(app.versions.os['expect-Modules']);
+            }
+            if (app.versions.os['node-Modules'].charAt(0) === '{') { // if is json
+                app.versions.os['node-Modules'] = JSON.parse(app.versions.os['node-Modules']);
+            }
+            if ($app.debug) console.log('@library/ultiflow: app.ultiflow.versions:', app.versions);
+            ultiflow.versions = app.versions;
+            //ultiflow.app = app;
+            //window.$app.config = Object.assign(window.$app.config, app.versions.os.config);
+            return app;
         });
     };
-    ultiflow.getAppVersions();
+    setTimeout(() => { ultiflow.getAppVersions(); }, 10);
 
     ultiflow.getModulesInfos = function(cb) {
         var _self = this;
