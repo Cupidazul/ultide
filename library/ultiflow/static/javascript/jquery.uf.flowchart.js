@@ -84,6 +84,7 @@ define([
                 increment: 0.5,
                 linearZoom: true,
                 isSVG: true,
+                animate: true,
                 //$zoomIn: $(".zoom-in"),
                 //$zoomOut: $(".zoom-out"),
                 //$zoomRange: $(".zoom-range"),
@@ -110,10 +111,7 @@ define([
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
-                $flowchart.panzoom('zoom', self.currentZoomRatio, {
-                    animate: false,
-                    focal: evt
-                });
+                $flowchart.panzoom('zoom', self.currentZoomRatio, { animate: true, focal: evt });
                 $(".zoom-range").val(self.currentZoomRatio);
             });
 
@@ -123,11 +121,8 @@ define([
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
-                $flowchart.panzoom('zoom', self.currentZoomRatio, {
-                    animate: false,
-                    focal: evt
-                });
-                self.centerView();
+                $flowchart.panzoom('zoom', self.currentZoomRatio, { animate: true, focal: evt });
+                //self.centerView();
                 $(".zoom-range").val(self.currentZoomRatio);
             });
 
@@ -137,11 +132,8 @@ define([
                 self.currentZoom = Math.max(0, Math.min(self.possibleZooms.length - 1, (self.currentZoom + (zoomInOut * 2 - 1))));
                 self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                 $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
-                $flowchart.panzoom('zoom', self.currentZoomRatio, {
-                    animate: false,
-                    focal: evt
-                });
-                self.centerView();
+                $flowchart.panzoom('zoom', self.currentZoomRatio, { animate: true, focal: evt });
+                //self.centerView();
                 $(".zoom-range").val(self.currentZoomRatio);
             });
 
@@ -152,14 +144,10 @@ define([
                 if (delta !== -1 && self.currentZoom !== delta) {
                     self.currentZoom = delta;
                     self.currentZoomRatio = self.possibleZooms[self.currentZoom];
-                    $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
-                    /*$flowchart.panzoom('zoom', self.currentZoomRatio, {
-                        animate: false,
-                        focal: evt
-                    });*/
+                    $flowchart.panzoom('zoom', self.currentZoomRatio, { animate: true, focal: evt });
                     $app.ultiflow.ufPanzoom.zoom(self.currentZoomRatio);
                 }
-                self.centerView();
+                //self.centerView();
                 self._refreshMiniViewPosition();
             });
 
@@ -171,11 +159,7 @@ define([
                     self.currentZoom = delta;
                     self.currentZoomRatio = self.possibleZooms[self.currentZoom];
                     $flowchart.flowchart('setPositionRatio', self.currentZoomRatio);
-                    /*$flowchart.panzoom('zoom', self.currentZoomRatio, {
-                        animate: false,
-                        focal: evt
-                    });*/
-                    $app.ultiflow.ufPanzoom.zoom(self.currentZoomRatio);
+                    $flowchart.panzoom('zoom', self.currentZoomRatio, { animate: true, focal: evt });
                     $(".zoom-range").val(self.currentZoomRatio);
                 }
                 self.centerView();
