@@ -1555,14 +1555,20 @@ def explodeVARS(val):
         try:
             val = pystacheRender(val)
             for k1 in val:
-                v1 = val[k1]
+                try:
+                    v1 = explodeVARS(val[k1])
+                except:
+                    v1 = val[k1]
                 setVAR(k1,v1)
         except:
             uflog.log(logging.INFO, "@explodeVARS: json1.pystacheRender failed!")
             try:
                 val = json.loads(val)
                 for k1 in val:
-                    v1 = val[k1]
+                    try:
+                        v1 = explodeVARS(val[k1])
+                    except:
+                        v1 = val[k1]
                     setVAR(k1,v1)
             except:
                 uflog.log(logging.INFO, "@explodeVARS: json1.loads failed!")
