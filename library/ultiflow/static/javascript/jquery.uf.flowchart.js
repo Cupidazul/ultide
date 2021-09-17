@@ -508,7 +508,7 @@ define([
                 } else {
                     let iParameter = currentProcessData.process.parameters;
                     if (typeof iParameter[operatorId] == 'undefined') {
-                        let operatorProperties = this.getOperatorInfos(iOperator[operatorId].type);
+                        let operatorProperties = $app.ultiflow.getOperatorInfos(iOperator[operatorId].type);
                         currentProcessData.process.parameters[operatorId] = {};
                         let operatorParameters = operatorProperties.parameters;
                         let propKeys = Object.keys(operatorParameters);
