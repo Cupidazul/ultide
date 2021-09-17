@@ -931,7 +931,7 @@ def on_execWorkflowProcess(data, response, session_data):
         # Reprocess pystache template for new variables that may appear during run...
         tmpObj = {}
         try:
-            tmpObj = pystacheRender(finalProcessList[procRef[procID]])
+            tmpObj = pystacheRender(json.dumps(finalProcessList[procRef[procID]]))
         except:
             tmpObj = finalProcessList[procRef[procID]]
 
