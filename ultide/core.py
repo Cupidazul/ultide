@@ -929,9 +929,16 @@ def on_execWorkflowProcess(data, response, session_data):
         #WfProcess = WfProcessList[procID]
         
         # Reprocess pystache template for new variables that may appear during run...
-        WfProcess = WfProcessList[procID] = pystacheRender(finalProcessList[procRef[procID]])
+        tmpObj = {}
+        try:
+            tmpObj = pystacheRender(finalProcessList[procRef[procID]])
+        except:
+            tmpObj = finalProcessList[procRef[procID]]
 
-        #pprint(('WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
+        if (type(tmpObj) is not dict): tmpObj = finalProcessList[procRef[procID]]
+        WfProcess = WfProcessList[procID] = tmpObj
+
+        if (DEBUG): pprint(('@on_execWorkflowProcess: WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
         #print('Operator.type:',WfProcess['o']['type'])
         oType = WfProcess['o']['type']
 
