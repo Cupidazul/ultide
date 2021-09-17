@@ -1525,7 +1525,11 @@ def explodeVARS(val):
                     setVAR(k1,v1)
             except:
                 uflog.log(logging.INFO, "@explodeVARS: base64.json.loads failed!")
-                val = base64.decode(val)
+                try:
+                    val = base64.decode(val)
+                except:
+                    uflog.log(logging.INFO, "@explodeVARS: base64.decode failed! " + str(val))
+                    None
 
     if (re.match(r"^json", val)):
         val = re.sub('^json:', '', val)
