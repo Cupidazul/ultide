@@ -1517,7 +1517,7 @@ def explodeVARS(val):
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
-                    #val[k1] = v1
+                    val[k1] = v1
                 except:
                     v1 = val[k1]
                 setVAR(k1,v1)
@@ -1529,7 +1529,7 @@ def explodeVARS(val):
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
-                        #val[k1] = v1
+                        val[k1] = v1
                     except:
                         v1 = val[k1]
                     setVAR(k1,v1)
@@ -1544,7 +1544,7 @@ def explodeVARS(val):
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
-                    #val[k1] = v1
+                    val[k1] = v1
                 except:
                     v1 = val[k1]
                 setVAR(k1,v1)
@@ -1556,7 +1556,7 @@ def explodeVARS(val):
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
-                        #val[k1] = v1
+                        val[k1] = v1
                     except:
                         v1 = val[k1]
                     setVAR(k1,v1)
@@ -1571,7 +1571,7 @@ def explodeVARS(val):
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
-                    #val[k1] = v1
+                    val[k1] = v1
                 except:
                     v1 = val[k1]
                 setVAR(k1,v1)
@@ -1583,7 +1583,7 @@ def explodeVARS(val):
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
-                        #val[k1] = v1
+                        val[k1] = v1
                     except:
                         v1 = val[k1]
                     setVAR(k1,v1)
