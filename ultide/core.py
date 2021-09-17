@@ -1502,7 +1502,7 @@ def escapeOnce(val):
         else                         : return val;               # escape not needed!
 
 def explodeVARS(val):
-    uflog.log(logging.INFO, "@explodeVARS:" + pformat(val))
+    uflog.log(logging.INFO, "@explodeVARS:" + str(val))
     if (re.match(r"^base64:", val)):
         val = re.sub('^base64:', '', val)
         try:
@@ -1578,7 +1578,7 @@ def getVAR(key, dont_escape=False):
 
 def setVAR(key, val):
     global VARS
-    if (DEBUG): uflog.log(logging.INFO, "@setVAR:" + pformat(key, val))
+    if (DEBUG): uflog.log(logging.INFO, "@setVAR: key:" + str(key) + " val:" + str(val))
     if (key):
         _retObj = {}
         _retKey = {}
