@@ -895,10 +895,13 @@ def renderVars():
     global RAWOUTPUT, OUTPUT, VARS
     return { 'config': mod_2_dict(config), 'VARS': VARS[VARS['uuid']], 'RAWOUTPUT': RAWOUTPUT, 'OUTPUT': OUTPUT, 'globals': globals(), 'locals': locals() }
 
-def pystacheRender(template):
+def pystacheRender(template, jsonloads=True):
+    global RAWOUTPUT, OUTPUT, VARS
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
-    retObj = template
-    return json.loads( pystache.render( template, globals(), **renderVars() ) )
+    if (jsonloads):
+        return json.loads( pystache.render( template, globals(), **renderVars() ) )
+    else:
+        return             pystache.render( template, globals(), **renderVars() )
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
@@ -930,16 +933,16 @@ def on_execWorkflowProcess(data, response, session_data):
         
         WfProcess = WfProcessList[procID] = json.loads(finalProcessList[procRef[procID]])
 
-        if (DEBUG): pprint(('@on_execWorkflowProcess: WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
-        #print('Operator.type:',WfProcess['o']['type'])
-        oType = WfProcess['o']['type']
-
-        # Reprocess pystache template for new variables that may appear during run...
+        # Foreach Process Parameter: Reprocess pystache template for new variables that may appear during run...
         for param in WfProcess['p']:
             try:
-                WfProcess['p'][param] = pystacheRender(WfProcess['p'][param])
+                WfProcess['p'][param] = pystacheRender(WfProcess['p'][param], False)
             except:
-                pprint(('@on_execWorkflowProcess: FAILED: pystacheRender['+param+']:', type(WfProcess['p'][param]), WfProcess['p'][param], dir(WfProcess['p'][param])))
+                None
+
+        #pprint(('WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
+        #print('Operator.type:',WfProcess['o']['type'])
+        oType = WfProcess['o']['type']
 
         if   re.match(r".*::load_file", oType):
 
