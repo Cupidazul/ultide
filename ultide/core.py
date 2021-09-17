@@ -897,13 +897,7 @@ def renderVars():
 
 def pystacheRender(template):
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
-    try:
-        return json.loads( pystache.render( template, globals(), **renderVars() ) )
-    except:
-        try:
-            return pystache.render( template, globals(), **renderVars() ) 
-        except:
-            return template
+    return json.loads( pystache.render( template, globals(), **renderVars() ) )
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
@@ -1500,26 +1494,11 @@ def escapeOnce(val):
         else                         : return val;               # escape not needed!
 
 def explodeVARS(val):
-    if (re.match(r"^base64:", val)):
-        try:
-            val = pystacheRender( base64.b64decode( re.sub('^base64:', '', val) ) )
-        except:
-            None
-        try:
-            val = json.loads(val)
-            for k1 in val:
-                v1 = val[k1]
-                setVAR(k1,v1)
-        except:
-            None
-    if (re.match(r"^\{", val) or re.match(r"^json:", val)):
-        try:
-            val = pystacheRender( re.sub('^json:', '', val) )
-            for k1 in val:
-                v1 = val[k1]
-                setVAR(k1,v1)
-        except:
-            None
+    if (re.match(r"^\{", val)):
+        val = json.loads(val)
+        for k1 in val:
+            v1 = val[k1]
+            setVAR(k1,v1)
     return val
 
 def getVAR(key, dont_escape=False):
@@ -1527,16 +1506,16 @@ def getVAR(key, dont_escape=False):
     val = ''
     if (key):
         try:  
-            if (VARS[VARS['uuid']][key])            : val = explodeVARS(VARS[VARS['uuid']][key])
+            if (VARS[VARS['uuid']][key])            : val = VARS[VARS['uuid']][key]
         except: None
         try:  
-            if (VARS[VARS['uuid']][uri_escape(key)]): val = explodeVARS(VARS[VARS['uuid']][uri_escape(key)] )
+            if (VARS[VARS['uuid']][uri_escape(key)]): val = VARS[VARS['uuid']][uri_escape(key)] 
         except: None
         try: 
-            if (val=='' and VARS[VARS['uuid']]['root.'+key]): val = explodeVARS(VARS[VARS['uuid']]['root.'+key])
+            if (val=='' and VARS[VARS['uuid']]['root.'+key]): val = VARS[VARS['uuid']]['root.'+key]
         except: None
         try: 
-            if (val=='' and VARS[VARS['uuid']]['root.'+uri_escape(key)]): val = explodeVARS(VARS[VARS['uuid']]['root.'+uri_escape(key)])
+            if (val=='' and VARS[VARS['uuid']]['root.'+uri_escape(key)]): val = VARS[VARS['uuid']]['root.'+uri_escape(key)] 
         except: None
     return unescapeOnce(val) if dont_escape else val
 
@@ -1546,7 +1525,7 @@ def setVAR(key, val):
         _retObj = {}
         _retKey = {}
         _retKey = escapeOnce(key)
-        _retObj = VARS[VARS['uuid']][_retKey] = explodeVARS(val); # we could simply: unescapeOnce($val)
+        _retObj = VARS[VARS['uuid']][_retKey] = val; # we could simply: unescapeOnce($val)
         return ( _retObj, _retKey )
 
 def readVARS(obj = None,root = ''):
