@@ -897,7 +897,13 @@ def renderVars():
 
 def pystacheRender(template):
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
-    return json.loads( pystache.render( template, globals(), **renderVars() ) )
+    try:
+        return json.loads( pystache.render( template, globals(), **renderVars() ) )
+    except:
+        try:
+            return pystache.render( template, globals(), **renderVars() ) 
+        except:
+            return template
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
@@ -1494,11 +1500,26 @@ def escapeOnce(val):
         else                         : return val;               # escape not needed!
 
 def explodeVARS(val):
-    if (re.match(r"^\{", val)):
-        val = json.loads(val)
-        for k1 in val:
-            v1 = val[k1]
-            setVAR(k1,v1)
+    if (re.match(r"^base64:", val)):
+        try:
+            val = pystacheRender( base64.b64decode(val) )
+        except:
+            None
+        try:
+            val = json.loads(val)
+            for k1 in val:
+                v1 = val[k1]
+                setVAR(k1,v1)
+        except:
+            None
+    if (re.match(r"^\{", val) or re.match(r"^json:", val)):
+        try:
+            val = pystacheRender( val )
+            for k1 in val:
+                v1 = val[k1]
+                setVAR(k1,v1)
+        except:
+            None
     return val
 
 def getVAR(key, dont_escape=False):

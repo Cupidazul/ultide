@@ -623,7 +623,7 @@ define([
                             var Title = 'Show CodeRun Info Results';
                             var CodeStr = app.JSONSafeStringify(JSON.parse(LogElm.msg), null, 4);
                             var str = `` +
-                                `   <div class="modal fade" id="addCodeInfoWksModal" tabindex="-1" role="dialog" aria-labelledby="myCodeModalLabel">` +
+                                `   <div class="modal fade" id="addLogsListWksModal" tabindex="-1" role="dialog" aria-labelledby="myCodeModalLabel">` +
                                 `       <div class="modal-dialog" role="document">` +
                                 `           <div class="modal-content">` +
                                 `               <div class="modal-header">` +

@@ -79,6 +79,8 @@ define([], function() {
                 if (!$this.hasClass('disabled')) {
                     $input.val($app.ace._AceEditor.getValue());
                     $modal.modal('hide');
+                    //$app.triggerEvent('ultiflow::process_change_detected');
+                    $app.ultiflow.flowchart.changeDetected();
                 }
             });
 

@@ -1198,7 +1198,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         var Title = 'Show CodeRun Info Results';
         var CodeStr = app.JSONSafeStringify($app.ultiflow.CodeRes[opID], null, 4);
         var str = `
-<div class="modal fade" id="addCodeInfoWksModal" tabindex="-1" role="dialog" aria-labelledby="myCodeModalLabel">
+<div class="modal fade" id="addCodeRunWksModal" tabindex="-1" role="dialog" aria-labelledby="myCodeModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
