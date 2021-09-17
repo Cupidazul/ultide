@@ -1508,14 +1508,20 @@ def explodeVARS(val):
         try:
             val = pystacheRender(base64.decode(val))
             for k1 in val:
-                v1 = val[k1]
+                try:
+                    v1 = explodeVARS(val[k1])
+                except:
+                    v1 = val[k1]
                 setVAR(k1,v1)
         except:
             uflog.log(logging.INFO, "@explodeVARS: base64.pystacheRender failed!")
             try:
                 val = json.loads(base64.decode(val))
                 for k1 in val:
-                    v1 = val[k1]
+                    try:
+                        v1 = explodeVARS(val[k1])
+                    except:
+                        v1 = val[k1]
                     setVAR(k1,v1)
             except:
                 uflog.log(logging.INFO, "@explodeVARS: base64.json.loads failed!")
@@ -1526,14 +1532,20 @@ def explodeVARS(val):
         try:
             val = pystacheRender(val)
             for k1 in val:
-                v1 = val[k1]
+                try:
+                    v1 = explodeVARS(val[k1])
+                except:
+                    v1 = val[k1]
                 setVAR(k1,v1)
         except:
             uflog.log(logging.INFO, "@explodeVARS: json0.pystacheRender failed!")
             try:
                 val = json.loads(val)
                 for k1 in val:
-                    v1 = val[k1]
+                    try:
+                        v1 = explodeVARS(val[k1])
+                    except:
+                        v1 = val[k1]
                     setVAR(k1,v1)
             except:
                 uflog.log(logging.INFO, "@explodeVARS: json0.loads failed!")
@@ -1583,7 +1595,7 @@ def setVAR(key, val):
         _retObj = {}
         _retKey = {}
         _retKey = escapeOnce(key)
-        _retObj = VARS[VARS['uuid']][_retKey] = explodeVARS(val); # we could simply: unescapeOnce($val)
+        _retObj = VARS[VARS['uuid']][_retKey] = val; # we could simply: unescapeOnce($val)
         return ( _retObj, _retKey )
 
 def readVARS(obj = None,root = ''):
