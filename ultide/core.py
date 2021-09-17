@@ -898,14 +898,7 @@ def renderVars():
 def pystacheRender(template):
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
     retObj = template
-    try:
-        retObj = json.loads( pystache.render( template, globals(), **renderVars() ) )
-    except:
-        try:
-            retObj = pystache.render( template, globals(), **renderVars() )
-        except:
-            None
-    return retObj
+    return json.loads( pystache.render( template, globals(), **renderVars() ) )
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
