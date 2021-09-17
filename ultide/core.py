@@ -1502,6 +1502,7 @@ def escapeOnce(val):
         else                         : return val;               # escape not needed!
 
 def explodeVARS(val):
+    uflog.log(logging.INFO, "@explodeVARS:" + pformat(val))
     if (re.match(r"^base64:", val)):
         val = re.sub('^base64:', '', val)
         try:
@@ -1510,12 +1511,14 @@ def explodeVARS(val):
                 v1 = val[k1]
                 setVAR(k1,v1)
         except:
+            uflog.log(logging.INFO, "@explodeVARS: base64.pystacheRender failed!")
             try:
                 val = json.loads(base64.decode(val))
                 for k1 in val:
                     v1 = val[k1]
                     setVAR(k1,v1)
             except:
+                uflog.log(logging.INFO, "@explodeVARS: base64.json.loads failed!")
                 val = base64.decode(val)
 
     if (re.match(r"^json", val)):
@@ -1526,12 +1529,14 @@ def explodeVARS(val):
                 v1 = val[k1]
                 setVAR(k1,v1)
         except:
+            uflog.log(logging.INFO, "@explodeVARS: json0.pystacheRender failed!")
             try:
                 val = json.loads(val)
                 for k1 in val:
                     v1 = val[k1]
                     setVAR(k1,v1)
             except:
+                uflog.log(logging.INFO, "@explodeVARS: json0.loads failed!")
                 None
 
     if (re.match(r"^\{", val)):
@@ -1541,12 +1546,14 @@ def explodeVARS(val):
                 v1 = val[k1]
                 setVAR(k1,v1)
         except:
+            uflog.log(logging.INFO, "@explodeVARS: json1.pystacheRender failed!")
             try:
                 val = json.loads(val)
                 for k1 in val:
                     v1 = val[k1]
                     setVAR(k1,v1)
             except:
+                uflog.log(logging.INFO, "@explodeVARS: json1.loads failed!")
                 None
 
     return val
@@ -1571,7 +1578,7 @@ def getVAR(key, dont_escape=False):
 
 def setVAR(key, val):
     global VARS
-    if (DEBUG): pprint(("@setVAR:",(key, val)))
+    if (DEBUG): uflog.log(logging.INFO, "@setVAR:" + pformat(key, val))
     if (key):
         _retObj = {}
         _retKey = {}
