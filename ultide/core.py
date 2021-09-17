@@ -1508,7 +1508,7 @@ def explodeVARS(val):
         try:
             val = json.loads(val)
             for k1 in val:
-                v1 = explodeVARS(val[k1])
+                v1 = val[k1]
                 setVAR(k1,v1)
         except:
             None
@@ -1516,7 +1516,7 @@ def explodeVARS(val):
         try:
             val = pystacheRender( val )
             for k1 in val:
-                v1 = explodeVARS(val[k1])
+                v1 = val[k1]
                 setVAR(k1,v1)
         except:
             None
@@ -1546,7 +1546,7 @@ def setVAR(key, val):
         _retObj = {}
         _retKey = {}
         _retKey = escapeOnce(key)
-        _retObj = VARS[VARS['uuid']][_retKey] = val; # we could simply: unescapeOnce($val)
+        _retObj = VARS[VARS['uuid']][_retKey] = explodeVARS(val); # we could simply: unescapeOnce($val)
         return ( _retObj, _retKey )
 
 def readVARS(obj = None,root = ''):
