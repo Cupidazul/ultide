@@ -1506,7 +1506,14 @@ def explodeVARS(val):
     if (re.match(r"^base64:", val)):
         val = re.sub('^base64:', '', val)
         try:
-            val = pystacheRender(base64.b64decode(val).decode("utf-8"))
+            val1 = str(base64.b64decode(val).decode("utf-8"))
+            val = val1
+        except:
+            uflog.log(logging.INFO, "@explodeVARS: base64.b64decode failed! " + str(val))
+            None
+        try:
+            val1 = pystacheRender(val)
+            val = val1
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
@@ -1516,7 +1523,8 @@ def explodeVARS(val):
         except:
             uflog.log(logging.INFO, "@explodeVARS: base64.pystacheRender failed!")
             try:
-                val = json.loads(base64.b64decode(val).decode("utf-8"))
+                val1 = json.loads(val)
+                val = val1
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
@@ -1525,16 +1533,12 @@ def explodeVARS(val):
                     setVAR(k1,v1)
             except:
                 uflog.log(logging.INFO, "@explodeVARS: base64.json.loads failed!")
-                try:
-                    val = base64.b64decode(val).decode("utf-8")
-                except:
-                    uflog.log(logging.INFO, "@explodeVARS: base64.b64decode failed! " + str(val))
-                    None
 
     if (re.match(r"^json", val)):
         val = re.sub('^json:', '', val)
         try:
-            val = pystacheRender(val)
+            val1 = pystacheRender(val)
+            val = val1
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
@@ -1544,7 +1548,8 @@ def explodeVARS(val):
         except:
             uflog.log(logging.INFO, "@explodeVARS: json0.pystacheRender failed!")
             try:
-                val = json.loads(val)
+                val1 = json.loads(val)
+                val = val1
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
@@ -1557,7 +1562,8 @@ def explodeVARS(val):
 
     if (re.match(r"^\{", val)):
         try:
-            val = pystacheRender(val)
+            val1 = pystacheRender(val)
+            val = val1
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
@@ -1567,7 +1573,8 @@ def explodeVARS(val):
         except:
             uflog.log(logging.INFO, "@explodeVARS: json1.pystacheRender failed!")
             try:
-                val = json.loads(val)
+                val1 = json.loads(val)
+                val = val1
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
