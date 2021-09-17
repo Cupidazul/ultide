@@ -928,20 +928,18 @@ def on_execWorkflowProcess(data, response, session_data):
         if (not response.__contains__(procID)): response[procID] = {}   # Polulate response[#procID: 0...99] = store results of scripts
         #WfProcess = WfProcessList[procID]
         
-        # Reprocess pystache template for new variables that may appear during run...
-        tmpObj = {}
-        try:
-            tmpObj = pystacheRender(finalProcessList[procRef[procID]])
-        except:
-            tmpObj = finalProcessList[procRef[procID]]
-            pprint(('@on_execWorkflowProcess: ERROR:FAILED: pystacheRender: WfProcess:', type(tmpObj), tmpObj, dir(tmpObj)))
-
-        if (type(tmpObj) is str): tmpObj = json.loads(finalProcessList[procRef[procID]])
-        WfProcess = WfProcessList[procID] = tmpObj
+        WfProcess = WfProcessList[procID] = json.loads(finalProcessList[procRef[procID]])
 
         if (DEBUG): pprint(('@on_execWorkflowProcess: WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
         #print('Operator.type:',WfProcess['o']['type'])
         oType = WfProcess['o']['type']
+
+        # Reprocess pystache template for new variables that may appear during run...
+        for param in WfProcess['p']:
+            try:
+                WfProcess['p'][param] = pystacheRender(WfProcess['p'][param])
+            except:
+                pprint(('@on_execWorkflowProcess: FAILED: pystacheRender['+param+']:', type(WfProcess['p'][param]), WfProcess['p'][param], dir(WfProcess['p'][param])))
 
         if   re.match(r".*::load_file", oType):
 
