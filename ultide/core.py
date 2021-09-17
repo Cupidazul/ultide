@@ -934,8 +934,9 @@ def on_execWorkflowProcess(data, response, session_data):
             tmpObj = pystacheRender(json.dumps(finalProcessList[procRef[procID]]))
         except:
             tmpObj = finalProcessList[procRef[procID]]
+            pprint(('@on_execWorkflowProcess: ERROR:FAILED: pystacheRender: WfProcess:', type(tmpObj), tmpObj, dir(tmpObj)))
 
-        if (type(tmpObj) is not dict): tmpObj = finalProcessList[procRef[procID]]
+        if (type(tmpObj) is str): tmpObj = json.loads(finalProcessList[procRef[procID]])
         WfProcess = WfProcessList[procID] = tmpObj
 
         if (DEBUG): pprint(('@on_execWorkflowProcess: WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
