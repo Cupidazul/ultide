@@ -1508,7 +1508,7 @@ def explodeVARS(val):
         try:
             val = json.loads(val)
             for k1 in val:
-                v1 = val[k1]
+                v1 = explodeVARS(val[k1])
                 setVAR(k1,v1)
         except:
             None
@@ -1516,7 +1516,7 @@ def explodeVARS(val):
         try:
             val = pystacheRender( val )
             for k1 in val:
-                v1 = val[k1]
+                v1 = explodeVARS(val[k1])
                 setVAR(k1,v1)
         except:
             None
