@@ -1571,6 +1571,7 @@ def getVAR(key, dont_escape=False):
 
 def setVAR(key, val):
     global VARS
+    if (DEBUG): pprint(("@setVAR:",(key, val)))
     if (key):
         _retObj = {}
         _retKey = {}
