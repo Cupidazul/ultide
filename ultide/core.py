@@ -922,7 +922,7 @@ def on_execWorkflowProcess(data, response, session_data):
 
     procIDs = []
     for jsonWfProcess in finalProcessList:
-        WfProcess = WfProcessList[WfProcess['id']] = pystacheRender(jsonWfProcess)
+        WfProcess = WfProcessList[WfProcess['id']] = json.loads(jsonWfProcess) # here: jsonload is safer than: pystacheRender(jsonWfProcess), lets limit pystacheRender only for process.parameters
         procIDs.append(WfProcess['id']) # Honor ProcessID Original Array sequence
         procRef[WfProcess['id']] = jID
         jID += 1
@@ -938,7 +938,7 @@ def on_execWorkflowProcess(data, response, session_data):
             try:
                 WfProcess['p'][param] = pystacheRender(WfProcess['p'][param], False)
             except:
-                None
+                if (DEBUG): pprint(('@on_execWorkflowProcess: FAILED: pystacheRender ProcessParameter['+param+']:', type(WfProcess), WfProcess, dir(WfProcess) ))
 
         #pprint(('WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
         #print('Operator.type:',WfProcess['o']['type'])
@@ -1504,14 +1504,14 @@ def escapeOnce(val):
         else                         : return val;               # escape not needed!
 
 def explodeVARS(val):
-    uflog.log(logging.INFO, "@explodeVARS:" + str(val))
+    if (DEBUG): uflog.log(logging.INFO, "@explodeVARS:" + str(val))
     if (re.match(r"^base64:", val)):
         val = re.sub('^base64:', '', val)
         try:
             val1 = str(base64.b64decode(val).decode("utf-8"))
             val = val1
         except:
-            uflog.log(logging.INFO, "@explodeVARS: base64.b64decode failed! " + str(val))
+            if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: base64.b64decode failed! " + str(val))
             None
         try:
             val1 = pystacheRender(val)
@@ -1524,7 +1524,7 @@ def explodeVARS(val):
                     v1 = val[k1]
                 setVAR(k1,v1)
         except:
-            uflog.log(logging.INFO, "@explodeVARS: base64.pystacheRender failed!")
+            if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: base64.pystacheRender failed! " + str(val))
             try:
                 val1 = json.loads(val)
                 val = val1
@@ -1536,7 +1536,7 @@ def explodeVARS(val):
                         v1 = val[k1]
                     setVAR(k1,v1)
             except:
-                uflog.log(logging.INFO, "@explodeVARS: base64.json.loads failed!")
+                if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: base64.json.loads failed! " + str(val))
 
     if (re.match(r"^json", val)):
         val = re.sub('^json:', '', val)
@@ -1551,7 +1551,7 @@ def explodeVARS(val):
                     v1 = val[k1]
                 setVAR(k1,v1)
         except:
-            uflog.log(logging.INFO, "@explodeVARS: json0.pystacheRender failed!")
+            if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: json0.pystacheRender failed! " + str(val))
             try:
                 val1 = json.loads(val)
                 val = val1
@@ -1563,8 +1563,7 @@ def explodeVARS(val):
                         v1 = val[k1]
                     setVAR(k1,v1)
             except:
-                uflog.log(logging.INFO, "@explodeVARS: json0.loads failed!")
-                None
+                if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: json0.loads failed! " + str(val))
 
     if (re.match(r"^\{", val)):
         try:
@@ -1578,7 +1577,7 @@ def explodeVARS(val):
                     v1 = val[k1]
                 setVAR(k1,v1)
         except:
-            uflog.log(logging.INFO, "@explodeVARS: json1.pystacheRender failed!")
+            if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: json1.pystacheRender failed! " + str(val))
             try:
                 val1 = json.loads(val)
                 val = val1
@@ -1590,8 +1589,7 @@ def explodeVARS(val):
                         v1 = val[k1]
                     setVAR(k1,v1)
             except:
-                uflog.log(logging.INFO, "@explodeVARS: json1.loads failed!")
-                None
+                if (DEBUG): uflog.log(logging.ERROR, "@explodeVARS: json1.loads failed! " + str(val))
 
     return val
 
