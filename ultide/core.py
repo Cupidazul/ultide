@@ -931,7 +931,7 @@ def on_execWorkflowProcess(data, response, session_data):
         # Reprocess pystache template for new variables that may appear during run...
         tmpObj = {}
         try:
-            tmpObj = pystacheRender(json.dumps(finalProcessList[procRef[procID]]))
+            tmpObj = pystacheRender(finalProcessList[procRef[procID]])
         except:
             tmpObj = finalProcessList[procRef[procID]]
             pprint(('@on_execWorkflowProcess: ERROR:FAILED: pystacheRender: WfProcess:', type(tmpObj), tmpObj, dir(tmpObj)))
