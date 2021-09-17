@@ -1502,7 +1502,7 @@ def escapeOnce(val):
 def explodeVARS(val):
     if (re.match(r"^base64:", val)):
         try:
-            val = pystacheRender( base64.b64decode( re.sub('^base64:', '', val)) )
+            val = pystacheRender( base64.b64decode( re.sub('^base64:', '', val) ) )
         except:
             None
         try:
@@ -1514,7 +1514,7 @@ def explodeVARS(val):
             None
     if (re.match(r"^\{", val) or re.match(r"^json:", val)):
         try:
-            val = pystacheRender( re.sub('^json:', '', val)) )
+            val = pystacheRender( re.sub('^json:', '', val) )
             for k1 in val:
                 v1 = val[k1]
                 setVAR(k1,v1)
