@@ -1527,16 +1527,16 @@ def getVAR(key, dont_escape=False):
     val = ''
     if (key):
         try:  
-            if (VARS[VARS['uuid']][key])            : val = VARS[VARS['uuid']][key]
+            if (VARS[VARS['uuid']][key])            : val = explodeVARS(VARS[VARS['uuid']][key])
         except: None
         try:  
-            if (VARS[VARS['uuid']][uri_escape(key)]): val = VARS[VARS['uuid']][uri_escape(key)] 
+            if (VARS[VARS['uuid']][uri_escape(key)]): val = explodeVARS(VARS[VARS['uuid']][uri_escape(key)] )
         except: None
         try: 
-            if (val=='' and VARS[VARS['uuid']]['root.'+key]): val = VARS[VARS['uuid']]['root.'+key]
+            if (val=='' and VARS[VARS['uuid']]['root.'+key]): val = explodeVARS(VARS[VARS['uuid']]['root.'+key])
         except: None
         try: 
-            if (val=='' and VARS[VARS['uuid']]['root.'+uri_escape(key)]): val = VARS[VARS['uuid']]['root.'+uri_escape(key)] 
+            if (val=='' and VARS[VARS['uuid']]['root.'+uri_escape(key)]): val = explodeVARS(VARS[VARS['uuid']]['root.'+uri_escape(key)])
         except: None
     return unescapeOnce(val) if dont_escape else val
 
