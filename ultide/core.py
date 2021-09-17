@@ -934,16 +934,13 @@ def on_execWorkflowProcess(data, response, session_data):
     for procID in procIDs:
         if (not response.__contains__(procID)): response[procID] = {}   # Polulate response[#procID: 0...99] = store results of scripts
         #WfProcess = WfProcessList[procID]
-
-        #pprint(('WfProcess:', type(WfProcessList[procID]), WfProcessList[procID], dir(WfProcessList[procID])))
-        #print('Operator.type:',WfProcessList[procID]['o']['type'])
-        try:
-            oType = WfProcessList[procID]['o']['type']
-        except:
-            pprint(('WfProcess:', type(WfProcessList[procID]), WfProcessList[procID], dir(WfProcessList[procID])))
-
+        
         # Reprocess pystache template for new variables that may appear during run...
         WfProcess = WfProcessList[procID] = pystacheRender(finalProcessList[procRef[procID]])
+
+        #pprint(('WfProcess:', type(WfProcess), WfProcess, dir(WfProcess)))
+        #print('Operator.type:',WfProcess['o']['type'])
+        oType = WfProcess['o']['type']
 
         if   re.match(r".*::load_file", oType):
 
@@ -1520,7 +1517,7 @@ def explodeVARS(val):
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
-                    val[k1] = v1
+                    #val[k1] = v1
                 except:
                     v1 = val[k1]
                 setVAR(k1,v1)
@@ -1532,7 +1529,7 @@ def explodeVARS(val):
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
-                        val[k1] = v1
+                        #val[k1] = v1
                     except:
                         v1 = val[k1]
                     setVAR(k1,v1)
@@ -1547,7 +1544,7 @@ def explodeVARS(val):
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
-                    val[k1] = v1
+                    #val[k1] = v1
                 except:
                     v1 = val[k1]
                 setVAR(k1,v1)
@@ -1559,7 +1556,7 @@ def explodeVARS(val):
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
-                        val[k1] = v1
+                        #val[k1] = v1
                     except:
                         v1 = val[k1]
                     setVAR(k1,v1)
@@ -1574,7 +1571,7 @@ def explodeVARS(val):
             for k1 in val:
                 try:
                     v1 = explodeVARS(val[k1])
-                    val[k1] = v1
+                    #val[k1] = v1
                 except:
                     v1 = val[k1]
                 setVAR(k1,v1)
@@ -1586,7 +1583,7 @@ def explodeVARS(val):
                 for k1 in val:
                     try:
                         v1 = explodeVARS(val[k1])
-                        val[k1] = v1
+                        #val[k1] = v1
                     except:
                         v1 = val[k1]
                     setVAR(k1,v1)
