@@ -1495,7 +1495,7 @@ def escapeOnce(val):
 
 def explodeVARS(val):
     if (re.match(r"^\{", val)):
-        val = json.loads(val)
+        val = pystacheRender(val)
         for k1 in val:
             v1 = val[k1]
             setVAR(k1,v1)
