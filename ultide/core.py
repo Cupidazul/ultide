@@ -897,7 +897,15 @@ def renderVars():
 
 def pystacheRender(template):
     true=True;false=False;null=None; # fix:json: true/false/null => True/False/None
-    return json.loads( pystache.render( template, globals(), **renderVars() ) )
+    retObj = template
+    try:
+        retObj = json.loads( pystache.render( template, globals(), **renderVars() ) )
+    except:
+        try:
+            retObj = pystache.render( template, globals(), **renderVars() )
+        except:
+            None
+    return retObj
 
 def on_execWorkflowProcess(data, response, session_data):
     global RAWOUTPUT, OUTPUT, VARS
@@ -1494,11 +1502,53 @@ def escapeOnce(val):
         else                         : return val;               # escape not needed!
 
 def explodeVARS(val):
+    if (re.match(r"^base64:", val)):
+        val = re.sub('^base64:', '', val)
+        try:
+            val = pystacheRender(base64.decode(val))
+            for k1 in val:
+                v1 = val[k1]
+                setVAR(k1,v1)
+        except:
+            try:
+                val = json.loads(base64.decode(val))
+                for k1 in val:
+                    v1 = val[k1]
+                    setVAR(k1,v1)
+            except:
+                val = base64.decode(val)
+
+    if (re.match(r"^json", val)):
+        val = re.sub('^json:', '', val)
+        try:
+            val = pystacheRender(val)
+            for k1 in val:
+                v1 = val[k1]
+                setVAR(k1,v1)
+        except:
+            try:
+                val = json.loads(val)
+                for k1 in val:
+                    v1 = val[k1]
+                    setVAR(k1,v1)
+            except:
+                None
+
     if (re.match(r"^\{", val)):
-        val = pystacheRender(val)
-        for k1 in val:
-            v1 = val[k1]
-            setVAR(k1,v1)
+        try:
+            val = pystacheRender(val)
+            for k1 in val:
+                v1 = val[k1]
+                setVAR(k1,v1)
+        except:
+            try:
+                val = json.loads(val)
+                for k1 in val:
+                    v1 = val[k1]
+                    setVAR(k1,v1)
+            except:
+                None
+
     return val
 
 def getVAR(key, dont_escape=False):
@@ -1525,7 +1575,7 @@ def setVAR(key, val):
         _retObj = {}
         _retKey = {}
         _retKey = escapeOnce(key)
-        _retObj = VARS[VARS['uuid']][_retKey] = val; # we could simply: unescapeOnce($val)
+        _retObj = VARS[VARS['uuid']][_retKey] = explodeVARS(val); # we could simply: unescapeOnce($val)
         return ( _retObj, _retKey )
 
 def readVARS(obj = None,root = ''):
