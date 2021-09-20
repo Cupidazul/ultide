@@ -126,6 +126,10 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
         $app.ultiflow.flowchart._refreshMiniViewContent();*/
         //$app.ultiflow.flowchart.reset();
 
+        // Reset VARS
+        $app.ultiflow.flowchart.VARS = { inputs: [], outputs: [] };
+        $app.ultiflow.flowchart.operatorsPositions = {};
+
         this.setOpenedProcess(processId);
         this.processData = this.getOpenedProcessData();
         app.triggerEvent('ultiflow::process_open', this.processData);
