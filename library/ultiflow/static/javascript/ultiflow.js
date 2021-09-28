@@ -49,6 +49,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     };*/
 
     ultiflow.getAppVersions = function() {
+
         app.sendRequest('get_os_versions', {}, function(response) {
             //alert(response['demo_response']);
 
@@ -93,7 +94,15 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
             return app;
         });
     };
-    setTimeout(() => { ultiflow.getAppVersions(); }, 10);
+
+    // WaitFor: app.data.AppInited
+    let checkExist = setInterval(function() {
+        console.log('$app.data.AppInited:', JSON.stringify($app.data));
+        if (window.$app.data.AppInited) {
+            ultiflow.getAppVersions();
+            clearInterval(checkExist);
+        }
+    }, 700); // check every 700ms
 
     ultiflow.getModulesInfos = function(cb) {
         var _self = this;

@@ -43,7 +43,14 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
             });
 
             this._refresh();
-            setTimeout(() => { this.refreshTrees(); }, 10);
+
+            // WaitFor: app.data.AppInited
+            let checkExist = setInterval(function() {
+                if (window.$app.data.AppInited) {
+                    self.refreshTrees();
+                    clearInterval(checkExist);
+                }
+            }, 700); // check every 700ms
         },
 
         refreshTrees: function() {

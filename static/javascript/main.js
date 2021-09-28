@@ -71,9 +71,12 @@ document.onreadystatechange = function($) {
                     $mainView.main_view('createViewTopBar', 'TopBar', $(`<div class="uf-process-main-infos" style="position: absolute;z-index:-1;"></div>`));
 
                     let addSettingsView = $mainView.main_view('addSettingsView', user);
-                    setTimeout(function() { addSettingsView.show(); }, 1000);
 
-                    app.data.AppInited = true;
+                    setTimeout(async() => {
+                        await addSettingsView.show();
+                        app.data.AppInited = true;
+                    }, 1000);
+
                 }
 
                 setTimeout(function() {
