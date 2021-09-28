@@ -97,7 +97,6 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
 
     // WaitFor: app.data.AppInited
     let checkExist = setInterval(function() {
-        console.log('$app.data.AppInited:', JSON.stringify($app.data));
         if (window.$app.data.AppInited) {
             ultiflow.getAppVersions();
             clearInterval(checkExist);
