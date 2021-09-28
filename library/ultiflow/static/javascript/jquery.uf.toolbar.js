@@ -44,9 +44,9 @@ define(['app', 'ultiflow', 'ultiflow-tree'], function(app, ultiflow) {
 
             this._refresh();
 
-            // WaitFor: app.data.AppInited
+            // WaitFor: app.data.AppInited and finished loading versions info
             let checkExist = setInterval(function() {
-                if (window.$app.data.AppInited) {
+                if (window.$app.data.AppInited && typeof(window.$app.ultiflow.versions) != 'undefined') {
                     self.refreshTrees();
                     clearInterval(checkExist);
                 }

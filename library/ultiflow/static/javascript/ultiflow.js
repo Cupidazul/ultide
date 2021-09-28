@@ -49,10 +49,7 @@ define(['app', '_', 'bootstrap', 'bootstrap-switch', 'ace'], function(app, _) {
     };*/
 
     ultiflow.getAppVersions = function() {
-
         app.sendRequest('get_os_versions', {}, function(response) {
-            //alert(response['demo_response']);
-
             window.$app.versions = app.versions = Object.assign(app.versions || {}, { os: response });
             try { app.versions.Browser = ((typeof(uaData.brands) !== 'undefined') ? (uaData.brands[2].brand + ' ' + uaData.highEntropyValues.uaFullVersion) : navigator.userAgent); } catch (err) { console.log('err:', err); }
             try { app.versions.jstree = jQuery.jstree.version; } catch (err) { console.log('err:', err); }
